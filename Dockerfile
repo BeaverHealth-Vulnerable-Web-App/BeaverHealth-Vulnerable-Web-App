@@ -7,6 +7,12 @@ COPY . /var/www/html/
 # Install necessary PHP extensions for MySQL
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+
+# Allow .htaccess overrides
+RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+
 # Make the necessary PHP configurations (RFI and other configurations)
 RUN echo "allow_url_include = On" >> /usr/local/etc/php/php.ini
 RUN echo "allow_url_fopen = On" >> /usr/local/etc/php/php.ini
