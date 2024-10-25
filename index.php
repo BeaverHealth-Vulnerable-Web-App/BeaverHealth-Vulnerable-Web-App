@@ -26,9 +26,9 @@
 
 if (isset($_POST["submit"])) {
 
-   $dbhost = 'localhost';
-   $dbuser = 'root';
-   $dbpass = '';
+   $dbhost = 'db';
+   $dbuser = 'admin';
+   $dbpass = 'password';
    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
 
    if(! $conn ) {
@@ -37,13 +37,13 @@ if (isset($_POST["submit"])) {
    else
    echo 'Connected successfully  </br>';
    create_database($conn);
-   create_tables($conn, "1ccb8097d0e9ce9f154608be60224c7c");
+   create_tables($conn, "vuln_app");
    mysqli_close($conn);
 }
 if (isset($_POST["submit1"])) {
-   $dbhost = 'localhost';
-   $dbuser = 'root';
-   $dbpass = '';
+   $dbhost = 'db';
+   $dbuser = 'admin';
+   $dbpass = 'password';
    $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
 
    if ($conn) {
@@ -55,25 +55,25 @@ if (isset($_POST["submit1"])) {
 
    remove_database($conn);
    create_database($conn);
-   create_tables($conn, "1ccb8097d0e9ce9f154608be60224c7c");
+   create_tables($conn, "vuln_app");
    mysqli_close($conn);
 }
 
 
 
 function create_database($conn){
-   $sql = 'CREATE Database 1ccb8097d0e9ce9f154608be60224c7c';
+   $sql = 'CREATE Database IF NOT EXISTS vuln_app';
    $retval = mysqli_query( $conn, $sql);
 
    if(! $retval ) {
       die('Could not create database: ' . mysqli_error( $conn));
    }
 
-   echo "Database 1ccb8097d0e9ce9f154608be60224c7c created successfully </br>";
+   echo "Database vuln_app created successfully </br>";
 }
 
 function create_tables($conn, $db_name){
-   $sql = 'CREATE TABLE books( '.
+   $sql = 'CREATE TABLE IF NOT EXISTS books( '.
       'number INT NOT NULL , '.
       'bookname VARCHAR(50) NOT NULL, '.
       'authorname VARCHAR(50) NOT NULL)';
@@ -86,7 +86,7 @@ function create_tables($conn, $db_name){
     #-------------------------------------------------
    echo "Table books created successfully </br>";
 
-   $sql = 'CREATE TABLE flags( '.
+   $sql = 'CREATE TABLE IF NOT EXISTS flags( '.
       'flag VARCHAR(50) NOT NULL)';
    mysqli_select_db($conn, $db_name);
    $retval = mysqli_query(  $conn , $sql );
@@ -97,7 +97,7 @@ function create_tables($conn, $db_name){
 
    echo "Table flags created successfully </br>";
    #---------------------------------------------------
-   $sql = 'CREATE TABLE secret( '.
+   $sql = 'CREATE TABLE IF NOT EXISTS secret( '.
       'username VARCHAR(56) NOT NULL , '.
       'password VARCHAR(56) NOT NULL)';
    mysqli_select_db($conn,$db_name);
@@ -109,7 +109,7 @@ function create_tables($conn, $db_name){
 
    echo "Table secret created successfully </br>";
    #---------------------------------------------------
-   $sql = 'CREATE TABLE users( '.
+   $sql = 'CREATE TABLE IF NOT EXISTS users( '.
       'firstname VARCHAR(50) NOT NULL , '.
       'lastname VARCHAR(50) NOT NULL, '.
       'username  VARCHAR(50) NOT NULL, '.
@@ -233,7 +233,7 @@ function create_tables($conn, $db_name){
 }
 
 function remove_database($conn){
-   $sql = 'DROP DATABASE 1ccb8097d0e9ce9f154608be60224c7c';
+   $sql = 'DROP DATABASE vuln_app';
    $retval = mysqli_query($conn, $sql);
    if($retval){
    echo "<br>The database deleted successfully.<br>";
