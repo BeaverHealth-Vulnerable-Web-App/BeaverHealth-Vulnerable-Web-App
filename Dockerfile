@@ -6,6 +6,7 @@ WORKDIR /var/www/html
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
+    git \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -34,9 +35,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install Laravel dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Install npm dependencies and build assets
-RUN npm install && npm run build
-
 # Create the `sail` user and group
 RUN groupadd -g 1000 sail && \
     useradd -u 1000 -g sail -m sail && \
@@ -52,6 +50,9 @@ RUN php artisan config:clear \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
+
+# Install npm dependencies and build assets
+RUN npm install && npm run build
 
 # Expose port 80
 EXPOSE 80
