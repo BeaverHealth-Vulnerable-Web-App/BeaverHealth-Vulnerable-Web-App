@@ -1,54 +1,66 @@
-# Vulnerable Web Application 
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-![VulnWeb](https://github.com/OWASP/Vulnerable-Web-Application/blob/master/Resources/VulnWeb.png)
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## What is Vulnerable-Web-Application
+## About Laravel
 
-Vulnerable-Web-Application is a website that is prepared for people who are interested in web penetration and who want to have
-information about this subject or to be working. In fact, the website is quite simple to install and use.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-Vulnerable-Web-Application categorically includes Command Execution, File Inclusion, File Upload, SQL and XSS. For database-requiring
-categories, it creates a database under localhost with one button during setup. In case of corrupted or changed databases, you can
-create a database again.
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-## Installation Guide
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-If you want to run this tool, first of all you need to download web server solution like "xampp"- you can download xampp from
-[Xampp](https://www.apachefriends.org/tr/download.html). After your installation;
+## Learning Laravel
 
-For Windows you need to copy the files into the xampp/htdocs folder.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-For Mac Os  you need to install mampp and  copy the files into the mamp/htdocs folder.
-[Mampp](https://www.mamp.info/en/downloads/)
+You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-For Linux after download our files first you need to open apache server and copy the files to /var/www/html
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Docker Container
-You can also run the **Vulnerable Web Application** in Docker with the folowing command:
+## Laravel Sponsors
 
-```
-docker run -it --name vuln_app -p 9991:80 santosomar/vuln_app:latest /bin/bash
-```
-**Note**: You can change the port 9991 to any port you desire depending your implementation. 
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Other Configurations:
+### Premium Partners
 
-The `php.ini` file should be  altered. You can find the location of your `php.ini` file under the folder which php is installed.
-- `allow_url_include` = on - Allows for Remote File Inclusion
-- `allow_url_fopen` = on - Allows for Remote File Inclusion
-- `safe_mode` = off - (If PHP <= v5.4) Allows for SQL Injection
-- `magic_quotes_gpc` = off - (If PHP <= v5.4) Allows for SQL Injection
+- **[Vehikl](https://vehikl.com/)**
+- **[Tighten Co.](https://tighten.co)**
+- **[WebReinvent](https://webreinvent.com/)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
+- **[Cyber-Duck](https://cyber-duck.co.uk)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Jump24](https://jump24.co.uk)**
+- **[Redberry](https://redberry.international/laravel/)**
+- **[Active Logic](https://activelogic.com)**
+- **[byte5](https://byte5.de)**
+- **[OP.GG](https://op.gg)**
 
-## Application Setup
+## Contributing
 
-- After editing the previous configuration, open the Xampp Control Panel and start Apache,MySQL. 
-- Your MySQL credentials must stay the default credentials (e.g., username:root <-> password:"")
-- Open up the `index.php` file in the <b>Vulnerable Web Application</b> directory. Follow the directions and create database. 
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-**Note**: You can reset the database at any time, if needed or if you run into any problems. Once the database is ready, you can go to homepage and start hacking.
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
 ## License
-The contents of this repository are licensed under the GNU General Public License v3.0.
- 
-## Version
-1.0.0
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

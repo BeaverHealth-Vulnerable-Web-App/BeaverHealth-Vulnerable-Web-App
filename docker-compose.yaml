@@ -1,28 +1,42 @@
-version: '3.7'
-
 services:
-  web:
-    build: .
-    ports:
-      - "9991:80"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - .:/var/www/html
+    ports:
+      - "9991:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:yw6BR9k5FinsLSVQXaeKFNeWkGTU5sR+jwci/WvAzN0=
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=vuln_db
+      - DB_USERNAME=admin
+      - DB_PASSWORD=password
     depends_on:
       - db
+    user: root
+    command: >
+      sh -c "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+      && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+      && apache2-foreground"
 
   db:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: vuln_app
+      MYSQL_DATABASE: vuln_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   db_data:

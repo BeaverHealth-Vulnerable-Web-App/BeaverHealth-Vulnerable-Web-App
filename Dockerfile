@@ -1,28 +1,60 @@
-# Use an official PHP image with Apache
-FROM php:7.4-apache
+# Use an official PHP 8.2 image with Apache
+FROM php:8.2-apache
 
-# Copy the application files to the Apache web root directory
-COPY . /var/www/html/
+# Set the working directory
+WORKDIR /var/www/html
 
-# Install necessary PHP extensions for MySQL
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    curl \
+    gnupg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd mysqli pdo pdo_mysql
 
-# Enable Apache mod_rewrite for URL rewriting
+# Install Node.js and npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && node -v && npm -v  # Check that Node and npm were installed successfully
+
+# Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Allow .htaccess overrides
-RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+# Set the document root to Laravel's public directory
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
 
-# Make necessary PHP configurations
-RUN echo "allow_url_include = On" >> /usr/local/etc/php/php.ini
-RUN echo "allow_url_fopen = On" >> /usr/local/etc/php/php.ini
-RUN echo "safe_mode = Off" >> /usr/local/etc/php/php.ini
+# Copy the application code to the container
+COPY . /var/www/html
 
-# Set permissions on the web root if needed
-RUN chown -R www-data:www-data /var/www/html/
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Expose port 80 for the web server
+# Install Laravel dependencies
+RUN composer install --optimize-autoloader --no-dev
+
+# Install npm dependencies and build assets
+RUN npm install && npm run build
+
+# Create the `sail` user and group
+RUN groupadd -g 1000 sail && \
+    useradd -u 1000 -g sail -m sail && \
+    chown -R sail:sail /var/www/
+
+# Set permissions and ownership for the application directory
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 777 /var/www/html/storage/logs
+
+# Clear and cache Laravel configuration (run as root)
+RUN php artisan config:clear \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
+# Expose port 80
 EXPOSE 80
 
-# Start Apache in the foreground
+# Run Apache in the foreground
 CMD ["apache2-foreground"]
