@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "postbuild": "if [ -d /var/www/html/public/build/.vite ]; then cp -r /var/www/html/public/build/.vite/* /var/www/html/public/build/; fi"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
