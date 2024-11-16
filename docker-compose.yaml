@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - .:/var/www/html
     ports:
       - "9991:80"
     environment:
@@ -19,11 +17,6 @@ services:
       - DB_PASSWORD=password
     depends_on:
       - db
-    user: root
-    command: >
-      sh -c "chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-      && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-      && apache2-foreground"
 
   db:
     image: mysql:5.7
