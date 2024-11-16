@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get(
@@ -43,10 +44,14 @@ Route::get(
 
 // Update to point to new route once built
 Route::get(
-    '/feedback', function () {
-        return view('dashboard');
-    }
+    '/feedback', [CommentController::class, 'index']
 )->middleware(['auth', 'verified'])->name('feedback');
+Route::post(
+    '/feedback/store', [CommentController::class, 'store']
+)->middleware(['auth', 'verified'])->name('feedback.store');
+Route::get(
+    '/feedback/search', [CommentController::class, 'search']
+)->middleware(['auth', 'verified'])->name('feedback.search');
 
 // Update to point to new route once built
 Route::get(
