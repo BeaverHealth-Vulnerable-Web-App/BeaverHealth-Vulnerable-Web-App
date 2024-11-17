@@ -15,25 +15,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+
+
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
+        with:
+          php-version: '8.2'
+          extensions: ctype, dom, fileinfo, filter, hash, json, libxml, mbstring, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, lib-pcre
+          coverage: none
 
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+      - name: Run Composer Install
+        run: composer install -n --prefer-dist
 
-      - name: Build and Deploy with Sail
-        run: |
-          ./vendor/bin/sail up -d --build
-
-      - name: Run Database Migrations
-        run: |
-          ./vendor/bin/sail artisan migrate
-
-      - name: Run Database Seeders
-        run: |
-          ./vendor/bin/sail artisan db:seed
+      - name: Run Laravel Application
+        run: vendor/bin/sail up -d --build
