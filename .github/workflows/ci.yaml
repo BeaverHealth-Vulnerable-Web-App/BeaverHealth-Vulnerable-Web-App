@@ -21,23 +21,19 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker Compose
+      - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Set up Docker Compose
-        run: docker-compose up -d --build
-
-      - name: Wait for MySQL
+      - name: Build and Deploy with Sail
         run: |
-          echo "Waiting for database..."
-          until docker-compose exec db mysqladmin ping --silent; do
-              sleep 1
-          done
+          ./vendor/bin/sail up -d --build
 
-      - name: Install Composer Dependencies
-        run: docker-compose exec app composer install --optimize-autoloader --no-dev
+      - name: Run Database Migrations
+        run: |
+          ./vendor/bin/sail artisan migrate
 
-      - name: Run Laravel Migrations
-        run: docker-compose exec app php artisan migrate --force
+      - name: Run Database Seeders
+        run: |
+          ./vendor/bin/sail artisan db:seed
