@@ -1,0 +1,35 @@
+name: BeaverHealth CI
+
+on:
+  push:
+    branches:
+      - master
+      - cr-setupCI
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: docker-compose up -d --build
+
+      - name: Wait for MySQL
+        run: |
+          echo "Waiting for database..."
+          until docker-compose exec db mysqladmin ping --silent; do
+              sleep 1
+          done
+
+      - name: Install Composer Dependencies
+        run: docker-compose exec app composer install --optimize-autoloader --no-dev
+
+      - name: Run Laravel Migrations
+        run: docker-compose exec app php artisan migrate --force
