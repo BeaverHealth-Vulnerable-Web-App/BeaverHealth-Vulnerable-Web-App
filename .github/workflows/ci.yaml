@@ -38,7 +38,4 @@ jobs:
         run: vendor/bin/sail up -d --build
 
       - name: Run Database Migrations
-        run: vendor/bin/sail artisan:migrate
-
-      - name: Run Database Seeders
-        run: vendor/bin/sail db:seed
+        run: php artisan migrate --seed
