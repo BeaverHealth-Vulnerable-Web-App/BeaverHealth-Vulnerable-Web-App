@@ -20,5 +20,5 @@
   `./vendor/bin/sail artisan db:seed`
 9. In a web browser, navigate to `localhost:9991` 🗺️  
 10. Log in with the following credentials ㊙️  
-  - Email: `admin@admin.com`
+  - Email: `admin`
   - Password: `password`
