@@ -11,7 +11,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
 
-// Login page
+// Login
 Route::get('/', [AuthenticatedSessionController::class, 'create']);
 
 // Dashboard
@@ -36,15 +36,17 @@ Route::middleware('auth')->group(
     }
 );
 
-// Records
-Route::middleware(['auth', 'verified'])->group(
-    function () {
-        Route::get('/records_add', [AddRecordsController::class, 'index'])->name('records_add');
-        Route::get('/records_request', [RequestRecordsController::class, 'index'])->name('records_request');
-    }
-);
+// Add Records
+Route::get('/records_add', [AddRecordsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('records_add');
 
-// Feedback
+// Request Records
+Route::get('/records_request', [RequestRecordsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('records_request');
+
+// Patient Feedback
 Route::get('/feedback', [FeedbackController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('feedback');
