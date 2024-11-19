@@ -33,6 +33,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install Laravel dependencies
 RUN composer install --optimize-autoloader --no-dev
 
+# Add sail user
+RUN groupadd -g 1000 sail && \
+    useradd -u 1000 -g sail -m sail && \
+    chown -R sail:sail /var/www/
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache \
