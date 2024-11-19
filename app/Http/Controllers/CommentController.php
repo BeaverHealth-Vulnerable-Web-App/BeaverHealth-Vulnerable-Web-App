@@ -22,7 +22,7 @@ class CommentController extends Controller
 
         Comment::create($validated);
 
-        return redirect()->route('feedback.index')
+        return redirect()->route('feedback')
             ->with('success', 'Comment added successfully!');
     }
 

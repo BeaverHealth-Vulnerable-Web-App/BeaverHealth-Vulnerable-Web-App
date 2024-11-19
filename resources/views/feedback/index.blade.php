@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Patient Feedback</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Patient Feedback') }}
+        </h2>
+    </x-slot>
+    @vite(['resources/css/feedback.css'])
     <div class="container mt-5">
         @if(session('success'))
             <div class="alert alert-success">
@@ -86,5 +86,5 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+</x-app-layout>
+
