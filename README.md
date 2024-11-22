@@ -13,11 +13,12 @@
   `composer install`
 5. Run the application 🏃  
   `./vendor/bin/sail up -d`
-6. Migrate the database 🧳  
+6. Allow a minute or two for database to initialize.
+7. Migrate the database 🧳  
   `./vendor/bin/sail artisan migrate`
-7. Seed the database 🌱  
+8. Seed the database 🌱  
   `./vendor/bin/sail artisan db:seed`
-8. In a web browser, navigate to `localhost:9991` 🗺️  
-9. Log in with the following credentials ㊙️  
-  - Email: `admin@admin.com`
+9. In a web browser, navigate to `localhost:9991` 🗺️  
+10. Log in with the following credentials ㊙️  
+  - Username: `admin`
   - Password: `password`

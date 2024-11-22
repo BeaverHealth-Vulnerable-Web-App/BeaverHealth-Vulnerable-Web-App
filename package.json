@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "postbuild": "node scripts/postbuild.js"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

@@ -2,20 +2,24 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AddRecordsController;
+use App\Http\Controllers\RequestRecordsController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\VulnerabilityTogglesController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::get(
-    '/', function () {
-        return view('auth.login');
-    }
-);
 
-Route::get(
-    '/dashboard', function () {
-        return view('dashboard');
-    }
-)->middleware(['auth', 'verified'])->name('dashboard');
+// Login
+Route::get('/', [AuthenticatedSessionController::class, 'create']);
 
+// Dashboard
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+// Profile
 Route::middleware('auth')->group(
     function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -24,35 +28,32 @@ Route::middleware('auth')->group(
     }
 );
 
-Route::get('/admin', [AdminController::class, 'index'])->name('admin')->middleware('auth');
-Route::post('/admin/update-role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
-
-// Update to point to new route once built
-Route::get(
-    '/records_request', function () {
-        return view('dashboard');
+// Admin
+Route::middleware('auth')->group(
+    function () {
+        Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+        Route::post('/admin/update-role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
     }
-)->middleware(['auth', 'verified'])->name('records_request');
+);
 
-// Update to point to new route once built
-Route::get(
-    '/records_add', function () {
-        return view('dashboard');
-    }
-)->middleware(['auth', 'verified'])->name('records_add');
+// Add Records
+Route::get('/records_add', [AddRecordsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('records_add');
 
-// Update to point to new route once built
-Route::get(
-    '/feedback', function () {
-        return view('dashboard');
-    }
-)->middleware(['auth', 'verified'])->name('feedback');
+// Request Records
+Route::get('/records_request', [RequestRecordsController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('records_request');
 
-// Update to point to new route once built
-Route::get(
-    '/vulnerability_toggles', function () {
-        return view('dashboard');
-    }
-)->middleware(['auth', 'verified'])->name('vulnerability_toggles');
+// Patient Feedback
+Route::get('/feedback', [FeedbackController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('feedback');
 
-require __DIR__.'/auth.php';
+// Vulnerability Toggles
+Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('vulnerability_toggles');
+
+require __DIR__ . '/auth.php';

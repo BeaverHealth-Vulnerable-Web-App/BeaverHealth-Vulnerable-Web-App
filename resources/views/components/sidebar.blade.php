@@ -10,12 +10,12 @@
     <div class="flex-grow">
         <nav class="space-y-4">
             <!-- Records Request Link -->
-            @if(auth()->user()->role && auth()->user()->role->records_request)
+            @if(auth()->user()->request_records)
                 <a href="{{ route('records_request') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Request Records</a>
             @endif
 
             <!-- Records Add Link -->
-            @if(auth()->user()->role && auth()->user()->role->records_add)
+            @if(auth()->user()->load_records)
                 <a href="{{ route('records_add') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Add Records</a>
             @endif
 
@@ -23,14 +23,14 @@
             <a href="{{ route('feedback') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Member Feedback</a>
 
             <!-- Admin Link -->
-            @if(auth()->user()->role && auth()->user()->role->administrator)
+            @if(auth()->user()->is_admin)
                 <a href="{{ route('admin') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Admin</a>
             @endif
 
             <!-- Vulnerability Toggles Link -->
             <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
-            <!-- Profile Link Link -->
+            <!-- Profile Link -->
             <a href="{{ route('profile.edit') }}" class="block py-2 px-4 bg-gray-700 rounded hover:bg-gray-600">Profile</a>
 
             <!-- Log Out Form -->

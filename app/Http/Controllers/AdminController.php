@@ -7,18 +7,35 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    /**
+     * Show the admin panel with all users and their roles.
+     */
     public function index()
     {
-        $users = User::with('role')->get();
+        // Fetch all users
+        $users = User::all();
+
+        // Return the admin view with the list of users
         return view('admin', compact('users'));
     }
 
+    /**
+     * Update a user's role via AJAX.
+     */
     public function updateRole(Request $request)
     {
-        $user = User::find($request->user_id);
-        if ($user && $user->role) {
-            $user->role()->update([$request->role => $request->value]);
+        $user = User::find($request->input('user_id'));
+        if ($user) {
+            $role = $request->input('role');
+            $value = $request->input('value') ? true : false;
+
+            // Update the role
+            $user->$role = $value;
+            $user->save();
+
+            return response()->json(['success' => true]);
         }
-        return response()->json(['success' => true]);
+
+        return response()->json(['success' => false], 400);
     }
 }
