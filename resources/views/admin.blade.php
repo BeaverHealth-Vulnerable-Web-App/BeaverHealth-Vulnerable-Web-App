@@ -16,20 +16,24 @@
                                 <th class="p-4 text-center">Administrator</th>
                                 <th class="p-4 text-center">Request Records</th>
                                 <th class="p-4 text-center">Add Records</th>
+                                <th class="p-4 text-center">View Employee Info</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($users as $user)
                                 <tr class="bg-gray-100 dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-700">
-                                    <td class="p-4">{{ $user->name }}</td>
+                                    <td class="p-4">{{ $user->username }}</td>
                                     <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->id }}" data-role="administrator" {{ $user->role->administrator ? 'checked' : '' }}>
+                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="is_admin" {{ $user->is_admin ? 'checked' : '' }}>
                                     </td>
                                     <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->id }}" data-role="records_request" {{ $user->role->records_request ? 'checked' : '' }}>
+                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="request_records" {{ $user->request_records ? 'checked' : '' }}>
                                     </td>
                                     <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->id }}" data-role="records_add" {{ $user->role->records_add ? 'checked' : '' }}>
+                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="load_records" {{ $user->load_records ? 'checked' : '' }}>
+                                    </td>
+                                    <td class="p-4 text-center">
+                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="view_employee_info" {{ $user->view_employee_info ? 'checked' : '' }}>
                                     </td>
                                 </tr>
                             @endforeach
@@ -54,7 +58,11 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: JSON.stringify({ user_id: userId, role: role, value: isChecked })
+                    body: JSON.stringify({
+                        user_id: userId,
+                        role: role,
+                        value: isChecked
+                    })
                 })
                 .then(response => {
                     if (!response.ok) {

@@ -7,44 +7,27 @@ use App\Models\User;
 
 class UserSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        $users = [
+        // Create the admin user
+        User::updateOrCreate(
+            ['username' => 'admin'],
             [
-                'name' => 'User 1',
-                'email' => 'user1@example.com',
                 'password' => bcrypt('password'),
-                'role' => [
-                    'administrator' => false,
-                    'records_request' => true,
-                    'records_add' => false,
-                ]
-            ],
-            [
-                'name' => 'User 2',
-                'email' => 'user2@example.com',
-                'password' => bcrypt('password'),
-                'role' => [
-                    'administrator' => false,
-                    'records_request' => true,
-                    'records_add' => true,
-                ]
-            ],
-        ];
+                'is_admin' => true,
+                'request_records' => true,
+                'load_records' => true,
+                'view_employee_info' => true,
+                'sqli_on' => false,
+                'file_upload_on' => false,
+                'cmd_inject_on' => false,
+                'xss_reflected_on' => false,
+                'xss_stored_on' => false,
+                'idor_on' => false,
+            ]
+        );
 
-        foreach ($users as $userData) {
-            if (!User::where('email', $userData['email'])->exists()) {
-                $user = User::create(
-                    [
-                    'name' => $userData['name'],
-                    'email' => $userData['email'],
-                    'password' => $userData['password'],
-                    ]
-                );
-
-                $user->role()->create($userData['role']);
-            }
-
-        }
+        // Create 10 fake users
+        User::factory()->count(10)->create();
     }
 }
