@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('comments');
-        Schema::create('comments', function (Blueprint $table) {
+        Schema::dropIfExists('patient_feedback');
+        Schema::create('patient_feedback', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('comment');
+            $table->text('feedback');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comments');
+        Schema::dropIfExists('patient_feedback');
     }
 };

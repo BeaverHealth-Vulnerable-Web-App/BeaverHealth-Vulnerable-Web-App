@@ -21,16 +21,17 @@
                     </div>
                     <div class="p-4">
                         <form action="{{ route('feedback.store') }}" method="POST">
+                            @csrf
                             <div class="mb-4">
                                 <label for="name" class="block mb-2 font-semibold">Name</label>
                                 <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="name" name="name" required>
                             </div>
                             <div class="mb-4">
-                                <label for="comment" class="block mb-2 font-semibold">Comment</label>
-                                <textarea class="w-full p-2 border border-gray-300 rounded text-base mb-4 min-h-[100px] resize-y" id="comment" name="comment" required></textarea>
+                                <label for="feedback" class="block mb-2 font-semibold">Feedback</label>
+                                <textarea class="w-full p-2 border border-gray-300 rounded text-base mb-4 min-h-[100px] resize-y" id="feedback" name="feedback" required></textarea>
                             </div>
                             <button type="submit" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out">
-                                Submit Comment
+                                Submit Feedback
                             </button>
                         </form>
                     </div>
@@ -45,6 +46,7 @@
                     </div>
                     <div class="p-4">
                         <form action="{{ route('feedback.search') }}" method="GET">
+                            @csrf
                             <div class="mb-4">
                                 <label for="search_name" class="block mb-2 font-semibold">Search by Name</label>
                                 <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="search_name" name="search_name" required>
@@ -73,11 +75,11 @@
                 Comments
             </div>
             <div class="p-4">
-                @if($comments->count() > 0)
-                    @foreach($comments as $comment)
+                @if($feedback->count() > 0)
+                    @foreach($feedback as $comment)
                         <div class="border-b border-gray-200 mb-4 pb-4">
-                            <h5 class="mb-2 text-lg font-medium">{{ $comment->name }}</h5>
-                            {!! $comment->comment !!}
+                            <h5 class="mb-2 text-lg font-medium">{!! $comment->name !!}</h5>
+                            {!! $comment->feedback !!}
                             <br>
                             <small class="text-gray-600">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>
                         </div>
