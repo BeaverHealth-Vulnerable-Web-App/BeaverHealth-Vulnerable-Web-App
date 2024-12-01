@@ -23,8 +23,12 @@
                         <form action="{{ route('feedback.store') }}" method="POST">
                             @csrf
                             <div class="mb-4">
-                                <label for="name" class="block mb-2 font-semibold">Name</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="name" name="name" required>
+                                <label for="first_name" class="block mb-2 font-semibold">First Name</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="last_name" class="block mb-2 font-semibold">Last Name</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="last_name" name="last_name" required>
                             </div>
                             <div class="mb-4">
                                 <label for="feedback" class="block mb-2 font-semibold">Feedback</label>
@@ -49,7 +53,7 @@
                             @csrf
                             <div class="mb-4">
                                 <label for="search_name" class="block mb-2 font-semibold">Search by Name</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="search_name" name="search_name" required>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="search_name" name="search_name" placeholder="Enter first or last name" required>
                             </div>
                             <button type="submit" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out">
                                 Search
@@ -62,7 +66,7 @@
 
         @if(isset($search_name))
             <div class="text-center mt-8 mb-8">
-                <h4>Showing results for: {!! $search_name !!}</h4>
+                <h4>Showing results for: {{ ucfirst(strtolower($search_name)) }}</h4>
             </div>
             <div class="text-center mt-8 mb-8">
                 <a href="{{ route('feedback') }}" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out">See All Posts</a>
@@ -78,7 +82,9 @@
                 @if($feedback->count() > 0)
                     @foreach($feedback as $comment)
                         <div class="border-b border-gray-200 mb-4 pb-4">
-                            <h5 class="mb-2 text-lg font-medium">{!! $comment->name !!}</h5>
+                            <h5 class="mb-2 text-lg font-medium">
+                                {{ $comment->patient->first_name }} {{ $comment->patient->last_name }}
+                            </h5>
                             {!! $comment->feedback !!}
                             <br>
                             <small class="text-gray-600">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>
