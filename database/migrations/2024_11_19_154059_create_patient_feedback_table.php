@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -7,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 class CreatePatientFeedbackTable extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create(
@@ -23,6 +25,9 @@ class CreatePatientFeedbackTable extends Migration
         );
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('patient_feedback');
