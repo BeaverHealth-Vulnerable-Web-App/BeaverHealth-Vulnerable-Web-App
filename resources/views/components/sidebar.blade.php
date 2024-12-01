@@ -20,7 +20,7 @@
             @endif
 
             <!-- Feedback Link -->
-            <a href="{{ route('feedback') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Member Feedback</a>
+            <a href="{{ route('feedback') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Feedback</a>
 
             <!-- Admin Link -->
             @if(auth()->user()->is_admin)
