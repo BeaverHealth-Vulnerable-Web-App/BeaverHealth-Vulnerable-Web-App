@@ -23,8 +23,12 @@
                         <form action="{{ route('feedback.store') }}" method="POST">
                             @csrf
                             <div class="mb-4">
-                                <label for="name" class="block mb-2 font-semibold">Name</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="name" name="name" required>
+                                <label for="fname" class="block mb-2 font-semibold">First Name</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="fname" name="fname" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="lname" class="block mb-2 font-semibold">Last Name</label>
+                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4" id="lname" name="lname" required>
                             </div>
                             <div class="mb-4">
                                 <label for="feedback" class="block mb-2 font-semibold">Feedback</label>
@@ -78,7 +82,11 @@
                 @if($feedback->count() > 0)
                     @foreach($feedback as $comment)
                         <div class="border-b border-gray-200 mb-4 pb-4">
-                            <h5 class="mb-2 text-lg font-medium">{!! $comment->name !!}</h5>
+                            <h5 class="mb-2 text-lg font-medium">
+                                @if($comment->patient)
+                                    {!! $comment->patient->first_name !!} {!! $comment->patient->last_name !!}
+                                @endif
+                            </h5>
                             {!! $comment->feedback !!}
                             <br>
                             <small class="text-gray-600">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>

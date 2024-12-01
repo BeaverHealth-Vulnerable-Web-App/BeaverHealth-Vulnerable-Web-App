@@ -5,7 +5,8 @@ use App\Models\User;
 
 function sendTestFeedback($user, $testObject) {
     $feedbackData = [
-        'name' => 'Test User',
+        'fname' => 'Test',
+        'lname' => 'User',
         'feedback' => 'This is a test comment.'
     ];
     return $testObject->actingAs($user)->post('/feedback/store', $feedbackData);
@@ -27,16 +28,24 @@ test('Testing feedback adding', function () {
     }
 });
 
-test('Testing feedback searching', function () {
+test('Testing valid feedback searching', function () {
     $user = User::factory()->create();
     $response = sendTestFeedback($user, $this);
     if ($response->status() == 302) {
-        $commentData = [
-            'search_name' => 'Test User'
-        ];
-        $response = $this->actingAs($user)->get('/feedback/search', $commentData);
+        $response = $this->actingAs($user)->get('/feedback/search?search_name=Test');
         if ($response->status() == 200) {
             $response->assertSeeText('This is a test comment.');
+        }
+    }
+});
+
+test('Testing non-valid feedback searching', function () {
+    $user = User::factory()->create();
+    $response = sendTestFeedback($user, $this);
+    if ($response->status() == 302) {
+        $response = $this->actingAs($user)->get('/feedback/search?search_name=admin');
+        if ($response->status() == 200) {
+            $response->assertDontSeeText('This is a test comment.');
         }
     }
 });
