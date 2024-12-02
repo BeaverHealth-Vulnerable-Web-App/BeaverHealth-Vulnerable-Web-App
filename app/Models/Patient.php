@@ -16,7 +16,6 @@ class Patient extends Model
         'first_name',
         'last_name',
         'date_of_birth',
-        'ssn',
         'policy_number',
         'address',
         'is_employee',

@@ -50,6 +50,12 @@ Route::get('/records_request', [RequestRecordsController::class, 'index'])
 Route::get('/feedback', [FeedbackController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('feedback');
+Route::post(
+    '/feedback/store', [FeedbackController::class, 'store']
+)->middleware(['auth', 'verified'])->name('feedback.store');
+Route::get(
+    '/feedback/search', [FeedbackController::class, 'search']
+)->middleware(['auth', 'verified'])->name('feedback.search');
 
 // Vulnerability Toggles
 Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
