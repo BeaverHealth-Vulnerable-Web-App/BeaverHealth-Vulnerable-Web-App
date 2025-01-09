@@ -11,18 +11,17 @@ class CreatePatientTable extends Migration
      */
     public function up(): void
     {
-        Schema::create(
-            'patient', function (Blueprint $table) {
-                $table->id('patient_id');
-                $table->string('first_name');
-                $table->string('last_name');
-                $table->date('date_of_birth')->nullable();
-                $table->string('policy_number')->nullable();
-                $table->string('address')->nullable();
-                $table->boolean('is_employee')->default(false);
-                $table->timestamps();
-            }
-        );
+        Schema::create('patient', function (Blueprint $table) {
+            $table->id('patient_id');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->date('date_of_birth')->nullable();
+            $table->string('policy_number')->nullable();
+            $table->string('address')->nullable();
+            $table->boolean('is_employee')->default(false);
+            $table->string('ssn')->nullable(); // <— Added SSN column here
+            $table->timestamps();
+        });
     }
 
     /**

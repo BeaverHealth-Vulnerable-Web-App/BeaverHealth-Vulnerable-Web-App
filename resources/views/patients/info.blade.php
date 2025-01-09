@@ -14,6 +14,7 @@
                     <p class="mb-2"><strong>Policy Number:</strong> {{ $patient->policy_number }}</p>
                     <p class="mb-2"><strong>Address:</strong> {{ $patient->address }}</p>
                     <p class="mb-2"><strong>Employee:</strong> {{ $patient->is_employee ? 'Yes' : 'No' }}</p>
+                    <p class="mb-2"><strong>SSN:</strong> {{ $patient->ssn }}</p>
                 </div>
             </div>
         </div>
