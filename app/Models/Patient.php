@@ -13,9 +13,6 @@ class Patient extends Model
 
     protected $primaryKey = 'patient_id';
 
-    public $incrementing = true;
-    protected $keyType = 'int';
-
     protected $fillable = [
         'first_name',
         'last_name',

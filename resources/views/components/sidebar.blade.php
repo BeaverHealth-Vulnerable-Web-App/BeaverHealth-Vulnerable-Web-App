@@ -28,7 +28,9 @@
             @endif
 
             <!-- Patient Information Link -->
-            <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
+            @if(auth()->user()->view_employee_info)
+                <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
+            @endif
 
             <!-- Vulnerability Toggles Link -->
             <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
