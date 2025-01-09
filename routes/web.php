@@ -9,6 +9,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PatientInfoController;
 
 
 // Login
@@ -61,5 +62,15 @@ Route::get(
 Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('vulnerability_toggles');
+
+// List all patients
+Route::get('/patients', [PatientInfoController::class, 'index'])
+    ->middleware('auth') 
+    ->name('patients.index');
+
+// View a single patient
+Route::get('/patients/{id}', [PatientInfoController::class, 'show'])
+    ->middleware('auth')
+    ->name('patients.info');
 
 require __DIR__ . '/auth.php';

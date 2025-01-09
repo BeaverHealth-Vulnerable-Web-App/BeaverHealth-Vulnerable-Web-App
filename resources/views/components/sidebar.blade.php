@@ -27,6 +27,9 @@
                 <a href="{{ route('admin') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Admin</a>
             @endif
 
+            <!-- Patient Information Link -->
+            <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
+
             <!-- Vulnerability Toggles Link -->
             <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
