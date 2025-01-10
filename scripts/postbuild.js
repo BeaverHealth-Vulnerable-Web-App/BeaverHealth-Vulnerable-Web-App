@@ -5,26 +5,19 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Guarentee manifest.json is in public/build
+// Make sure manifest.json is in public/build
 // Sometimes manifest.json is created in public/build/.vite, which breaks the app
-async function guarenteeManifestLocation() {
+async function ensureManifestLocation() {
   const projectRoot = path.resolve(__dirname, '..');
   const buildDir = path.join(projectRoot, 'public', 'build');
   const viteDir = path.join(buildDir, '.vite');
+  const manifestFilename = 'manifest.json';
 
-  // Check if manifest.json already exists in public/build
-  try {
-    await fs.access(path.join(buildDir, 'manifest.json'));
-    process.exit(0);
-  }
+  // Exit if manifest.json is already in public/build
+  await fs.access(path.join(buildDir, manifestFilename)).then(() => {process.exit(0)});
 
-  // Check if the .vite directory exists
-  try {
-    await fs.access(viteDir);
-  } catch (err) {
-    // manifest.json is not in public/build and there is no .vite directory
-    process.exit(1);
-  }
+  // If the .vite directory doesn't exit, manifest.json is nowhere to be found, so exit with an error
+  await fs.access(viteDir).catch(() => {process.exit(1)})
 
   // Move all files in public/build/.vite to public/build
   try {
@@ -40,9 +33,9 @@ async function guarenteeManifestLocation() {
 
     await fs.rmdir(viteDir);
   } catch (err) {
-    console.error('Error moving files from public/build/.vite to public/build:', err);
+    console.error(`Error moving files from ${viteDir} to ${buildDir}:`, err);
     process.exit(1);
   }
 }
 
-guarenteeManifestLocation();
+ensureManifestLocation();
