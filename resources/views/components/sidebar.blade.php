@@ -11,12 +11,12 @@
         <nav class="space-y-4">
             <!-- Records Request Link -->
             @if(auth()->user()->request_records)
-                <a href="{{ route('records_request') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Request Records</a>
+                <a href="{{ route('records.request') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Request Records</a>
             @endif
 
             <!-- Records Add Link -->
             @if(auth()->user()->load_records)
-                <a href="{{ route('records_add') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Add Records</a>
+                <a href="{{ route('records.add') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Add Records</a>
             @endif
 
             <!-- Feedback Link -->
@@ -28,7 +28,7 @@
             @endif
 
             <!-- Vulnerability Toggles Link -->
-            <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
+            <a href="{{ route('toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
             <!-- Profile Link -->
             <a href="{{ route('profile.edit') }}" class="block py-2 px-4 bg-gray-700 rounded hover:bg-gray-600">Profile</a>
