@@ -16,7 +16,7 @@ Route::get('/', [AuthenticatedSessionController::class, 'create']);
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('dashboard');
 
 // Profile
@@ -38,28 +38,28 @@ Route::middleware('auth')->group(
 
 // Add Records
 Route::get('/records_add', [AddRecordsController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('records_add');
 
 // Request Records
 Route::get('/records_request', [RequestRecordsController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('records_request');
 
 // Patient Feedback
 Route::get('/feedback', [FeedbackController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('feedback');
 Route::post(
     '/feedback/store', [FeedbackController::class, 'store']
-)->middleware(['auth', 'verified'])->name('feedback.store');
+)->middleware(['auth'])->name('feedback.store');
 Route::get(
     '/feedback/search', [FeedbackController::class, 'search']
-)->middleware(['auth', 'verified'])->name('feedback.search');
+)->middleware(['auth'])->name('feedback.search');
 
 // Vulnerability Toggles
 Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'])
     ->name('vulnerability_toggles');
 
 require __DIR__ . '/auth.php';

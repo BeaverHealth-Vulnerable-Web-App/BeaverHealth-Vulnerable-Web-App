@@ -7,18 +7,16 @@ use Illuminate\Support\Facades\Hash;
 
 class UserFactory extends Factory
 {
-    protected static ?string $password = null;
-
     public function definition(): array
     {
         return [
-            'username' => fake()->unique()->userName(),
-            'password' => static::$password ??= Hash::make('password'),
+            'username' => $this->faker->userName,
+            'password' => Hash::make($this->faker->password),
             'is_admin' => false,
-            'request_records' => true,
-            'load_records' => true,
-            'view_employee_info' => false,
-            'sqli_on' => false,
+            'request_records' => $this->faker->boolean(20),
+            'load_records' => $this->faker->boolean(20),
+            'view_employee_info' => $this->faker->boolean(20),
+            'sqli_on' => $this->faker->boolean(20),
             'file_upload_on' => false,
             'cmd_inject_on' => false,
             'xss_reflected_on' => false,
