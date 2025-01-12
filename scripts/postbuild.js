@@ -11,30 +11,43 @@ async function ensureManifestLocation() {
   const projectRoot = path.resolve(__dirname, '..');
   const buildDir = path.join(projectRoot, 'public', 'build');
   const viteDir = path.join(buildDir, '.vite');
-  const manifestFilename = 'manifest.json';
+  const manifestPath = path.join(buildDir, 'manifest.json');
 
-  // Exit if manifest.json is already in public/build
-  await fs.access(path.join(buildDir, manifestFilename)).then(() => {process.exit(0)});
+  // Exit if manifest.json already exists in public/build
+  if (await fileExists(manifestPath)) {
+    process.exit(0);
+  }
 
-  // If the .vite directory doesn't exit, manifest.json is nowhere to be found, so exit with an error
-  await fs.access(viteDir).catch(() => {process.exit(1)})
+  // Exit with error if .vite directory is missing
+  // This means manifest.json can't be found
+  if(!(await fileExists(viteDir))) {
+    process.exit(1);
+  }
 
-  // Move all files in public/build/.vite to public/build
+  // Move files from public/build/.vite to public/build
   try {
     const files = await fs.readdir(viteDir);
 
     await Promise.all(
       files.map(async (file) => {
         const src = path.join(viteDir, file);
-        const dest = path.join(buildDir, file);
-        await fs.rename(src, dest);
+        const dst = path.join(buildDir, file);
+        await fs.rename(src, dst);
       })
     );
 
     await fs.rmdir(viteDir);
-  } catch (err) {
-    console.error(`Error moving files from ${viteDir} to ${buildDir}:`, err);
+  } catch {
     process.exit(1);
+  }
+}
+
+async function fileExists(filePath) {
+  try {
+    await fs.stat(filePath);
+    return true;
+  } catch {
+    return false;
   }
 }
 
