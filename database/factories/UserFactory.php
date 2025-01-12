@@ -10,7 +10,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'username' => $this->faker->userName,
+            'username' => $this->faker->unique()->userName,
             'password' => Hash::make($this->faker->password),
             'is_admin' => false,
             'request_records' => $this->faker->boolean(20),
