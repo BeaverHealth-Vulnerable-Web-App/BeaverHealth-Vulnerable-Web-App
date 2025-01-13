@@ -5,60 +5,69 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h1 class="text-2xl font-bold mb-6">Beaver HealthCare</h1>
+    @vite(['resources/js/vulnerability_toggles.js'])
 
-                    <h2 class="text-xl font-semibold mb-4">Vulnerability Toggles</h2>
+    <div id="notification" class="sticky top-0 left-0 right-0 -translate-y-32 transition-all duration-500 ease-in-out z-50 bg-white dark:bg-gray-900">
+        <div class="px-4 py-2 rounded-lg shadow-lg text-center w-full">
+            <span id="notification-text"></span>
+        </div>
+    </div>
 
-                    <form method="POST" action="{{ route('vulnerability_toggles.store') }}" class="space-y-4">
-                        @csrf
+    <div id="app-data" data-update-url="{{ route('vulnerability_toggles.update') }}" data-csrf-token="{{ csrf_token() }}">
+        <div class="py-12">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                        <p>If you want to turn on the secured version of a selected page, check the box next to it and it will be automatically updated.</p>
+                        <form method="POST" action=data-update-url class="space-y-4">
+                            @csrf
 
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <input type="checkbox" name="sql_injection" id="sql_injection" class="w-5 h-5 rounded border-gray-300" {{ $user->sqli_on ? 'checked' : '' }}>
-                                <label for="sql_injection" class="ml-3">SQL Injection</label>
-                            </div>
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enable/Disable</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vulnerability Type</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Associated Page</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @php
+                                        $vulnerabilities = [
+                                            'sqli_on' => ['SQL Injection', 'Change Password'],
+                                            'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
+                                            'idor_on' => ['Indirect Object Reference', 'Employee Information'],
+                                            'file_upload_on' => ['File Upload', 'Add Medical Records'],
+                                            'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
+                                            'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],
+                                        ];
+                                    @endphp
 
-                            <div class="flex items-center">
-                                <input type="checkbox" name="command_injection" id="command_injection" class="w-5 h-5 rounded border-gray-300" {{ $user->cmd_inject_on ? 'checked' : '' }}>
-                                <label for="command_injection" class="ml-3">Command Injection</label>
-                            </div>
-
-                            <div class="flex items-center">
-                                <input type="checkbox" name="idor" id="idor" class="w-5 h-5 rounded border-gray-300" {{ $user->idor_on ? 'checked' : '' }}>
-                                <label for="idor" class="ml-3">InDirect Object Reference</label>
-                            </div>
-
-                            <div class="flex items-center">
-                                <input type="checkbox" name="file_upload" id="file_upload" class="w-5 h-5 rounded border-gray-300" {{ $user->file_upload_on ? 'checked' : '' }}>
-                                <label for="file_upload" class="ml-3">File Upload</label>
-                            </div>
-
-                            <div class="flex items-center">
-                                <input type="checkbox" name="stored_xss" id="stored_xss" class="w-5 h-5 rounded border-gray-300" {{ $user->xss_stored_on ? 'checked' : '' }}>
-                                <label for="stored_xss" class="ml-3">Stored Cross Site Scripting</label>
-                            </div>
-
-                            <div class="flex items-center">
-                                <input type="checkbox" name="reflected_xss" id="reflected_xss" class="w-5 h-5 rounded border-gray-300" {{ $user->xss_reflected_on ? 'checked' : '' }}>
-                                <label for="reflected_xss" class="ml-3">Reflected Cross Site Scripting</label>
-                            </div>
-
-                            {{-- <div class="flex items-center">
-                                <input type="checkbox" name="broken_access" id="broken_access" class="w-5 h-5 rounded border-gray-300" {{ $user-> ? 'checked' : '' }}>
-                                <label for="broken_access" class="ml-3">Broken Access Controls</label>
-                            </div> --}}
-                        </div>
-
-                        <div class="mt-6">
-                            <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
-                                Submit
-                            </button>
-                        </div>
-                    </form>
+                                    @foreach ($vulnerabilities as $toggle => $details)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="toggle-checkbox"
+                                                        id="{{ $toggle }}"
+                                                        data-toggle="{{ $toggle }}"
+                                                        data-vuln-name="{{ $details[1] }}"
+                                                        {{ $user[$toggle] ? 'checked' : '' }}
+                                                    >
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <label for="{{ $toggle }}" class="text-sm text-gray-900">{{ $details[0] }}</label>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="text-sm text-gray-500">{{ $details[1] }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

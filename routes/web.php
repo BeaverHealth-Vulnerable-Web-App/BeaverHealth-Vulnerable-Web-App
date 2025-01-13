@@ -61,8 +61,8 @@ Route::get('/feedback/search', [FeedbackController::class, 'search'])
 Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('vulnerability_toggles');
-Route::post('/vulnerability_toggles/store', [VulnerabilityTogglesController::class, 'store'])
+Route::post('/vulnerability_toggles/update', [VulnerabilityTogglesController::class, 'update'])
     ->middleware(['auth', 'verified'])
-    ->name('vulnerability_toggles.store');
+    ->name('vulnerability_toggles.update');
 
 require __DIR__ . '/auth.php';
