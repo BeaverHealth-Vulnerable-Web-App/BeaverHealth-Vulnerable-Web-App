@@ -19,7 +19,7 @@ class CreatePatientTable extends Migration
             $table->string('policy_number')->nullable();
             $table->string('address')->nullable();
             $table->boolean('is_employee')->default(false);
-            $table->string('ssn')->nullable(); // <— Added SSN column here
+            $table->string('ssn')->nullable(); 
             $table->timestamps();
         });
     }

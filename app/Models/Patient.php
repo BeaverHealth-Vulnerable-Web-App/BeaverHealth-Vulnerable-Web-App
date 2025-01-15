@@ -13,9 +13,6 @@ class Patient extends Model
 
     protected $primaryKey = 'patient_id';
 
-    public $incrementing = true;
-    protected $keyType = 'int';
-
     protected $fillable = [
         'first_name',
         'last_name',
@@ -25,4 +22,12 @@ class Patient extends Model
         'is_employee',
         'ssn',
     ];
+    /**
+     * Relationship to PatientFeedback.
+     */
+    public function feedback()
+    {
+        return $this->hasMany(PatientFeedback::class, 'patient_id', 'patient_id');
+    }
 }
+
