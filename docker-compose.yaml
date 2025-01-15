@@ -18,7 +18,12 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/var/www/html:delegated
+      - ./app:/var/www/html/app:delegated
+      - ./resources:/var/www/html/resources:delegated
+      - ./storage:/var/www/html/storage:delegated
+      - ./bootstrap:/var/www/html/bootstrap:delegated
+      - ./vendor:/var/www/html/vendor:delegated
+      - ./.env:/var/www/html/.env
 
   db:
     image: mysql:5.7
