@@ -19,7 +19,7 @@ class CreateUserTable extends Migration
                 $table->boolean('is_admin')->default(false);
                 $table->boolean('request_records')->default(false);
                 $table->boolean('load_records')->default(false);
-                $table->boolean('view_employee_info')->default(false);
+                $table->boolean('view_patient_info')->default(false);
                 $table->boolean('sqli_on')->default(false);
                 $table->boolean('file_upload_on')->default(false);
                 $table->boolean('cmd_inject_on')->default(false);

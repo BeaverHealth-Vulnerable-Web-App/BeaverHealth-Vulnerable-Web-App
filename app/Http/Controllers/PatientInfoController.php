@@ -12,7 +12,7 @@ class PatientInfoController extends Controller
      */
     public function index()
     {
-        $patients = Patient::all(); // Fetch all patients
+        $patients = Patient::all();
         return view('patients.index', compact('patients'));
     }
 
