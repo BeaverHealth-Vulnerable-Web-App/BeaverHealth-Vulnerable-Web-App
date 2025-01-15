@@ -27,8 +27,8 @@
                 <a href="{{ route('admin') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Admin</a>
             @endif
 
-            <!-- Patient Information Link (Admin Only) -->
-            @if(auth()->user()->is_admin)
+            <!-- Patient Information Link -->
+            @if(auth()->user()->view_patient_info)
                 <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
             @endif
 
@@ -36,7 +36,7 @@
             <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
             <!-- Change Password Link -->
-            <a href="{{ route('password.edit') }}" class="block py-2 px-4 bg-gray-700 rounded hover:bg-gray-600">Change Password</a>
+            <a href="{{ route('profile.edit') }}" class="block py-2 px-4 bg-gray-700 rounded hover:bg-gray-600">Profile</a>
 
             <!-- Log Out Form -->
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
