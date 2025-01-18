@@ -16,7 +16,7 @@
                                 <th class="p-4 text-center">Administrator</th>
                                 <th class="p-4 text-center">Request Records</th>
                                 <th class="p-4 text-center">Add Records</th>
-                                <th class="p-4 text-center">View Employee Info</th>
+                                <th class="p-4 text-center">View Patient Info</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,7 +33,7 @@
                                         <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="load_records" {{ $user->load_records ? 'checked' : '' }}>
                                     </td>
                                     <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="view_employee_info" {{ $user->view_employee_info ? 'checked' : '' }}>
+                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="view_patient_info" {{ $user->view_patient_info ? 'checked' : '' }}>
                                     </td>
                                 </tr>
                             @endforeach

@@ -43,7 +43,7 @@ class RegisteredUserController extends Controller
             'is_admin' => false,
             'request_records' => true,
             'load_records' => true,
-            'view_employee_info' => false,
+            'view_patient_info' => false,
             'sqli_on' => false,
             'file_upload_on' => false,
             'cmd_inject_on' => false,

@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
                 'is_admin' => true,
                 'request_records' => true,
                 'load_records' => true,
-                'view_employee_info' => true,
+                'view_patient_info' => true,
                 'sqli_on' => false,
                 'file_upload_on' => false,
                 'cmd_inject_on' => false,

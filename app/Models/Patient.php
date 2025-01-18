@@ -10,6 +10,7 @@ class Patient extends Model
     use HasFactory;
 
     protected $table = 'patient';
+
     protected $primaryKey = 'patient_id';
 
     protected $fillable = [
@@ -19,8 +20,8 @@ class Patient extends Model
         'policy_number',
         'address',
         'is_employee',
+        'ssn',
     ];
-
     /**
      * Relationship to PatientFeedback.
      */
@@ -29,3 +30,4 @@ class Patient extends Model
         return $this->hasMany(PatientFeedback::class, 'patient_id', 'patient_id');
     }
 }
+
