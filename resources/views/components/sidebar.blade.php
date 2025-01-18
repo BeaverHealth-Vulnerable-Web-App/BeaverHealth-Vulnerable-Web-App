@@ -27,10 +27,15 @@
                 <a href="{{ route('admin') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Admin</a>
             @endif
 
+            <!-- Patient Information Link -->
+            @if(auth()->user()->view_patient_info)
+                <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
+            @endif
+
             <!-- Vulnerability Toggles Link -->
             <a href="{{ route('toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
-            <!-- Profile Link -->
+            <!-- Change Password Link -->
             <a href="{{ route('profile.edit') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Profile</a>
 
             <!-- Log Out Form -->

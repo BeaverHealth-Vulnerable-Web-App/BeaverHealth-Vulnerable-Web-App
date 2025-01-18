@@ -15,7 +15,7 @@ class UserFactory extends Factory
             'is_admin' => false,
             'request_records' => $this->faker->boolean(20),
             'load_records' => $this->faker->boolean(20),
-            'view_employee_info' => $this->faker->boolean(20),
+            'view_patient_info' => $this->faker->boolean(20),
             'sqli_on' => $this->faker->boolean(20),
             'file_upload_on' => false,
             'cmd_inject_on' => false,

@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PatientInfoController;
 
 
 Route::middleware('guest')->group(
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(
         Route::post('/feedback/store', [FeedbackController::class, 'store'])->name('feedback.store');
         Route::get('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
 
+        Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
+        Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
+
         Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])->name('toggles');
 
         Route::get('confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
@@ -53,4 +57,3 @@ Route::middleware('auth')->group(
         Route::post('logout', [AuthenticatedSessionController::class, 'handleLogoutRequest'])->name('logout');
     }
 );
-
