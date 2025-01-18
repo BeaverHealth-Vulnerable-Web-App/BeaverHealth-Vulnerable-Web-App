@@ -7,7 +7,7 @@
 
     @vite(['resources/js/vulnerability_toggles.js'])
 
-    <div id="notification" class="sticky top-0 left-0 right-0 -translate-y-32 transition-all duration-500 ease-in-out z-50 bg-white dark:bg-gray-900">
+    <div id="notification" class="hidden sticky top-0 left-0 right-0 -translate-y-32 transition-all duration-500 ease-in-out z-50 bg-white dark:bg-gray-900">
         <div class="px-4 py-2 rounded-lg shadow-lg text-center w-full">
             <span id="notification-text"></span>
         </div>
@@ -18,7 +18,7 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <p>If you want to turn on the secured version of a selected page, check the box next to it and it will be automatically updated.</p>
+                        <p>If you want to enable a vulnerable feature, check the corresponding checkbox.</p>
                         <form method="POST" action=data-update-url class="space-y-4">
                             @csrf
 
@@ -35,7 +35,7 @@
                                         $vulnerabilities = [
                                             'sqli_on' => ['SQL Injection', 'Change Password'],
                                             'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
-                                            'idor_on' => ['Indirect Object Reference', 'Employee Information'],
+                                            'idor_on' => ['Insecure Direct Object Reference', 'Patient Information & Admin Page'],
                                             'file_upload_on' => ['File Upload', 'Add Medical Records'],
                                             'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
                                             'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],
@@ -51,7 +51,7 @@
                                                         class="toggle-checkbox"
                                                         id="{{ $toggle }}"
                                                         data-toggle="{{ $toggle }}"
-                                                        data-vuln-name="{{ $details[1] }}"
+                                                        data-vuln-name="{{ $details[0] }}"
                                                         {{ $user[$toggle] ? 'checked' : '' }}
                                                     >
                                                 </div>
