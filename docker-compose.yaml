@@ -21,7 +21,8 @@ services:
       - .:/var/www/html:delegated
 
   db:
-    image: mysql:5.7
+    platform: linux/x86_64
+    image: mysql:8.0
     restart: always
     environment:
       MYSQL_DATABASE: vuln_db
