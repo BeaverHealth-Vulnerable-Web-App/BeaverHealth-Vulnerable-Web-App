@@ -41,6 +41,7 @@ Route::middleware('auth')->group(
         Route::post('/admin/update-role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
 
         Route::get('/records/add', [AddRecordsController::class, 'index'])->name('records.add');
+        Route::post('/records/add', [AddRecordsController::class, 'upload'])->name('records.add.upload');
         Route::get('/records/request', [RequestRecordsController::class, 'index'])->name('records.request');
 
         Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
