@@ -8,7 +8,7 @@ class AddRecordsController extends Controller
 {
     public function index()
     {
-        return view('records.add-records'); // Add records page in views > records
+        return view('records.add-records');
     }
 
     // File upload
