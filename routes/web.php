@@ -9,7 +9,6 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientInfoController;
@@ -17,15 +16,12 @@ use App\Http\Controllers\PatientInfoController;
 
 Route::middleware('guest')->group(
     function () {
-        Route::get('/', [AuthenticatedSessionController::class, 'showLoginPage']);
-        Route::get('login', [AuthenticatedSessionController::class, 'showLoginPage'])->name('login');
-        Route::post('login', [AuthenticatedSessionController::class, 'handleLoginRequest']);
+        Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
+        Route::get('/', fn() => redirect(route('login')));
+        Route::post('/login', [AuthenticatedSessionController::class, 'login'])->name('login.attempt');
 
-        Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-        Route::post('register', [RegisteredUserController::class, 'store']);
-
-        Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-        Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+        Route::get('/register', [RegisteredUserController::class, 'index'])->name('register');
+        Route::post('/register', [RegisteredUserController::class, 'register'])->name('register.attempt');
     }
 );
 
@@ -38,10 +34,11 @@ Route::middleware('auth')->group(
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         Route::get('/admin', [AdminController::class, 'index'])->name('admin');
-        Route::post('/admin/update-role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
+        Route::post('/admin/role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
 
         Route::get('/records/add', [AddRecordsController::class, 'index'])->name('records.add');
         Route::post('/records/add', [AddRecordsController::class, 'upload'])->name('records.add.upload');
+
         Route::get('/records/request', [RequestRecordsController::class, 'index'])->name('records.request');
 
         Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
@@ -54,8 +51,8 @@ Route::middleware('auth')->group(
         Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])->name('vulnerability_toggles');
         Route::post('/vulnerability_toggles/update', [VulnerabilityTogglesController::class, 'update'])->name('vulnerability_toggles.update');
 
-        Route::get('confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
-        Route::put('password', [PasswordController::class, 'update'])->name('password.update');
-        Route::post('logout', [AuthenticatedSessionController::class, 'handleLogoutRequest'])->name('logout');
+        Route::get('/confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
+        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+        Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
     }
 );
