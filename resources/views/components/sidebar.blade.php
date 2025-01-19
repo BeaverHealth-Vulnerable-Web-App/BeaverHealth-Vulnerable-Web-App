@@ -33,7 +33,7 @@
             @endif
 
             <!-- Vulnerability Toggles Link -->
-            <a href="{{ route('toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
+            <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
             <!-- Change Password Link -->
             <a href="{{ route('profile.edit') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Profile</a>
