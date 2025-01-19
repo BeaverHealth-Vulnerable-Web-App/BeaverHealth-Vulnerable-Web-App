@@ -41,6 +41,9 @@ Route::middleware('auth')->group(
 Route::get('/records_add', [AddRecordsController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('records_add');
+Route::post('/records_add', [AddRecordsController::class, 'upload'])
+    ->middleware(['auth', 'verified'])
+    ->name('upload');
 
 // Request Records
 Route::get('/records_request', [RequestRecordsController::class, 'index'])
