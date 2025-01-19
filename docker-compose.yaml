@@ -19,9 +19,14 @@ services:
       - db
     volumes:
       - ./app:/var/www/html/app:delegated
-      - ./resources:/var/www/html/resources:delegated
-      - ./storage:/var/www/html/storage:delegated
       - ./bootstrap:/var/www/html/bootstrap:delegated
+      - ./config:/var/www/html/config:delegated
+      - ./database:/var/www/html/database:delegated
+      - ./resources:/var/www/html/resources:delegated
+      - ./routes:/var/www/html/routes:delegated
+      - ./scripts:/var/www/html/scripts:delegated
+      - ./storage:/var/www/html/storage:delegated
+      - ./tests:/var/www/html/tests:delegated
       - ./vendor:/var/www/html/vendor:delegated
       - ./.env:/var/www/html/.env
 
