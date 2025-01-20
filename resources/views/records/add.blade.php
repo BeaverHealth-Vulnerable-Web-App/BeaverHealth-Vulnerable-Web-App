@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <!-- File upload form -->
-                    <form action="{{ route('upload') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('records.add.upload') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-4">
                             <label for="file" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">Choose a file (PDF, TXT, or CSV):</label>

@@ -8,16 +8,18 @@ class AddRecordsController extends Controller
 {
     public function index()
     {
-        return view('records.add-records');
+        return view('records.add');
     }
 
     // File upload
     public function upload(Request $request)
     {   
         // Allow only files (no other validation for now)
-        $request->validate([
+        $request->validate(
+            [
             'file' => 'required|file',
-        ]);
+            ]
+        );
 
         // Retrieve the uploaded file
         $file = $request->file('file');
