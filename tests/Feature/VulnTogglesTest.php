@@ -13,11 +13,12 @@ class VulnTogglesFeatureTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
+        session()->start(); // This needs to be here, or a GET request needs to be made prior to POST to start the session
     }
 
     public function test_function(): void
     {
-        $this->get('/vulnerability_toggles');
+        // $this->get('/vulnerability_toggles');
 
         $response = $this->post(
             '/vulnerability_toggles/update', [
