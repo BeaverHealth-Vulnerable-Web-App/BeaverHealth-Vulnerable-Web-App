@@ -14,15 +14,14 @@ class VulnTogglesUnitTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->controller = new VulnerabilityTogglesController();
         $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+        $this->controller = new VulnerabilityTogglesController();
         $this->controller->user = $this->user;
     }
 
     public function test_vuln_toggles_index()
     {
-        $this->actingAs($this->user);
-
         $response = $this->controller->index();
         $this->assertInstanceOf(Illuminate\View\View::class, $response);
 
@@ -32,8 +31,6 @@ class VulnTogglesUnitTest extends TestCase
 
     public function test_vuln_toggles_update()
     {
-        $this->actingAs($this->user);
-
         $request = new Illuminate\Http\Request();
         $request->merge(['toggle' => 'sqli_on', 'value' => true]);
         $response = $this->controller->update($request);

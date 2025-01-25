@@ -1,51 +1,62 @@
 <?php
 
 use App\Models\User;
+use Tests\TestCase;
 
 
-function sendTestFeedback($user, $testObject) {
-    $feedbackData = [
-        'fname' => 'Test',
-        'lname' => 'User',
-        'feedback' => 'This is a test comment.'
-    ];
-    return $testObject->actingAs($user)->post('/feedback/store', $feedbackData);
-}
+class FeedbackFeatureTest extends TestCase
+{
+    protected $user;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+        session()->start();
+    }
+
+    public function sendTestFeedback()
+    {
+        $feedbackData = [
+            'fname' => 'Test',
+            'lname' => 'User',
+            'feedback' => 'This is a test comment.',
+            '_token' => session()->token()
+        ];
+        return $this->post('/feedback/store', $feedbackData);
+    }
 
 
-test('Testing route to the feedback page', function () {
-    $user = User::factory()->create();
-    $response = $this->actingAs($user)->get('/feedback');
-    $response->assertStatus(200);
-});
+    public function test_route_feedback()
+    {
+        $response = $this->get('/feedback');
+        $response->assertStatus(200);
+    }
 
-test('Testing feedback adding', function () {
-    $user = User::factory()->create();
-    $response = sendTestFeedback($user, $this);
-    if ($response->status() == 302) {
-        $response = $this->actingAs($user)->get('/feedback');
+    public function test_feedback_add()
+    {
+        $response = $this->sendTestFeedback($this);
+        $response->assertStatus(302);
+        $response = $this->get('/feedback');
         $response->assertSeeText('This is a test comment.');
     }
-});
 
-test('Testing valid feedback searching', function () {
-    $user = User::factory()->create();
-    $response = sendTestFeedback($user, $this);
-    if ($response->status() == 302) {
-        $response = $this->actingAs($user)->get('/feedback/search?search_name=Test');
-        if ($response->status() == 200) {
-            $response->assertSeeText('This is a test comment.');
-        }
+    public function test_valid_feedback_search()
+    {
+        $response = $this->sendTestFeedback();
+        $response->assertStatus(302);
+        $response = $this->get('/feedback/search?search_name=Test');
+        $response->assertStatus(200);
+        $response->assertSeeText('This is a test comment.');
     }
-});
 
-test('Testing non-valid feedback searching', function () {
-    $user = User::factory()->create();
-    $response = sendTestFeedback($user, $this);
-    if ($response->status() == 302) {
-        $response = $this->actingAs($user)->get('/feedback/search?search_name=admin');
-        if ($response->status() == 200) {
-            $response->assertDontSeeText('This is a test comment.');
-        }
+    public function test_invalid_feedback_search()
+    {
+        $response = $this->sendTestFeedback();
+        $response->assertStatus(302);
+        $response = $this->get('/feedback/search?search_name=admin');
+        $response->assertStatus(200);
+        $response->assertDontSeeText('This is a test comment.');
     }
-});
+}
