@@ -10,6 +10,13 @@ class AuthFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
+    private const TEST_USERNAME = 'testuser';
+    private const TEST_NONEXISTENT_USERNAME = 'nonexistent';
+    private const TEST_PASSWORD = 'password123';
+    private const TEST_BAD_PASSWORD = '123';
+    private const TEST_WRONG_PASSWORD = 'wrongpassword';
+    private const CSRF_TOKEN_MISMATCH = 419;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -19,7 +26,6 @@ class AuthFeatureTest extends TestCase
     public function test_guest_is_redirected_from_dashboard(): void
     {
         $response = $this->get(route('dashboard'));
-
         $response->assertRedirect(route('login'));
         $this->assertGuest();
     }
@@ -29,9 +35,9 @@ class AuthFeatureTest extends TestCase
         $response = $this->post(
             route('register.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
+                'password_confirmation' => self::TEST_PASSWORD,
             ]
         );
 
@@ -47,9 +53,9 @@ class AuthFeatureTest extends TestCase
         $response = $this->post(
             route('register.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
+                'password_confirmation' => self::TEST_PASSWORD,
             ]
         );
 
@@ -62,9 +68,9 @@ class AuthFeatureTest extends TestCase
         $response = $this->post(
             route('register.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => '123',
-                'password_confirmation' => '123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_BAD_PASSWORD,
+                'password_confirmation' => self::TEST_BAD_PASSWORD,
             ]
         );
 
@@ -76,13 +82,13 @@ class AuthFeatureTest extends TestCase
     {
         $response = $this->post(
             route('register.attempt'), [
-                'username' => 'testuser',
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
+                'password_confirmation' => self::TEST_PASSWORD,
             ]
         );
 
-        $response->assertStatus(419); // CSRF token mismatch
+        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
         $this->assertGuest();
     }
 
@@ -98,16 +104,16 @@ class AuthFeatureTest extends TestCase
     {
         $user = User::factory()->create(
             [
-                'username' => 'testuser',
-                'password' => bcrypt('password123'),
+                'username' => self::TEST_USERNAME,
+                'password' => bcrypt(self::TEST_PASSWORD),
             ]
         );
 
         $response = $this->post(
             route('login.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
             ]
         );
 
@@ -119,16 +125,16 @@ class AuthFeatureTest extends TestCase
     {
         User::factory()->create(
             [
-                'username' => 'testuser',
-                'password' => bcrypt('password123'),
+                'username' => self::TEST_USERNAME,
+                'password' => bcrypt(self::TEST_PASSWORD),
             ]
         );
 
         $response = $this->post(
             route('login.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => 'wrongpassword',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_WRONG_PASSWORD,
             ]
         );
 
@@ -155,8 +161,8 @@ class AuthFeatureTest extends TestCase
         $response = $this->post(
             route('login.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'nonexistent',
-                'password' => 'password123',
+                'username' => self::TEST_NONEXISTENT_USERNAME,
+                'password' => self::TEST_PASSWORD,
             ]
         );
 
@@ -168,12 +174,12 @@ class AuthFeatureTest extends TestCase
     {
         $response = $this->post(
             route('login.attempt'), [
-                'username' => 'testuser',
-                'password' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
             ]
         );
 
-        $response->assertStatus(419); // CSRF token mismatch
+        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
         $this->assertGuest();
     }
 
@@ -238,8 +244,8 @@ class AuthFeatureTest extends TestCase
         $response = $this->post(
             route('login.attempt'), [
                 '_token' => session()->token(),
-                'username' => 'testuser',
-                'password' => 'password123',
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_PASSWORD,
             ]
         );
 
