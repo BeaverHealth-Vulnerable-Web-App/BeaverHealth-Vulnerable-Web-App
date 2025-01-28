@@ -32,9 +32,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('register.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
@@ -50,9 +49,8 @@ class AuthFeatureTest extends TestCase
     {
         User::factory()->create(['username' => 'testuser']);
 
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('register.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
@@ -65,9 +63,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_registration_fails_with_weak_password(): void
     {
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('register.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_BAD_PASSWORD,
                 'password_confirmation' => self::TEST_BAD_PASSWORD,
@@ -82,7 +79,6 @@ class AuthFeatureTest extends TestCase
     {
         $response = $this->post(
             route('register.attempt'), [
-                'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
             ]
@@ -109,9 +105,8 @@ class AuthFeatureTest extends TestCase
             ]
         );
 
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('login.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -144,9 +139,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_login_fails_with_missing_credentials(): void
     {
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('login.attempt'), [
-                '_token' => session()->token(),
                 'username' => '',
                 'password' => '',
             ]
@@ -158,9 +152,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_login_fails_with_nonexistent_username(): void
     {
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('login.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_NONEXISTENT_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -201,12 +194,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_logout_while_not_logged_in(): void
     {
-        $response = $this->post(
-            route('logout'), [
-                '_token' => session()->token(),
-            ]
-        );
-
+        $response = $this->postWithCsrf(route('logout'));
         $response->assertRedirect('/login');
         $this->assertGuest();
     }
@@ -216,12 +204,7 @@ class AuthFeatureTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->post(
-            route('logout'), [
-                '_token' => session()->token(),
-            ]
-        );
-
+        $response = $this->postWithCsrf(route('logout'), []);
         $response->assertRedirect('/');
         $this->assertGuest();
 
@@ -241,9 +224,8 @@ class AuthFeatureTest extends TestCase
 
         $initialSessionId = session()->getId();
 
-        $response = $this->post(
+        $response = $this->postWithCsrf(
             route('login.attempt'), [
-                '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
