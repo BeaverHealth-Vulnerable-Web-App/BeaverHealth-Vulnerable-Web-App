@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     gnupg \
+    zip \
+    unzip \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev
@@ -18,11 +20,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd mysqli pdo pdo_mysql
-
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY composer.json composer.lock /var/www/html
-RUN composer install --optimize-autoloader
 
 # Enable Apache rewrite module for URL rewriting
 RUN a2enmod rewrite
@@ -40,6 +37,10 @@ RUN groupadd -g 1000 sail && \
 COPY . /var/www/html
 RUN chown -R sail:www-data /var/www/html
 RUN chmod -R 775 /var/www/html
+
+# Install Composer and dependencies
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --optimize-autoloader
 
 # Build assets
 RUN npm install && npm run build
