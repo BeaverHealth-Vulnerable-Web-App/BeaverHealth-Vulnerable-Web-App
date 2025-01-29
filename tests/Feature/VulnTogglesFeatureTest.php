@@ -3,13 +3,16 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Symfony\Component\DomCrawler\Crawler;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\DomCrawler\Crawler;
 use Tests\TestCase;
 
 class VulnTogglesFeatureTest extends TestCase
 {
     protected $user;
+    protected const HTTP_OK = 200;
+    protected const CSRF_TOKEN_MISMATCH = 419;
+    protected const HTTP_UNPROCESSABLE_ENTITY = 422;
 
     public function setUp(): void
     {
@@ -44,37 +47,48 @@ class VulnTogglesFeatureTest extends TestCase
     public function test_vuln_toggles_route()
     {
         $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
+        $response->assertStatus(self::HTTP_OK);
     }
 
-    public function test_invalid_request_csrf()
+    public function test_non_csrf_request()
     {
         $checkData = [
             'toggle' => 'sqli_on',
             'value' => true
         ];
         $response = $this->post('/vulnerability_toggles/update', $checkData);
-        $response->assertStatus(419);
+        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
     }
 
     public function test_invalid_toggle_name_request()
     {
-        $checkData = [
-            'toggle' => 'this is a toggle',
-            'value' => true
-        ];
-        $response = $this->post('/vulnerability_toggles/update', $checkData);
-        $response->assertStatus(200);
+        $response = $this->sendValidTestRequest('invalid_toggle', true);
+        $response->assertStatus(self::HTTP_OK);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_invalid_toggle_type_request()
+    {
+        $response = $this->sendValidTestRequest(1234, true);
+        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_invalid_value_type_request()
+    {
+        $response = $this->sendValidTestRequest('sqli_on', 'invalid_type');
+        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertJson(['success' => false]);
     }
 
     #[DataProvider('toggleProvider')]
     public function test_valid_toggle_on($toggle)
     {
         $response = $this->sendValidTestRequest($toggle, true);
-        $response->assertStatus(200);
+        $response->assertStatus(self::HTTP_OK);
 
         $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
+        $response->assertStatus(self::HTTP_OK);
 
         $this->assertDatabaseHas(
             'user',
@@ -94,7 +108,7 @@ class VulnTogglesFeatureTest extends TestCase
     public function test_valid_toggle_off($toggle)
     {
         $response = $this->sendValidTestRequest($toggle, false);
-        $response->assertStatus(200);
+        $response->assertStatus(self::HTTP_OK);
 
         $this->assertDatabaseHas(
             'user',
@@ -105,7 +119,7 @@ class VulnTogglesFeatureTest extends TestCase
         );
 
         $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
+        $response->assertStatus(self::HTTP_OK);
 
         $crawler = new Crawler($response->content());
         $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']")->first();
