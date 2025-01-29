@@ -2,26 +2,17 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
 
 class AuthFeatureTest extends TestCase
 {
-    use RefreshDatabase;
-
     private const TEST_USERNAME = 'testuser';
     private const TEST_NONEXISTENT_USERNAME = 'nonexistent';
     private const TEST_PASSWORD = 'password123';
     private const TEST_BAD_PASSWORD = '123';
     private const TEST_WRONG_PASSWORD = 'wrongpassword';
     private const CSRF_TOKEN_MISMATCH = 419;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->startSession();
-    }
 
     public function test_guest_is_redirected_from_dashboard(): void
     {
@@ -32,6 +23,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_user_can_register(): void
     {
+        $this->get(route('register'));
+
         $response = $this->postWithCsrf(
             route('register.attempt'), [
                 'username' => self::TEST_USERNAME,
@@ -49,6 +42,8 @@ class AuthFeatureTest extends TestCase
     {
         User::factory()->create(['username' => 'testuser']);
 
+        $this->get(route('register'));
+
         $response = $this->postWithCsrf(
             route('register.attempt'), [
                 'username' => self::TEST_USERNAME,
@@ -63,6 +58,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_registration_fails_with_weak_password(): void
     {
+        $this->get(route('register'));
+
         $response = $this->postWithCsrf(
             route('register.attempt'), [
                 'username' => self::TEST_USERNAME,
@@ -77,6 +74,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_registration_fails_without_csrf_token(): void
     {
+        $this->get(route('register'));
+
         $response = $this->post(
             route('register.attempt'), [
                 'password' => self::TEST_PASSWORD,
@@ -105,6 +104,8 @@ class AuthFeatureTest extends TestCase
             ]
         );
 
+        $this->get(route('login'));
+
         $response = $this->postWithCsrf(
             route('login.attempt'), [
                 'username' => self::TEST_USERNAME,
@@ -125,6 +126,8 @@ class AuthFeatureTest extends TestCase
             ]
         );
 
+        $this->get(route('login'));
+
         $response = $this->post(
             route('login.attempt'), [
                 '_token' => session()->token(),
@@ -139,6 +142,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_login_fails_with_missing_credentials(): void
     {
+        $this->get(route('login'));
+
         $response = $this->postWithCsrf(
             route('login.attempt'), [
                 'username' => '',
@@ -152,6 +157,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_login_fails_with_nonexistent_username(): void
     {
+        $this->get(route('login'));
+
         $response = $this->postWithCsrf(
             route('login.attempt'), [
                 'username' => self::TEST_NONEXISTENT_USERNAME,
@@ -165,6 +172,8 @@ class AuthFeatureTest extends TestCase
 
     public function test_login_fails_without_csrf_token(): void
     {
+        $this->get(route('login'));
+
         $response = $this->post(
             route('login.attempt'), [
                 'username' => self::TEST_USERNAME,
@@ -181,6 +190,7 @@ class AuthFeatureTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        $this->startSession();
         $response = $this->post(
             route('logout'), [
                 '_token' => session()->token()
@@ -194,6 +204,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_logout_while_not_logged_in(): void
     {
+        $this->startSession();
         $response = $this->postWithCsrf(route('logout'));
         $response->assertRedirect('/login');
         $this->assertGuest();
@@ -204,6 +215,7 @@ class AuthFeatureTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
+        $this->startSession();
         $response = $this->postWithCsrf(route('logout'), []);
         $response->assertRedirect('/');
         $this->assertGuest();
@@ -221,6 +233,8 @@ class AuthFeatureTest extends TestCase
             'password' => bcrypt('password123'),
             ]
         );
+
+        $this->get(route('login'));
 
         $initialSessionId = session()->getId();
 
