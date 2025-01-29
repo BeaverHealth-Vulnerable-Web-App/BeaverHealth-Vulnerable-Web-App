@@ -50,37 +50,6 @@ class VulnTogglesFeatureTest extends TestCase
         $response->assertStatus(self::HTTP_OK);
     }
 
-    public function test_non_csrf_request()
-    {
-        $checkData = [
-            'toggle' => 'sqli_on',
-            'value' => true
-        ];
-        $response = $this->post('/vulnerability_toggles/update', $checkData);
-        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
-    }
-
-    public function test_invalid_toggle_name_request()
-    {
-        $response = $this->sendValidTestRequest('invalid_toggle', true);
-        $response->assertStatus(self::HTTP_OK);
-        $response->assertJson(['success' => false]);
-    }
-
-    public function test_invalid_toggle_type_request()
-    {
-        $response = $this->sendValidTestRequest(1234, true);
-        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJson(['success' => false]);
-    }
-
-    public function test_invalid_value_type_request()
-    {
-        $response = $this->sendValidTestRequest('sqli_on', 'invalid_type');
-        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJson(['success' => false]);
-    }
-
     #[DataProvider('toggleProvider')]
     public function test_valid_toggle_on($toggle)
     {
@@ -125,5 +94,70 @@ class VulnTogglesFeatureTest extends TestCase
         $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']")->first();
 
         $this->assertEquals($checkbox->attr('checked'), null);
+    }
+
+    public function test_unauthorized_vuln_toggles_route()
+    {
+        auth()->logout();
+        $response = $this->get('/vulnerability_toggles');
+        $response->assertRedirect('/login');
+    }
+
+    public function test_unauthenticated_vuln_toggles_update()
+    {
+        auth()->logout();
+        $response = $this->sendValidTestRequest('sqli_on', true);
+        $response->assertRedirect('/login');
+    }
+
+    public function test_cannot_update_others_toggles()
+    {
+        $response = $this->sendValidTestRequest('sqli_on', false); // Just in case the toggle is set to true
+        $response->assertStatus(self::HTTP_OK);
+        $response->assertJson(['success' => true]);
+
+        $newUser = User::factory()->create();
+        $response = $this->actingAs($newUser)->sendValidTestRequest('sqli_on', true);
+        $response->assertStatus(self::HTTP_OK);
+        $response->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas(
+            'user',
+            [
+                'user_id' => $this->user->user_id,
+                'sqli_on' => false
+            ]
+        );
+    }
+
+    public function test_non_csrf_request()
+    {
+        $checkData = [
+            'toggle' => 'sqli_on',
+            'value' => true
+        ];
+        $response = $this->post('/vulnerability_toggles/update', $checkData);
+        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
+    }
+
+    public function test_invalid_toggle_name_request()
+    {
+        $response = $this->sendValidTestRequest('invalid_toggle', true);
+        $response->assertStatus(self::HTTP_OK);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_invalid_toggle_type_request()
+    {
+        $response = $this->sendValidTestRequest(1234, true);
+        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertJson(['success' => false]);
+    }
+
+    public function test_invalid_value_type_request()
+    {
+        $response = $this->sendValidTestRequest('sqli_on', 'invalid_type');
+        $response->assertStatus(self::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertJson(['success' => false]);
     }
 }
