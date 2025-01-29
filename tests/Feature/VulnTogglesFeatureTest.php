@@ -35,7 +35,8 @@ class VulnTogglesFeatureTest extends TestCase
     {
         $checkData = [
             'toggle' => $toggle,
-            'value' => $value
+            'value' => $value,
+            '_token' => csrf_token(),
         ];
         return $this->post('/vulnerability_toggles/update', $checkData);
     }
