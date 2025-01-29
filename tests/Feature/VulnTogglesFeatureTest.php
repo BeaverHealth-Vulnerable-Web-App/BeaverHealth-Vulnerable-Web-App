@@ -1,8 +1,11 @@
 <?php
 
-use App\Models\User;
-use Tests\TestCase;
+namespace Tests\Feature;
 
+use App\Models\User;
+use Symfony\Component\DomCrawler\Crawler;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class VulnTogglesFeatureTest extends TestCase
 {
@@ -16,127 +19,96 @@ class VulnTogglesFeatureTest extends TestCase
         session()->start();
     }
 
-    public function sendTestRequest($toggle, $value)
+    static function toggleProvider()
+    {
+        return [
+            ['sqli_on'],
+            ['cmd_inject_on'],
+            ['idor_on'],
+            ['file_upload_on'],
+            ['xss_stored_on'],
+            ['xss_reflected_on'],
+        ];
+    }
+
+    public function sendValidTestRequest($toggle, $value)
     {
         $checkData = [
             'toggle' => $toggle,
-            'value' => $value,
-            '_token' => session()->token()
+            'value' => $value
         ];
         return $this->post('/vulnerability_toggles/update', $checkData);
     }
 
-    public function test_route_to_vuln_toggles()
+    public function test_vuln_toggles_route()
     {
         $response = $this->get('/vulnerability_toggles');
         $response->assertStatus(200);
     }
 
-    public function test_sqli_toggle_on()
+    public function test_invalid_request_csrf()
     {
-        $response = $this->sendTestRequest('sqli_on', true);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['SQL Injection', 'checked']);
+        $checkData = [
+            'toggle' => 'sqli_on',
+            'value' => true
+        ];
+        $response = $this->post('/vulnerability_toggles/update', $checkData);
+        $response->assertStatus(419);
     }
 
-    public function test_sqli_toggle_off()
+    public function test_invalid_toggle_name_request()
     {
-        $response = $this->sendTestRequest('sqli_on', false);
+        $checkData = [
+            'toggle' => 'this is a toggle',
+            'value' => true
+        ];
+        $response = $this->post('/vulnerability_toggles/update', $checkData);
         $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['SQL Injection', '>']);
     }
 
-    public function test_cmd_inject_toggle_on()
+    #[DataProvider('toggleProvider')]
+    public function test_valid_toggle_on($toggle)
     {
-        $response = $this->sendTestRequest('cmd_inject_on', true);
+        $response = $this->sendValidTestRequest($toggle, true);
         $response->assertStatus(200);
+
         $response = $this->get('/vulnerability_toggles');
         $response->assertStatus(200);
-        $response->assertSeeInOrder(['Command Injection', 'checked']);
+
+        $this->assertDatabaseHas(
+            'user',
+            [
+                'user_id' => $this->user->user_id,
+                $toggle => true
+            ]
+        );
+
+        $crawler = new Crawler($response->content());
+        $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']")->first();
+
+        $this->assertEquals($checkbox->attr('checked'), "");
     }
 
-    public function test_cmd_inject_toggle_off()
+    #[DataProvider('toggleProvider')]
+    public function test_valid_toggle_off($toggle)
     {
-        $response = $this->sendTestRequest('cmd_inject_on', false);
+        $response = $this->sendValidTestRequest($toggle, false);
         $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Command Injection', '>']);
-    }
 
-    public function test_idor_toggle_on()
-    {
-        $response = $this->sendTestRequest('idor_on', true);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Insecure Direct Object Reference', 'checked']);
-    }
+        $this->assertDatabaseHas(
+            'user',
+            [
+                'user_id' => $this->user->user_id,
+                $toggle => false
+            ]
+        );
 
-    public function test_idor_toggle_off()
-    {
-        $response = $this->sendTestRequest('idor_on', false);
-        $response->assertStatus(200);
         $response = $this->get('/vulnerability_toggles');
         $response->assertStatus(200);
-        $response->assertSeeInOrder(['Insecure Direct Object Reference', '>']);
-    }
 
-    public function test_file_upload_toggle_on()
-    {
-        $response = $this->sendTestRequest('file_upload_on', true);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['File Upload', 'checked']);
-    }
+        $crawler = new Crawler($response->content());
+        $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']")->first();
 
-    public function test_file_upload_toggle_off()
-    {
-        $response = $this->sendTestRequest('file_upload_on', false);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['File Upload', '>']);
-    }
-
-    public function test_xss_stored_toggle_on()
-    {
-        $response = $this->sendTestRequest('xss_stored_on', true);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Stored Cross Site Scripting', 'checked']);
-    }
-
-    public function test_xss_stored_toggle_off()
-    {
-        $response = $this->sendTestRequest('xss_stored_on', false);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Stored Cross Site Scripting', '>']);
-    }
-
-    public function test_xss_reflected_toggle_on()
-    {
-        $response = $this->sendTestRequest('xss_reflected_on', true);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Reflected Cross Site Scripting', 'checked']);
-    }
-
-    public function test_xss_reflected_toggle_off()
-    {
-        $response = $this->sendTestRequest('xss_reflected_on', false);
-        $response->assertStatus(200);
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertStatus(200);
-        $response->assertSeeInOrder(['Reflected Cross Site Scripting', '>']);
+        $this->assertEquals($checkbox->attr('checked'), null);
     }
 }
