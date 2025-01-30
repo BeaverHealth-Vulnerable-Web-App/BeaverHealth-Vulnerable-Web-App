@@ -188,14 +188,9 @@ class AuthFeatureTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+        $this->get(route('dashboard'));
 
-        $this->startSession();
-        $response = $this->post(
-            route('logout'), [
-                '_token' => session()->token()
-            ]
-        );
-
+        $response = $this->postWithCsrf(route('logout'));
         $response->assertRedirect('/');
         $this->assertGuest();
     }
@@ -213,9 +208,9 @@ class AuthFeatureTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
+        $this->get(route('dashboard'));
 
-        $this->startSession();
-        $response = $this->postWithCsrf(route('logout'), []);
+        $response = $this->postWithCsrf(route('logout'));
         $response->assertRedirect('/');
         $this->assertGuest();
 
