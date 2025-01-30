@@ -12,7 +12,6 @@ class AuthFeatureTest extends TestCase
     private const TEST_PASSWORD = 'password123';
     private const TEST_BAD_PASSWORD = '123';
     private const TEST_WRONG_PASSWORD = 'wrongpassword';
-    private const CSRF_TOKEN_MISMATCH = 419;
 
     public function test_guest_is_redirected_from_dashboard(): void
     {
@@ -83,7 +82,7 @@ class AuthFeatureTest extends TestCase
             ]
         );
 
-        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
+        $response->assertCsrfMismatch();
         $this->assertGuest();
     }
 
@@ -181,7 +180,7 @@ class AuthFeatureTest extends TestCase
             ]
         );
 
-        $response->assertStatus(self::CSRF_TOKEN_MISMATCH);
+        $response->assertCsrfMismatch();
         $this->assertGuest();
     }
 
