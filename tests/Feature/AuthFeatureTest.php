@@ -4,14 +4,38 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Testing\TestResponse;
 
 class AuthFeatureTest extends TestCase
 {
     private const TEST_USERNAME = 'testuser';
     private const TEST_NONEXISTENT_USERNAME = 'nonexistent';
     private const TEST_PASSWORD = 'password123';
-    private const TEST_BAD_PASSWORD = '123';
+    private const TEST_WEAK_PASSWORD = '123';
     private const TEST_WRONG_PASSWORD = 'wrongpassword';
+    private const MAX_LOGIN_ATTEMPTS = 5;
+
+    private function createTestUser(): User
+    {
+        return User::factory()->create(
+            [
+                'username' => self::TEST_USERNAME,
+                'password' => bcrypt(self::TEST_PASSWORD),
+            ]
+        );
+    }
+
+    private function triggerLoginLockout(): void
+    {
+        for ($i = 0; $i < self::MAX_LOGIN_ATTEMPTS; $i++) {
+            $this->postWithCsrf(
+                route('login.attempt'), [
+                    'username' => self::TEST_USERNAME,
+                    'password' => self::TEST_WRONG_PASSWORD,
+                ]
+            );
+        }
+    }
 
     public function test_guest_is_redirected_from_dashboard(): void
     {
@@ -39,8 +63,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_registration_fails_with_duplicate_username(): void
     {
-        User::factory()->create(['username' => 'testuser']);
-
+        $this->createTestUser();
         $this->get(route('register'));
 
         $response = $this->postWithCsrf(
@@ -62,8 +85,8 @@ class AuthFeatureTest extends TestCase
         $response = $this->postWithCsrf(
             route('register.attempt'), [
                 'username' => self::TEST_USERNAME,
-                'password' => self::TEST_BAD_PASSWORD,
-                'password_confirmation' => self::TEST_BAD_PASSWORD,
+                'password' => self::TEST_WEAK_PASSWORD,
+                'password_confirmation' => self::TEST_WEAK_PASSWORD,
             ]
         );
 
@@ -96,13 +119,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_user_can_login_with_valid_credentials(): void
     {
-        $user = User::factory()->create(
-            [
-                'username' => self::TEST_USERNAME,
-                'password' => bcrypt(self::TEST_PASSWORD),
-            ]
-        );
-
+        $user = $this->createTestUser();
         $this->get(route('login'));
 
         $response = $this->postWithCsrf(
@@ -118,13 +135,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_user_cannot_login_with_invalid_credentials(): void
     {
-        User::factory()->create(
-            [
-                'username' => self::TEST_USERNAME,
-                'password' => bcrypt(self::TEST_PASSWORD),
-            ]
-        );
-
+        $this->createTestUser();
         $this->get(route('login'));
 
         $response = $this->post(
@@ -221,13 +232,7 @@ class AuthFeatureTest extends TestCase
 
     public function test_session_is_regenerated_on_login(): void
     {
-        User::factory()->create(
-            [
-            'username' => 'testuser',
-            'password' => bcrypt('password123'),
-            ]
-        );
-
+        $this->createTestUser();
         $this->get(route('login'));
 
         $initialSessionId = session()->getId();
@@ -265,5 +270,30 @@ class AuthFeatureTest extends TestCase
         $response->assertOk();
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_login_lockout_after_failed_attempts(): void
+    {
+        $this->createTestUser();
+        $this->get(route('login'))->assertOk();
+
+        $this->triggerLoginLockout();
+
+        $response = $this->postWithCsrf(
+            route('login.attempt'), [
+                'username' => self::TEST_USERNAME,
+                'password' => self::TEST_WRONG_PASSWORD,
+            ]
+        );
+
+        $response->assertFound();
+
+        $errors = (new TestResponse($response))
+            ->session()
+            ->get('errors')
+            ->getBag('default')
+            ->get('username');
+
+        $this->assertStringContainsString('Too many login attempts', $errors[0]);
     }
 }
