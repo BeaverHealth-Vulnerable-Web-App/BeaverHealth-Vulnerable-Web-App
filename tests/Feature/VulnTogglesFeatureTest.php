@@ -153,8 +153,8 @@ class VulnTogglesFeatureTest extends TestCase
         $response->assertOk();
 
         $response = $this->sendUpdateToggleRequest('invalid_toggle', true);
-        $response->assertOk();
-        $response->assertJson(['success' => false]);
+        $response->assertUnprocessable();
+        $response->assertJson(['success' => false, 'error' => 'Invalid toggle name']);
     }
 
     public function test_invalid_toggle_type_request(): void
