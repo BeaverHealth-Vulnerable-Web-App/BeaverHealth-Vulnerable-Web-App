@@ -8,4 +8,9 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 abstract class TestCase extends BaseTestCase
 {
     use DatabaseTransactions;
+
+    protected function postWithCsrf(string $route, array $data = []): \Illuminate\Testing\TestResponse
+    {
+        return $this->post($route, array_merge(['_token' => session()->token()], $data));
+    }
 }
