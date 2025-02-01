@@ -15,50 +15,59 @@ class FeedbackFeatureTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
-        session()->start();
     }
 
-    public function sendTestFeedback()
+    private function sendTestFeedback(): \Illuminate\Testing\TestResponse
     {
-        $feedbackData = [
+        return $this->postWithCsrf(route('feedback.store'), [
             'fname' => 'Test',
             'lname' => 'User',
-            'feedback' => 'This is a test comment.',
-            '_token' => session()->token()
-        ];
-        return $this->post('/feedback/store', $feedbackData);
+            'feedback' => 'This is a test comment.'
+        ]);
     }
 
 
-    public function test_route_feedback()
+    public function test_route_feedback(): void
     {
-        $response = $this->get('/feedback');
-        $response->assertStatus(200);
+        $response = $this->get(route('feedback'));
+        $response->assertOk();
     }
 
-    public function test_feedback_add()
+    public function test_feedback_add(): void
     {
-        $response = $this->sendTestFeedback($this);
-        $response->assertStatus(302);
-        $response = $this->get('/feedback');
+        $response = $this->get(route('feedback'));
+        $response->assertOk();
+
+        $response = $this->sendTestFeedback();
+        $response->assertRedirect(route('feedback'));
+
+        $response = $this->get(route('feedback'));
         $response->assertSeeText('This is a test comment.');
     }
 
-    public function test_valid_feedback_search()
+    public function test_valid_feedback_search(): void
     {
+        $response = $this->get(route('feedback'));
+        $response->assertOk();
+
         $response = $this->sendTestFeedback();
-        $response->assertStatus(302);
+        $response->assertRedirect(route('feedback'));
+
         $response = $this->get('/feedback/search?search_name=Test');
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertSeeText('This is a test comment.');
     }
 
-    public function test_invalid_feedback_search()
+    public function test_invalid_feedback_search(): void
     {
+        $response = $this->get(route('feedback'));
+        $response->assertOk();
+
         $response = $this->sendTestFeedback();
-        $response->assertStatus(302);
+        $response->assertRedirect(route('feedback'));
+
         $response = $this->get('/feedback/search?search_name=admin');
-        $response->assertStatus(200);
+        $response->assertOk();
         $response->assertDontSeeText('This is a test comment.');
     }
 }
