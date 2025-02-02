@@ -6,7 +6,6 @@
 Make sure you have Docker and Docker Compose available on your system:
 - [Docker](https://www.docker.com/get-started/)
 - [Docker Compose](https://docs.docker.com/compose/install/) (if not included with Docker)
-
 2. Clone the repo 🌀
 3. Navigate to the project root 🫚  
   `cd ./BeaverHealth-Vulnerable-Web-App`
