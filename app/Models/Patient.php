@@ -22,12 +22,21 @@ class Patient extends Model
         'is_employee',
         'ssn',
     ];
+
     /**
      * Relationship to PatientFeedback.
      */
     public function feedback()
     {
         return $this->hasMany(PatientFeedback::class, 'patient_id', 'patient_id');
+    }
+
+        /**
+     * Relationship to PatientFile.
+     */
+    public function files()
+    {
+        return $this->hasMany(PatientFile::class, 'patient_id', 'patient_id');
     }
 }
 
