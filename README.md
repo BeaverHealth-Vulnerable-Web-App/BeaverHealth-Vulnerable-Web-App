@@ -5,7 +5,7 @@
 1. Install dependencies
 
 - [PHP](https://www.php.net/manual/en/install.php)
-- XML & Curl PHP Modules through your package manager.
+  - You might need to install the PHP Extension `php-xml` through your package manager.
 - [Composer](https://getcomposer.org/doc/00-intro.md)
 - [Docker](https://www.docker.com/get-started/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
