@@ -282,7 +282,7 @@ class AuthFeatureTest extends TestCase
             ]
         )->assertFound();
 
-        $errors = (new TestResponse($response))
+        $errors = (new TestResponse($response)) // TestResponse needed to access session errors
             ->session()
             ->get('errors')
             ->getBag('default')
