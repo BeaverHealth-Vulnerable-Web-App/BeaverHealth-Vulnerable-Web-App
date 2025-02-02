@@ -33,7 +33,7 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages(
                 [
-                'username' => trans('auth.failed'),
+                    'username' => trans('auth.failed'),
                 ]
             );
         }
@@ -56,8 +56,8 @@ class LoginRequest extends FormRequest
             'username' => trans(
                 'auth.throttle',
                 [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
+                    'seconds' => $seconds,
+                    'minutes' => ceil($seconds / 60),
                 ]
             ),
             ]
