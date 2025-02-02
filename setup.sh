@@ -11,6 +11,7 @@ docker run --rm \
     composer install --optimize-autoloader
 
 echo "Starting Laravel Sail..."
+./vendor/bin/sail build --no-cache
 ./vendor/bin/sail up -d
 
 echo "Waiting for the database to be ready..."
@@ -29,9 +30,16 @@ done
 echo "Database is ready."
 
 echo "Running migrations..."
+./vendor/bin/sail artisan db:wipe
 ./vendor/bin/sail artisan migrate
 
 echo "Seeding database..."
 ./vendor/bin/sail artisan db:seed
+
+echo "Clearing Laravel caches..."
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail artisan cache:clear
+./vendor/bin/sail artisan route:clear
+./vendor/bin/sail artisan view:clear
 
 echo "Setup complete! Visit the app at http://localhost:9991"
