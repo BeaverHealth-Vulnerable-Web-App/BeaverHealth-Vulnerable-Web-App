@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -9,6 +9,11 @@ docker run --rm \
     -w /var/www/html \
     laravelsail/php82-composer:latest \
     composer install --optimize-autoloader
+
+if [ ! -f vendor/autoload.php ]; then
+    echo "Error: vendor/autoload.php not found. Composer install may have failed."
+    exit 1
+fi
 
 echo "Starting Laravel Sail..."
 ./vendor/bin/sail up -d
