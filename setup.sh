@@ -13,6 +13,21 @@ docker run --rm \
 echo "Starting Laravel Sail..."
 ./vendor/bin/sail up -d
 
+echo "Waiting for the database to be ready..."
+max_attempts=30
+attempt=1
+while ! ./vendor/bin/sail artisan migrate:status >/dev/null 2>&1; do
+    echo "Attempt $attempt: Database not ready, waiting 2 seconds..."
+    sleep 2
+    attempt=$((attempt+1))
+    if [ "$attempt" -gt "$max_attempts" ]; then
+        echo "Database did not become available after $max_attempts attempts."
+        exit 1
+    fi
+done
+
+echo "Database is ready."
+
 echo "Running migrations..."
 ./vendor/bin/sail artisan migrate
 
