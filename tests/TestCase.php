@@ -10,13 +10,12 @@ abstract class TestCase extends BaseTestCase
 {
     use DatabaseTransactions;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         TestResponse::macro(
-            'assertCsrfMismatch',
-            function () {
+            'assertCsrfMismatch', function () {
                 return $this->assertStatus(419);
             }
         );
