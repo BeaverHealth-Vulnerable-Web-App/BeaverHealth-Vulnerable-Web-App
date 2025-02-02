@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use \Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\DomCrawler\Crawler;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class VulnTogglesFeatureTest extends TestCase
         ];
     }
 
-    private function sendUpdateToggleRequest($toggle, $value): \Illuminate\Testing\TestResponse
+    private function sendUpdateToggleRequest($toggle, $value): TestResponse
     {
         return $this->postWithCsrf(
             route('vulnerability_toggles.update'),
@@ -43,18 +44,15 @@ class VulnTogglesFeatureTest extends TestCase
 
     public function test_vuln_toggles_route(): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
     }
 
     #[DataProvider('toggleProvider')]
     public function test_valid_toggle_on($toggle): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest($toggle, true);
-        $response->assertOk();
+        $this->sendUpdateToggleRequest($toggle, true)->assertOk();
 
         $this->assertDatabaseHas(
             'user',
@@ -64,8 +62,8 @@ class VulnTogglesFeatureTest extends TestCase
             ]
         );
 
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $response = $this->get(route('vulnerability_toggles'))
+            ->assertOk();
 
         $crawler = new Crawler($response->content());
         $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']");
@@ -76,11 +74,9 @@ class VulnTogglesFeatureTest extends TestCase
     #[DataProvider('toggleProvider')]
     public function test_valid_toggle_off($toggle): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest($toggle, false);
-        $response->assertOk();
+        $this->sendUpdateToggleRequest($toggle, false)->assertOk();
 
         $this->assertDatabaseHas(
             'user',
@@ -90,8 +86,8 @@ class VulnTogglesFeatureTest extends TestCase
             ]
         );
 
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $response = $this->get(route('vulnerability_toggles'))
+            ->assertOk();
 
         $crawler = new Crawler($response->content());
         $checkbox = $crawler->filter("input[type='checkbox'][id='" . $toggle . "']");
@@ -102,31 +98,28 @@ class VulnTogglesFeatureTest extends TestCase
     public function test_unauthorized_vuln_toggles_route(): void
     {
         auth()->logout();
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertRedirect('/login');
+        $this->get(route('vulnerability_toggles'))->assertRedirect(route('login'));
     }
 
     public function test_unauthenticated_vuln_toggles_update(): void
     {
         $this->startSession();
         auth()->logout();
-        $response = $this->sendUpdateToggleRequest('sqli_on', true);
-        $response->assertRedirect('/login');
+        $this->sendUpdateToggleRequest('sqli_on', true)->assertRedirect(route('login'));
     }
 
     public function test_cannot_update_others_toggles(): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest('sqli_on', false); // Just in case the toggle is set to true
-        $response->assertOk();
-        $response->assertJson(['success' => true]);
+        $this->sendUpdateToggleRequest('sqli_on', false) // Just in case the toggle is set to true
+            ->assertOk()
+            ->assertJson(['success' => true]);
 
         $newUser = User::factory()->create();
-        $response = $this->actingAs($newUser)->sendUpdateToggleRequest('sqli_on', true);
-        $response->assertOk();
-        $response->assertJson(['success' => true]);
+        $this->actingAs($newUser)->sendUpdateToggleRequest('sqli_on', true)
+            ->assertOk()
+            ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas(
             'user',
@@ -143,37 +136,33 @@ class VulnTogglesFeatureTest extends TestCase
             'toggle' => 'sqli_on',
             'value' => true
         ];
-        $response = $this->post(route('vulnerability_toggles.update'), $checkData);
-        $response->assertCsrfMismatch();
+        $this->post(route('vulnerability_toggles.update'), $checkData)->assertCsrfMismatch();
     }
 
     public function test_invalid_toggle_name_request(): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest('invalid_toggle', true);
-        $response->assertUnprocessable();
-        $response->assertJson(['success' => false, 'error' => 'Invalid toggle name']);
+        $this->sendUpdateToggleRequest('invalid_toggle', true)
+            ->assertUnprocessable()
+            ->assertJson(['success' => false, 'error' => 'Invalid toggle name']);
     }
 
     public function test_invalid_toggle_type_request(): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest(1234, true);
-        $response->assertUnprocessable();
-        $response->assertJson(['success' => false]);
+        $this->sendUpdateToggleRequest(1234, true)
+            ->assertUnprocessable()
+            ->assertJson(['success' => false]);
     }
 
     public function test_invalid_value_type_request(): void
     {
-        $response = $this->get('/vulnerability_toggles');
-        $response->assertOk();
+        $this->get(route('vulnerability_toggles'))->assertOk();
 
-        $response = $this->sendUpdateToggleRequest('sqli_on', 'invalid_type');
-        $response->assertUnprocessable();
-        $response->assertJson(['success' => false]);
+        $this->sendUpdateToggleRequest('sqli_on', 'invalid_type')
+            ->assertUnprocessable()
+            ->assertJson(['success' => false]);
     }
 }
