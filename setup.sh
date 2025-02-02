@@ -30,7 +30,7 @@ done
 echo "Database is ready."
 
 echo "Running migrations..."
-./vendor/bin/sail artisan db:wipe || true
+./vendor/bin/sail artisan db:wipe
 ./vendor/bin/sail artisan migrate
 
 echo "Seeding database..."
