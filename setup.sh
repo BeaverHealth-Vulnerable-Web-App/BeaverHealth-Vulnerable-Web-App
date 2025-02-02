@@ -16,7 +16,7 @@ echo "Starting Laravel Sail..."
 echo "Waiting for the database to be ready..."
 max_attempts=30
 attempt=1
-while ! ./vendor/bin/sail artisan migrate:status >/dev/null 2>&1; do
+while ! ./vendor/bin/sail exec db mysqladmin ping --silent; do
     echo "Attempt $attempt: Database not ready, waiting 2 seconds..."
     sleep 2
     attempt=$((attempt+1))
