@@ -22,12 +22,12 @@ class VulnTogglesFeatureTest extends TestCase
     static function toggleProvider(): array
     {
         return [
-            ['sqli_on'],
-            ['cmd_inject_on'],
-            ['idor_on'],
-            ['file_upload_on'],
-            ['xss_stored_on'],
-            ['xss_reflected_on'],
+            'sqli_on' => ['sqli_on'],
+            'cmd_inject_on' => ['cmd_inject_on'],
+            'idor_on' => ['idor_on'],
+            'file_upload_on' => ['file_upload_on'],
+            'xss_stored_on' => ['xss_stored_on'],
+            'xss_reflected_on' => ['xss_reflected_on'],
         ];
     }
 
