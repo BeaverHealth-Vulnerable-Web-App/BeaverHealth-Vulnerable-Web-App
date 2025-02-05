@@ -2,7 +2,13 @@
 
 set -e
 
-echo "Installing Laravel dependencies inside of a container..."
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NO_COLOR='\033[0m'
+
+echo -e "${BLUE}Installing Laravel dependencies inside of a container...${NO_COLOR}"
 docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd)":/var/www/html \
@@ -10,36 +16,36 @@ docker run --rm \
     laravelsail/php82-composer:latest \
     composer install --optimize-autoloader
 
-echo "Starting Laravel Sail..."
+echo -e "${BLUE}Starting Laravel Sail...${NO_COLOR}"
 ./vendor/bin/sail build --no-cache
 ./vendor/bin/sail up -d
 
-echo "Waiting for the database to be ready..."
+echo -e "${YELLOW}Waiting for the database to be ready...${NO_COLOR}"
 max_attempts=30
 attempt=1
 while ! ./vendor/bin/sail exec db mysqladmin ping --silent; do
-    echo "Attempt $attempt: Database not ready, waiting 2 seconds..."
+    echo -e "${YELLOW}Attempt $attempt: Database not ready, waiting 2 seconds...${NO_COLOR}"
     sleep 2
     attempt=$((attempt+1))
     if [ "$attempt" -gt "$max_attempts" ]; then
-        echo "Database did not become available after $max_attempts attempts."
+        echo -e "${RED}Database did not become available after $max_attempts attempts.${NO_COLOR}"
         exit 1
     fi
 done
 
-echo "Database is ready."
+echo -e "${GREEN}Database is ready.${NO_COLOR}"
 
-echo "Running migrations..."
+echo -e "${BLUE}Running migrations...${NO_COLOR}"
 ./vendor/bin/sail artisan db:wipe
 ./vendor/bin/sail artisan migrate
 
-echo "Seeding database..."
+echo -e "${BLUE}Seeding database...${NO_COLOR}"
 ./vendor/bin/sail artisan db:seed
 
-echo "Clearing Laravel caches..."
+echo -e "${BLUE}Clearing Laravel caches...${NO_COLOR}"
 ./vendor/bin/sail artisan config:clear
 ./vendor/bin/sail artisan cache:clear
 ./vendor/bin/sail artisan route:clear
 ./vendor/bin/sail artisan view:clear
 
-echo "Setup complete! Visit the app at http://localhost:9991"
+echo -e "${GREEN}Setup complete! Visit the app at http://localhost:9991${NO_COLOR}"
