@@ -10,5 +10,5 @@ Make sure you have Docker and Docker Compose available on your system:
 3. Navigate to the project root 🫚  
   `cd ./BeaverHealth-Vulnerable-Web-App`
 4. Run the setup script
-  `./setup.sh`
+  `./setup.sh --fresh`
 5. In a web browser, navigate to `localhost:9991` 🗺️  
