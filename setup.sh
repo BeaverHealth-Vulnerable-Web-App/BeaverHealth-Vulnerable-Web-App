@@ -6,24 +6,28 @@ GREEN='\033[1;32m'
 BLUE='\033[1;34m'
 YELLOW='\033[1;33m'
 RED='\033[1;31m'
+CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
-FRESH_INSTALL=false
-INSTALL_DEPS=false
-REBUILD_APP=false
-MIGRATE_DB=false
-CLEAR_CACHE=false
+FRESH_DEPLOYMENT=false
 
 show_help() {
-    echo -e "${BLUE}Usage: $0 [options]${NO_COLOR}"
+    echo -e "${CYAN}Usage: $0 [options]${NO_COLOR}"
     echo -e "Options:"
     echo -e "  -f, --fresh           Build the app for the first time"
-    echo -e "  -d, --dependencies    Install Laravel dependencies"
-    echo -e "  -r, --rebuild         Rebuild the application"
-    echo -e "  -m, --migrate         Wipe, migrate, and seed the database"
-    echo -e "  -c, --cache           Clear Laravel caches"
     echo -e "  -h, --help            Show this help message"
     exit 0
+}
+
+prompt_yes_no() {
+    while true; do
+        read -p "$(echo -e "$1") (y/n): " yn
+        case $yn in
+            [Yy]* ) return 0;;
+            [Nn]* ) return 1;;
+            * ) echo "Please answer yes or no."
+        esac
+    done
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -33,11 +37,7 @@ while [[ "$#" -gt 0 ]]; do
                 if [[ ${1:0:2} == "--" ]]; then
                     # Handle long options
                     case $1 in
-                        --fresh) FRESH_INSTALL=true ;;
-                        --dependencies) INSTALL_DEPS=true ;;
-                        --rebuild) REBUILD_APP=true ;;
-                        --migrate) MIGRATE_DB=true ;;
-                        --cache) CLEAR_CACHE=true ;;
+                        --fresh) FRESH_DEPLOYMENT=true ;;
                         --help) show_help ;;
                         *) echo -e "${RED}Unknown parameter: $1${NO_COLOR}"; exit 1 ;;
                     esac
@@ -47,11 +47,7 @@ while [[ "$#" -gt 0 ]]; do
                     # Handle combined short options
                     for (( i=1; i<${#1}; i++ )); do
                         case ${1:$i:1} in
-                            f) FRESH_INSTALL=true ;;
-                            d) INSTALL_DEPS=true ;;
-                            r) REBUILD_APP=true ;;
-                            m) MIGRATE_DB=true ;;
-                            c) CLEAR_CACHE=true ;;
+                            f) FRESH_DEPLOYMENT=true ;;
                             h) show_help ;;
                             *) echo -e "${RED}Unknown parameter: -${1:$i:1}${NO_COLOR}"; exit 1 ;;
                         esac
@@ -68,15 +64,21 @@ while [[ "$#" -gt 0 ]]; do
     esac
 done
 
-if [[ "$FRESH_INSTALL" == true ]]; then
+if [[ "$FRESH_DEPLOYMENT" == true ]]; then
     INSTALL_DEPS=true
     REBUILD_APP=true
     MIGRATE_DB=true
     CLEAR_CACHE=true
+else
+    echo -e "${CYAN}Please select which actions to perform:${NO_COLOR}"
+    prompt_yes_no "${BLUE}Install Laravel dependencies?${NO_COLOR}" && INSTALL_DEPS=true
+    prompt_yes_no "${BLUE}Rebuild the application?${NO_COLOR}" && REBUILD_APP=true
+    prompt_yes_no "${BLUE}Migrate and seed database?${NO_COLOR}" && MIGRATE_DB=true
+    prompt_yes_no "${BLUE}Clear Laravel caches?${NO_COLOR}" && CLEAR_CACHE=true
 fi
 
 if [[ "$INSTALL_DEPS" == true ]]; then
-    echo -e "${BLUE}Installing Laravel dependencies inside of a container...${NO_COLOR}"
+    echo -e "${CYAN}Installing Laravel dependencies inside of a container...${NO_COLOR}"
     docker run --rm \
         -u "$(id -u):$(id -g)" \
         -v "$(pwd)":/var/www/html \
@@ -86,11 +88,15 @@ if [[ "$INSTALL_DEPS" == true ]]; then
 fi
 
 if [[ "$REBUILD_APP" == true ]]; then
-    echo -e "${BLUE}Rebuilding and starting app...${NO_COLOR}"
-    ./vendor/bin/sail build --no-cache
-    ./vendor/bin/sail up -d
-else
-    echo -e "${BLUE}Starting app...${NO_COLOR}"
+    USE_DOCKER_CACHE=true
+    [[ "$FRESH_DEPLOYMENT" != true ]] && prompt_yes_no "${BLUE}Use Docker cache for rebuild?${NO_COLOR}" && USE_DOCKER_CACHE=true
+
+    echo -e "${CYAN}Deploying application...${NO_COLOR}"
+    if [[ "$USE_DOCKER_CACHE" == true ]]; then
+        ./vendor/bin/sail build
+    else
+        ./vendor/bin/sail build --no-cache
+    fi
     ./vendor/bin/sail up -d
 fi
 
@@ -110,16 +116,19 @@ if [[ "$MIGRATE_DB" == true ]]; then
 
     echo -e "${GREEN}Database is ready.${NO_COLOR}"
 
-    echo -e "${BLUE}Running migrations...${NO_COLOR}"
-    ./vendor/bin/sail artisan db:wipe
+    WIPE_DB=true
+    [[ "$FRESH_DEPLOYMENT" != true ]] && prompt_yes_no "${BLUE}Wipe database before migrating?${NO_COLOR}" && WIPE_DB=true
+
+    echo -e "${CYAN}Running migrations...${NO_COLOR}"
+    [[ "$WIPE_DB" == true ]] && ./vendor/bin/sail artisan db:wipe
     ./vendor/bin/sail artisan migrate
 
-    echo -e "${BLUE}Seeding database...${NO_COLOR}"
+    echo -e "${CYAN}Seeding database...${NO_COLOR}"
     ./vendor/bin/sail artisan db:seed
 fi
 
 if [[ "$CLEAR_CACHE" == true ]]; then
-    echo -e "${BLUE}Clearing Laravel caches...${NO_COLOR}"
+    echo -e "${CYAN}Clearing Laravel caches...${NO_COLOR}"
     ./vendor/bin/sail artisan config:clear
     ./vendor/bin/sail artisan cache:clear
     ./vendor/bin/sail artisan route:clear
