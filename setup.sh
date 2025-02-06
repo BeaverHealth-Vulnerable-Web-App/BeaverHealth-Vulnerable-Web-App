@@ -27,16 +27,45 @@ show_help() {
 }
 
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -f|--fresh) FRESH_INSTALL=true ;;
-        -d|--dependencies) INSTALL_DEPS=true ;;
-        -r|--rebuild) REBUILD_APP=true ;;
-        -m|--migrate) MIGRATE_DB=true ;;
-        -c|--cache) CLEAR_CACHE=true ;;
-        -h|--help) show_help ;;
-        *) echo -e "${RED}Unknown parameter: $1${NO_COLOR}"; exit 1 ;;
+    case ${1:0:1} in
+        -)
+            while [[ ${1:0:1} == "-" ]]; do
+                if [[ ${1:0:2} == "--" ]]; then
+                    # Handle long options
+                    case $1 in
+                        --fresh) FRESH_INSTALL=true ;;
+                        --dependencies) INSTALL_DEPS=true ;;
+                        --rebuild) REBUILD_APP=true ;;
+                        --migrate) MIGRATE_DB=true ;;
+                        --cache) CLEAR_CACHE=true ;;
+                        --help) show_help ;;
+                        *) echo -e "${RED}Unknown parameter: $1${NO_COLOR}"; exit 1 ;;
+                    esac
+                    shift
+                    break
+                else
+                    # Handle combined short options
+                    for (( i=1; i<${#1}; i++ )); do
+                        case ${1:$i:1} in
+                            f) FRESH_INSTALL=true ;;
+                            d) INSTALL_DEPS=true ;;
+                            r) REBUILD_APP=true ;;
+                            m) MIGRATE_DB=true ;;
+                            c) CLEAR_CACHE=true ;;
+                            h) show_help ;;
+                            *) echo -e "${RED}Unknown parameter: -${1:$i:1}${NO_COLOR}"; exit 1 ;;
+                        esac
+                    done
+                    shift
+                    break
+                fi
+            done
+            ;;
+        *)
+            echo -e "${RED}Unknown parameter: $1${NO_COLOR}"
+            exit 1
+            ;;
     esac
-    shift
 done
 
 if [[ "$FRESH_INSTALL" == true ]]; then
