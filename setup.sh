@@ -14,7 +14,12 @@ FRESH_DEPLOYMENT=false
 show_help() {
     echo -e "${CYAN}Usage: $0 [options]${NO_COLOR}"
     echo -e "Options:"
-    echo -e "  -f, --fresh           Build the app for the first time"
+    echo -e "  -f, --fresh           Perform a fresh deployment, including:"
+    echo -e "                        - Installing Laravel dependencies"
+    echo -e "                        - Building the application"
+    echo -e "                        - Migrating and seeding the database"
+    echo -e "                        - Clearing Laravel caches"
+    echo -e "                        Use this for initial deployments or when you need a clean slate.\n"
     echo -e "  -h, --help            Show this help message"
     exit 0
 }
@@ -30,38 +35,13 @@ prompt_yes_no() {
     done
 }
 
-while [[ "$#" -gt 0 ]]; do
-    case ${1:0:1} in
-        -)
-            while [[ ${1:0:1} == "-" ]]; do
-                if [[ ${1:0:2} == "--" ]]; then
-                    # Handle long options
-                    case $1 in
-                        --fresh) FRESH_DEPLOYMENT=true ;;
-                        --help) show_help ;;
-                        *) echo -e "${RED}Unknown parameter: $1${NO_COLOR}"; exit 1 ;;
-                    esac
-                    shift
-                    break
-                else
-                    # Handle combined short options
-                    for (( i=1; i<${#1}; i++ )); do
-                        case ${1:$i:1} in
-                            f) FRESH_DEPLOYMENT=true ;;
-                            h) show_help ;;
-                            *) echo -e "${RED}Unknown parameter: -${1:$i:1}${NO_COLOR}"; exit 1 ;;
-                        esac
-                    done
-                    shift
-                    break
-                fi
-            done
-            ;;
-        *)
-            echo -e "${RED}Unknown parameter: $1${NO_COLOR}"
-            exit 1
-            ;;
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -f|--fresh) FRESH_DEPLOYMENT=true ;;
+        -h|--help) show_help ;;
+        *) echo -e "${RED}Unknown option: $1${NO_COLOR}" >&2; show_help; exit 1; ;;
     esac
+    shift
 done
 
 if [[ "$FRESH_DEPLOYMENT" == true ]]; then
