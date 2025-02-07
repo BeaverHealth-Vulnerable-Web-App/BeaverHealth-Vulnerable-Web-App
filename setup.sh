@@ -111,6 +111,13 @@ install_dependencies() {
   fi
 }
 
+ensure_vendor() {
+    if [[ ! -d './vendor/' ]]; then
+        echo -e "${RED}Missing Laravel dependencies. Make sure to use the --fresh flag for initial deployment.${NO_COLOR}"
+        exit 1
+    fi
+}
+
 build_application() {
   if [ "$REBUILD_APP" = true ]; then
     echo -e "${CYAN}Building application...${NO_COLOR}"
@@ -173,6 +180,7 @@ main() {
   setup_trap
   determine_actions
   install_dependencies
+  ensure_vendor
   build_application
   start_containers
   wait_for_database
