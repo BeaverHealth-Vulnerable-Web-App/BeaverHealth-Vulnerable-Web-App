@@ -15,7 +15,8 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         TestResponse::macro(
-            'assertCsrfMismatch', function () {
+            'assertCsrfMismatch',
+            function () {
                 return $this->assertStatus(419);
             }
         );

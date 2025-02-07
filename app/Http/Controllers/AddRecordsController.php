@@ -13,7 +13,7 @@ class AddRecordsController extends Controller
 
     // File upload
     public function upload(Request $request)
-    {   
+    {
         // Allow only files (no other validation for now)
         $request->validate(
             [
@@ -33,4 +33,3 @@ class AddRecordsController extends Controller
         return back()->with('success', 'File uploaded successfully!');
     }
 }
-
