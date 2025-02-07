@@ -82,7 +82,7 @@ if [[ "$REBUILD_APP" == true ]]; then
     USE_DOCKER_CACHE=true
     [[ "$FRESH_DEPLOYMENT" != true ]] && prompt_yes_no "${BLUE}Use Docker cache for rebuild?${NO_COLOR}" && USE_DOCKER_CACHE=true
 
-    echo -e "${CYAN}Deploying application...${NO_COLOR}"
+    echo -e "${CYAN}Building application...${NO_COLOR}"
     if [[ "$USE_DOCKER_CACHE" == true ]]; then
         ./vendor/bin/sail build
     else
@@ -90,6 +90,7 @@ if [[ "$REBUILD_APP" == true ]]; then
     fi
 fi
 
+echo -e "${CYAN}Starting containers..."
 ./vendor/bin/sail up -d
 
 if [[ "$MIGRATE_DB" == true ]]; then
