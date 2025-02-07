@@ -54,7 +54,7 @@ parse_args() {
   done
 }
 
-check_docker() {
+preflight_check() {
   if ! command -v docker &> /dev/null; then
     echo -e "${RED}Error: Docker is not installed${NO_COLOR}"
     exit 1
@@ -71,6 +71,7 @@ setup_trap() {
 
 determine_actions() {
   if [ "$FRESH_DEPLOYMENT" = true ]; then
+    echo -e "${CYAN}Performing fresh deployment...${NO_COLOR}"
     INSTALL_DEPS=true
     REBUILD_APP=true
     MIGRATE_DB=true
@@ -100,7 +101,7 @@ determine_actions() {
 
 install_dependencies() {
   if [ "$INSTALL_DEPS" = true ]; then
-    echo -e "${CYAN}Installing Laravel dependencies inside of a container...${NO_COLOR}"
+    echo -e "${CYAN}Installing Laravel dependencies...${NO_COLOR}"
     docker run --rm \
       -u "$(id -u):$(id -g)" \
       -v "$(pwd)":/var/www/html \
@@ -168,7 +169,7 @@ clear_laravel_cache() {
 
 main() {
   parse_args "$@"
-  check_docker
+  preflight_check
   setup_trap
   determine_actions
   install_dependencies
