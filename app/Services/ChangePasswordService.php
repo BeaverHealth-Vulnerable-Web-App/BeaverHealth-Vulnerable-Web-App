@@ -14,7 +14,8 @@ class ChangePasswordService
             return false;
         }
 
-        $user->password = Hash::make($request->input('password'));
-        return $user->save();
+        return $user->update([
+            'password' => Hash::make($request->input('password'))
+        ]);
     }
 }

@@ -28,7 +28,7 @@ Route::middleware('auth')->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/profile/change-password', [ProfileController::class, 'showChangePasswordForm'])->name('profile.change-password');
+        Route::get('/profile/change-password', [ProfileController::class, 'index'])->name('profile.change-password');
         Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password.update');
 
         Route::get('/admin', [AdminController::class, 'index'])->name('admin');
