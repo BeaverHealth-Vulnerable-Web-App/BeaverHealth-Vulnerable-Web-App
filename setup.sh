@@ -44,6 +44,17 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}Error: Docker is not installed${NO_COLOR}"
+    exit 1
+fi
+if ! docker info &> /dev/null; then
+    echo -e "${RED}Error: Docker daemon is not running${NO_COLOR}"
+    exit 1
+fi
+
+trap 'echo -e "\n${YELLOW}Deployment interrupted. Cleaning up...${NO_COLOR}"; exit 1' INT
+
 if [[ "$FRESH_DEPLOYMENT" == true ]]; then
     INSTALL_DEPS=true
     REBUILD_APP=true
@@ -77,8 +88,9 @@ if [[ "$REBUILD_APP" == true ]]; then
     else
         ./vendor/bin/sail build --no-cache
     fi
-    ./vendor/bin/sail up -d
 fi
+
+./vendor/bin/sail up -d
 
 if [[ "$MIGRATE_DB" == true ]]; then
     echo -e "${YELLOW}Waiting for the database to be ready...${NO_COLOR}"
