@@ -13,24 +13,16 @@
                     <!-- Search Form -->
                     <form action="{{ route('records.search') }}" method="POST">
                         @csrf
-                        <div class="mb-4">
-                            <label for="first_name" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">First Name:</label>
-                            <input type="text" name="first_name" id="first_name" required class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        </div>
+                        
+                        <!-- Patient Dropdown -->
+                        <x-patient-dropdown :patients="$patients" />
 
                         <div class="mb-4">
-                            <label for="last_name" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">Last Name:</label>
-                            <input type="text" name="last_name" id="last_name" required class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="dob" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">Date of Birth:</label>
-                            <input type="date" name="dob" id="dob" required class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="keyword" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">Filter Keyword (Optional):</label>
-                            <input type="text" name="keyword" id="keyword" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <label for="keyword" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">
+                                Filter Keyword (Optional):
+                            </label>
+                            <input type="text" name="keyword" id="keyword" 
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
 
                         @if (session('success'))
@@ -45,13 +37,14 @@
                             </div>
                         @endif
 
-                        <button type="submit" class="w-full px-6 py-4 bg-gray-500 text-white rounded shadow-md hover:bg-gray-600 mt-6">
+                        <button type="submit" 
+                                class="w-full px-6 py-4 bg-gray-500 text-white rounded shadow-md hover:bg-gray-600 mt-6">
                             Search Records
                         </button>
                     </form>
 
                     <!-- Patient Details (if found) -->
-                    @if (!empty($patientInfo) && $patientInfo[0]->first_name !== 'N/A' && $patientInfo[0]->last_name !== 'N/A')
+                    @if (!empty($patientInfo) && $patientInfo[0]->first_name !== 'N/A')
                         <div class="mt-6">
                             <h3 class="font-semibold mb-4 text-gray-800 dark:text-gray-200">Patient Details:</h3>
                             <p class="text-gray-900 dark:text-gray-100">
@@ -62,10 +55,15 @@
                     @endif
 
                     <!-- Display Matching Files -->
-                    @if (!empty(trim($patientFiles)) && trim($patientFiles) !== 'No files found.' && trim($patientFiles) !== 'No files found. (Directory missing)')
+                    @if (session()->has('patient_info') && session()->has('patient_files'))
                         <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded shadow-sm">
                             <h3 class="font-semibold text-gray-800 dark:text-gray-200">Matching Files:</h3>
-                            {!! $patientFiles !!}
+                            
+                            @if (!empty(trim($patientFiles)) && trim($patientFiles) !== 'No files found.')
+                                {!! $patientFiles !!}
+                            @else
+                                <p class="text-gray-600 dark:text-gray-300">No files found.</p>
+                            @endif
                         </div>
                     @endif
                 </div>
