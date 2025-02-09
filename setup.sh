@@ -35,9 +35,19 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -f|--fresh)
+        if [[ "$INTERACTIVE" = true ]]; then
+          echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
+          show_help
+          exit 1
+        fi
         FRESH_DEPLOYMENT=true
         ;;
       -i|--interactive)
+        if [[ "$FRESH_DEPLOYMENT" = true ]]; then
+          echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
+          show_help
+          exit 1
+        fi
         INTERACTIVE=true
         ;;
       -h|--help)
@@ -126,9 +136,13 @@ build_application() {
   if [[ "$REBUILD_APP" = true ]]; then
     echo -e "${CYAN}Building application...${NO_COLOR}"
     if [[ "$USE_DOCKER_CACHE" = true ]]; then
-      ./vendor/bin/sail build
+      if ! ./vendor/bin/sail build; then
+          echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+      fi
     else
-      ./vendor/bin/sail build --no-cache
+      if ! ./vendor/bin/sail build --no-cache; then
+          echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+      fi
     fi
   fi
 }
@@ -180,6 +194,7 @@ main() {
   preflight_check
   setup_trap
   determine_actions
+  echo -e "${CYAN}Starting local deployment...${NO_COLOR}"
   install_dependencies
   ensure_vendor
   build_application
