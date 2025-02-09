@@ -70,13 +70,13 @@ setup_trap() {
 }
 
 determine_actions() {
-  if [ "$FRESH_DEPLOYMENT" = true ]; then
+  if [[ "$FRESH_DEPLOYMENT" = true ]]; then
     echo -e "${CYAN}Performing fresh deployment...${NO_COLOR}"
     INSTALL_DEPS=true
     REBUILD_APP=true
     MIGRATE_DB=true
     CLEAR_CACHE=true
-  elif [ "$INTERACTIVE" = true ]; then
+  elif [[ "$INTERACTIVE" = true ]]; then
     echo -e "${CYAN}Please select which actions to perform:${NO_COLOR}"
     if prompt_yes_no "${BLUE}Install Laravel dependencies?${NO_COLOR}"; then
       INSTALL_DEPS=true
@@ -104,7 +104,7 @@ determine_actions() {
 }
 
 install_dependencies() {
-  if [ "$INSTALL_DEPS" = true ]; then
+  if [[ "$INSTALL_DEPS" = true ]]; then
     echo -e "${CYAN}Installing Laravel dependencies...${NO_COLOR}"
     docker run --rm \
       -u "$(id -u):$(id -g)" \
@@ -123,9 +123,9 @@ ensure_vendor() {
 }
 
 build_application() {
-  if [ "$REBUILD_APP" = true ]; then
+  if [[ "$REBUILD_APP" = true ]]; then
     echo -e "${CYAN}Building application...${NO_COLOR}"
-    if [ "$USE_DOCKER_CACHE" = true ]; then
+    if [[ "$USE_DOCKER_CACHE" = true ]]; then
       ./vendor/bin/sail build
     else
       ./vendor/bin/sail build --no-cache
@@ -139,7 +139,7 @@ start_application() {
 }
 
 wait_for_database() {
-  if [ "$MIGRATE_DB" = true ]; then
+  if [[ "$MIGRATE_DB" = true ]]; then
     echo -e "${YELLOW}Waiting for the database to be ready...${NO_COLOR}"
     max_attempts=30
     attempt=1
@@ -147,7 +147,7 @@ wait_for_database() {
       echo -e "${YELLOW}Attempt $attempt: Database not ready, waiting 2 seconds...${NO_COLOR}"
       sleep 2
       attempt=$((attempt+1))
-      if [ "$attempt" -gt "$max_attempts" ]; then
+      if [[ "$attempt" -gt "$max_attempts" ]]; then
         echo -e "${RED}Database did not become available after $max_attempts attempts.${NO_COLOR}"
         exit 1
       fi
@@ -157,8 +157,8 @@ wait_for_database() {
 }
 
 setup_database() {
-  if [ "$MIGRATE_DB" = true ]; then
-    if [ "$FRESH_DEPLOYMENT" != true && "$WIPE_DB" = true ]; then
+  if [[ "$MIGRATE_DB" = true ]]; then
+    if [[ "$FRESH_DEPLOYMENT" != true ]] && [[ "$WIPE_DB" = true ]]; then
         ./vendor/bin/sail artisan db:wipe
     fi
     echo -e "${CYAN}Migrating database...${NO_COLOR}"
@@ -169,7 +169,7 @@ setup_database() {
 }
 
 clear_laravel_cache() {
-  if [ "$CLEAR_CACHE" = true ]; then
+  if [[ "$CLEAR_CACHE" = true ]]; then
     echo -e "${CYAN}Clearing Laravel caches...${NO_COLOR}"
     ./vendor/bin/sail artisan optimize:clear
   fi
