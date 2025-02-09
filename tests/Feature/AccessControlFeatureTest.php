@@ -30,59 +30,123 @@ class AccessControlFeatureTest extends TestCase
             ->assertViewIs('admin');
     }
 
-    public function testAdminCanUpdateRoles()
+    public function testAdminCanToggleRoles()
+    {
+        $admin = $this->createUserWithRoles(['is_admin' => true]);
+        $targetUser = $this->createUserWithRoles();
+
+        $this->get(route('admin'));
+        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
+
+        // Toggle on
+        foreach ($roles as $role) {
+            $this->actingAs($admin)->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => $role,
+                    'value' => true
+                ]
+            )
+            ->assertOk()
+            ->assertJson(['success' => true]);
+        }
+
+        $updatedUser = $targetUser->fresh();
+        foreach ($roles as $role) {
+            $this->assertTrue($updatedUser->$role);
+        }
+
+        // Toggle off
+        foreach ($roles as $role) {
+            $this->actingAs($admin)->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => $role,
+                    'value' => false
+                ]
+            )
+            ->assertOk()
+            ->assertJson(['success' => true]);
+        }
+
+        $updatedUser = $targetUser->fresh();
+        foreach ($roles as $role) {
+            $this->assertFalse($updatedUser->$role);
+        }
+    }
+
+    // In the vulnerable version, any user can update roles
+    public function testNonAdminCanToggleRoles()
+    {
+        $admin = $this->createUserWithRoles();
+        $targetUser = $this->createUserWithRoles();
+
+        $this->get(route('admin'));
+        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
+
+        // Toggle on
+        foreach ($roles as $role) {
+            $this->actingAs($admin)->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => $role,
+                    'value' => true
+                ]
+            )
+            ->assertOk()
+            ->assertJson(['success' => true]);
+        }
+
+        $updatedUser = $targetUser->fresh();
+        foreach ($roles as $role) {
+            $this->assertTrue($updatedUser->$role);
+        }
+
+        // Toggle off
+        foreach ($roles as $role) {
+            $this->actingAs($admin)->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => $role,
+                    'value' => false
+                ]
+            )
+            ->assertOk()
+            ->assertJson(['success' => true]);
+        }
+
+        $updatedUser = $targetUser->fresh();
+        foreach ($roles as $role) {
+            $this->assertFalse($updatedUser->$role);
+        }
+    }
+
+    public function testRepeatedRoleUpdatesWork()
     {
         $admin = $this->createUserWithRoles(['is_admin' => true]);
         $targetUser = $this->createUserWithRoles();
 
         $this->get(route('admin'));
 
-        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => true
-                ]
-            )
-            ->assertOk()
-            ->assertJson(['success' => true]);
+        for ($i = 0; $i < 3; $i++) {
+            $this->actingAs($admin)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->postWithCsrf(
+                    route('admin.updateRole'),
+                    [
+                        'user_id' => $targetUser->user_id,
+                        'role' => 'request_records',
+                        'value' => true
+                    ]
+                )
+                ->assertOk();
         }
 
-        $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
-            $this->assertTrue($updatedUser->$role);
-        }
-    }
-
-    // This is expected behavior in the vulnerable version of the admin panel
-    public function testNonAdminCanUpdateUserRoles()
-    {
-        $admin = $this->createUserWithRoles();
-        $targetUser = $this->createUserWithRoles();
-
-        $this->get(route('admin'));
-
-        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => true
-                ]
-            )
-            ->assertOk()
-            ->assertJson(['success' => true]);
-        }
-
-        $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
-            $this->assertTrue($updatedUser->$role);
-        }
+        $this->assertTrue($targetUser->fresh()->request_records);
     }
 
     public function testNavigationLinksVisibleWithRoles()
@@ -186,5 +250,61 @@ class AccessControlFeatureTest extends TestCase
             ->postWithCsrf(route('admin.updateRole'), [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['value']);
+    }
+
+    public function testAnyUserCanAccessAdminPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('admin'))
+            ->assertOk()
+            ->assertViewIs('admin');
+    }
+
+    public function testAnyUserCanAccessAddRecordsPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('records.add'))
+            ->assertOk()
+            ->assertViewIs('records.add');
+    }
+
+    // TODO - uncomment when request records page is merged
+    // public function testAnyUserCanAccessRequestRecordsPage()
+    // {
+    //     $user = $this->createUserWithRoles();
+    //     $this->actingAs($user)
+    //         ->get(route('records.request'))
+    //         ->assertOk()
+    //         ->assertViewIs('records.request');
+    // }
+
+    // Expected behavior with vulnerable version of access controls
+    public function testAnyUserCanAccessPatientInfoPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('patients.index'))
+            ->assertOk()
+            ->assertViewIs('patients.index');
+    }
+
+    public function testAnyUserCanAccessVulnerabilityTogglesPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('vulnerability_toggles'))
+            ->assertOk()
+            ->assertViewIs('vuln_toggles.index');
+    }
+
+    public function testAnyUserCanAccessPatientFeedbackPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('feedback'))
+            ->assertOk()
+            ->assertViewIs('feedback.index');
     }
 }
