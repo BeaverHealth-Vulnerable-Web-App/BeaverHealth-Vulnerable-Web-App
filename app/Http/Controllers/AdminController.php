@@ -3,39 +3,40 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateUserRoleRequest;
+use App\Services\UserRoleService;
 
 class AdminController extends Controller
 {
-    /**
-     * Show the admin panel with all users and their roles.
-     */
+    private UserRoleService $roleService;
+
+    public function __construct(UserRoleService $roleService)
+    {
+        $this->roleService = $roleService;
+    }
+
     public function index()
     {
-        // Fetch all users
         $users = User::all();
-
-        // Return the admin view with the list of users
         return view('admin', compact('users'));
     }
 
-    /**
-     * Update a user's role via AJAX.
-     */
-    public function updateRole(Request $request)
+    public function updateRole(UpdateUserRoleRequest $request)
     {
-        $user = User::find($request->input('user_id'));
-        if ($user) {
-            $role = $request->input('role');
-            $value = $request->input('value') ? true : false;
+        $user = User::findOrFail($request->input('user_id'));
+        $success = $this->roleService->updateRole(
+            $user,
+            $request->input('role'),
+            $request->boolean('value')
+        );
 
-            // Update the role
-            $user->$role = $value;
-            $user->save();
-
-            return response()->json(['success' => true]);
+        if (!$success) {
+            return response()->json(
+                ['success' => false, 'message' => 'Failed to update role'],
+                500
+            );
         }
 
-        return response()->json(['success' => false], 400);
+        return response()->json(['success' => true]);
     }
 }
