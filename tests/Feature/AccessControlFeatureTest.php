@@ -307,4 +307,14 @@ class AccessControlFeatureTest extends TestCase
             ->assertOk()
             ->assertViewIs('feedback.index');
     }
+
+    // TODO - uncomment when change password page is merged
+    // public function testAnyUserCanAccessChangePasswordPage()
+    // {
+    //     $user = $this->createUserWithRoles();
+    //     $this->actingAs($user)
+    //         ->get(route('profile.change-password'))
+    //         ->assertOk()
+    //         ->assertViewIs('profile.change-password');
+    // }
 }
