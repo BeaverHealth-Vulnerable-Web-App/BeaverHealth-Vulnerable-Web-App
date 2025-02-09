@@ -18,7 +18,6 @@ show_help() {
   echo -e "  -f, --fresh           Perform a fresh deployment"
   echo -e "  -i, --interactive     Interactively choose deployment actions"
   echo -e "  -h, --help            Show this help message"
-  exit 0
 }
 
 prompt_yes_no() {
@@ -43,6 +42,7 @@ parse_args() {
         ;;
       -h|--help)
         show_help
+        exit 0
         ;;
       *)
         echo -e "${RED}Unknown option: $1${NO_COLOR}" >&2
