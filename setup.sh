@@ -10,16 +10,13 @@ CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
 FRESH_DEPLOYMENT=false
+INTERACTIVE=false
 
 show_help() {
-  echo -e "${CYAN}Usage: $0 [options]${NO_COLOR}"
+  echo -e "${CYAN}Usage: $0 [--fresh | --interactive | --help]${NO_COLOR}"
   echo -e "Options:"
-  echo -e "  -f, --fresh           Perform a fresh deployment, including:"
-  echo -e "                        - Installing Laravel dependencies"
-  echo -e "                        - Building the application"
-  echo -e "                        - Migrating and seeding the database"
-  echo -e "                        - Clearing Laravel caches"
-  echo -e "                        Use this for initial deployments or when you need a clean slate.\n"
+  echo -e "  -f, --fresh           Perform a fresh deployment"
+  echo -e "  -i, --interactive     Interactively choose deployment actions"
   echo -e "  -h, --help            Show this help message"
   exit 0
 }
@@ -40,6 +37,9 @@ parse_args() {
     case "$1" in
       -f|--fresh)
         FRESH_DEPLOYMENT=true
+        ;;
+      -i|--interactive)
+        INTERACTIVE=true
         ;;
       -h|--help)
         show_help
@@ -76,7 +76,7 @@ determine_actions() {
     REBUILD_APP=true
     MIGRATE_DB=true
     CLEAR_CACHE=true
-  else
+  elif [ "$INTERACTIVE" = true ]; then
     echo -e "${CYAN}Please select which actions to perform:${NO_COLOR}"
     if prompt_yes_no "${BLUE}Install Laravel dependencies?${NO_COLOR}"; then
       INSTALL_DEPS=true
@@ -96,6 +96,10 @@ determine_actions() {
     if prompt_yes_no "${BLUE}Clear Laravel caches?${NO_COLOR}"; then
       CLEAR_CACHE=true
     fi
+  else
+    echo -e "${RED}Error: Missing argument${NO_COLOR}"
+    show_help
+    exit 1
   fi
 }
 
@@ -129,7 +133,7 @@ build_application() {
   fi
 }
 
-start_containers() {
+start_application() {
   echo -e "${CYAN}Starting containers..."
   ./vendor/bin/sail up -d
 }
@@ -182,7 +186,7 @@ main() {
   install_dependencies
   ensure_vendor
   build_application
-  start_containers
+  start_application
   wait_for_database
   setup_database
   clear_laravel_cache
