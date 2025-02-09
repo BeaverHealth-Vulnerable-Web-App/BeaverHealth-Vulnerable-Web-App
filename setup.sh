@@ -171,10 +171,7 @@ setup_database() {
 clear_laravel_cache() {
   if [ "$CLEAR_CACHE" = true ]; then
     echo -e "${CYAN}Clearing Laravel caches...${NO_COLOR}"
-    ./vendor/bin/sail artisan config:clear
-    ./vendor/bin/sail artisan cache:clear
-    ./vendor/bin/sail artisan route:clear
-    ./vendor/bin/sail artisan view:clear
+    ./vendor/bin/sail artisan optimize:clear
   fi
 }
 
