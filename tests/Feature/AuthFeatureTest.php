@@ -29,7 +29,8 @@ class AuthFeatureTest extends TestCase
     {
         for ($i = 0; $i < self::MAX_LOGIN_ATTEMPTS; $i++) {
             $this->postWithCsrf(
-                route('login.attempt'), [
+                route('login.attempt'),
+                [
                     'username' => self::TEST_USERNAME,
                     'password' => self::TEST_WRONG_PASSWORD,
                 ]
@@ -37,7 +38,7 @@ class AuthFeatureTest extends TestCase
         }
     }
 
-    public function test_guest_is_redirected_from_dashboard(): void
+    public function testGuestIsRedirectedFromDashboard(): void
     {
         $this->get(route('dashboard'))
             ->assertRedirect(route('login'));
@@ -45,12 +46,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_user_can_register(): void
+    public function testUserCanRegister(): void
     {
         $this->get(route('register'));
 
         $this->postWithCsrf(
-            route('register.attempt'), [
+            route('register.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
@@ -61,13 +63,14 @@ class AuthFeatureTest extends TestCase
             ->assertDatabaseHas('user', ['username' => 'testuser']);
     }
 
-    public function test_registration_fails_with_duplicate_username(): void
+    public function testRegistrationFailsWithDuplicateUsername(): void
     {
         $this->createTestUser();
         $this->get(route('register'));
 
         $this->postWithCsrf(
-            route('register.attempt'), [
+            route('register.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
@@ -77,12 +80,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_registration_fails_with_weak_password(): void
+    public function testRegistrationFailsWithWeakPassword(): void
     {
         $this->get(route('register'));
 
         $this->postWithCsrf(
-            route('register.attempt'), [
+            route('register.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_WEAK_PASSWORD,
                 'password_confirmation' => self::TEST_WEAK_PASSWORD,
@@ -92,12 +96,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_registration_fails_without_csrf_token(): void
+    public function testRegistrationFailsWithoutCsrfToken(): void
     {
         $this->get(route('register'));
 
         $this->post(
-            route('register.attempt'), [
+            route('register.attempt'),
+            [
                 'password' => self::TEST_PASSWORD,
                 'password_confirmation' => self::TEST_PASSWORD,
             ]
@@ -106,7 +111,7 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_authenticated_user_cannot_access_register_page(): void
+    public function testAuthenticatedUserCannotAccessRegisterPage(): void
     {
         $user = $this->createTestUser();
         $this->actingAs($user);
@@ -115,13 +120,14 @@ class AuthFeatureTest extends TestCase
             ->assertRedirect(route('dashboard'));
     }
 
-    public function test_user_can_login_with_valid_credentials(): void
+    public function testUserCanLoginWithValidCredentials(): void
     {
         $user = $this->createTestUser();
         $this->get(route('login'));
 
         $this->postWithCsrf(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -130,13 +136,14 @@ class AuthFeatureTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_user_cannot_login_with_invalid_credentials(): void
+    public function testUserCannotLoginWithInvalidCredentials(): void
     {
         $this->createTestUser();
         $this->get(route('login'));
 
         $this->post(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 '_token' => session()->token(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_WRONG_PASSWORD,
@@ -146,12 +153,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_login_fails_with_missing_credentials(): void
+    public function testLoginFailsWithMissingCredentials(): void
     {
         $this->get(route('login'));
 
         $this->postWithCsrf(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => '',
                 'password' => '',
             ]
@@ -160,12 +168,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_login_fails_with_nonexistent_username(): void
+    public function testLoginFailsWithNonexistentUsername(): void
     {
         $this->get(route('login'));
 
         $this->postWithCsrf(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => self::TEST_NONEXISTENT_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -174,12 +183,13 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_login_fails_without_csrf_token(): void
+    public function testLoginFailsWithoutCsrfToken(): void
     {
         $this->get(route('login'));
 
         $this->post(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -188,7 +198,7 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_user_can_logout(): void
+    public function testUserCanLogout(): void
     {
         $user = $this->createTestUser();
         $this->actingAs($user);
@@ -200,7 +210,7 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_logout_while_not_logged_in(): void
+    public function testLogoutWhileNotLoggedIn(): void
     {
         $this->startSession();
 
@@ -210,7 +220,7 @@ class AuthFeatureTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_session_is_invalidated_on_logout(): void
+    public function testSessionIsInvalidatedOnLogout(): void
     {
         $user = $this->createTestUser();
         $this->actingAs($user);
@@ -226,7 +236,7 @@ class AuthFeatureTest extends TestCase
     }
 
 
-    public function test_session_is_regenerated_on_login(): void
+    public function testSessionIsRegeneratedOnLogin(): void
     {
         $this->createTestUser();
         $this->get(route('login'));
@@ -234,7 +244,8 @@ class AuthFeatureTest extends TestCase
         $initialSessionId = session()->getId();
 
         $this->postWithCsrf(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
             ]
@@ -243,7 +254,7 @@ class AuthFeatureTest extends TestCase
         $this->assertNotEquals($initialSessionId, session()->getId());
     }
 
-    public function test_authenticated_user_cannot_access_login_page(): void
+    public function testAuthenticatedUserCannotAccessLoginPage(): void
     {
         $user = $this->createTestUser();
         $this->actingAs($user);
@@ -252,7 +263,7 @@ class AuthFeatureTest extends TestCase
             ->assertRedirect(route('dashboard'));
     }
 
-    public function test_authenticated_session_persists_across_requests(): void
+    public function testAuthenticatedSessionPersistsAcrossRequests(): void
     {
         $user = $this->createTestUser();
         $this->actingAs($user);
@@ -266,7 +277,7 @@ class AuthFeatureTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_login_lockout_after_failed_attempts(): void
+    public function testLoginLockoutAfterFailedAttempts(): void
     {
         $this->createTestUser();
 
@@ -276,7 +287,8 @@ class AuthFeatureTest extends TestCase
         $this->triggerLoginLockout();
 
         $response = $this->postWithCsrf(
-            route('login.attempt'), [
+            route('login.attempt'),
+            [
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_WRONG_PASSWORD,
             ]

@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\User;
 use Tests\TestCase;
 
-
 class FeedbackFeatureTest extends TestCase
 {
     protected $user;
@@ -19,21 +18,24 @@ class FeedbackFeatureTest extends TestCase
 
     private function sendTestFeedback(): \Illuminate\Testing\TestResponse
     {
-        return $this->postWithCsrf(route('feedback.store'), [
+        return $this->postWithCsrf(
+            route('feedback.store'),
+            [
             'fname' => 'Test',
             'lname' => 'User',
             'feedback' => 'This is a test comment.'
-        ]);
+            ]
+        );
     }
 
 
-    public function test_route_feedback(): void
+    public function testRouteFeedback(): void
     {
         $response = $this->get(route('feedback'));
         $response->assertOk();
     }
 
-    public function test_feedback_add(): void
+    public function testFeedbackAdd(): void
     {
         $response = $this->get(route('feedback'));
         $response->assertOk();
@@ -45,7 +47,7 @@ class FeedbackFeatureTest extends TestCase
         $response->assertSeeText('This is a test comment.');
     }
 
-    public function test_valid_feedback_search(): void
+    public function testValidFeedbackSearch(): void
     {
         $response = $this->get(route('feedback'));
         $response->assertOk();
@@ -58,7 +60,7 @@ class FeedbackFeatureTest extends TestCase
         $response->assertSeeText('This is a test comment.');
     }
 
-    public function test_invalid_feedback_search(): void
+    public function testInvalidFeedbackSearch(): void
     {
         $response = $this->get(route('feedback'));
         $response->assertOk();

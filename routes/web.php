@@ -13,7 +13,6 @@ use App\Http\Controllers\Auth\PasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientInfoController;
 
-
 Route::middleware('guest')->group(
     function () {
         Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
@@ -48,8 +47,10 @@ Route::middleware('auth')->group(
         Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
         Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
 
-        Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])->name('vulnerability_toggles');
-        Route::post('/vulnerability_toggles/update', [VulnerabilityTogglesController::class, 'update'])->name('vulnerability_toggles.update');
+        Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
+            ->name('vulnerability_toggles');
+        Route::post('/vulnerability_toggles/update', [VulnerabilityTogglesController::class, 'update'])
+            ->name('vulnerability_toggles.update');
 
         Route::get('/confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
         Route::put('/password', [PasswordController::class, 'update'])->name('password.update');

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use \Illuminate\Testing\TestResponse;
+use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\DomCrawler\Crawler;
 use Tests\TestCase;
@@ -19,7 +19,7 @@ class VulnTogglesFeatureTest extends TestCase
         $this->actingAs($this->user);
     }
 
-    static function toggleProvider(): array
+    public static function toggleProvider(): array
     {
         return [
             'sqli_on' => ['sqli_on'],
@@ -42,13 +42,13 @@ class VulnTogglesFeatureTest extends TestCase
         );
     }
 
-    public function test_vuln_toggles_route(): void
+    public function testVulnTogglesRoute(): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
     }
 
     #[DataProvider('toggleProvider')]
-    public function test_valid_toggle_on($toggle): void
+    public function testValidToggleOn($toggle): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 
@@ -72,7 +72,7 @@ class VulnTogglesFeatureTest extends TestCase
     }
 
     #[DataProvider('toggleProvider')]
-    public function test_valid_toggle_off($toggle): void
+    public function testValidToggleOff($toggle): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 
@@ -95,20 +95,20 @@ class VulnTogglesFeatureTest extends TestCase
         $this->assertEquals($checkbox->attr('checked'), null);
     }
 
-    public function test_unauthorized_vuln_toggles_route(): void
+    public function testUnauthorizedVulnTogglesRoute(): void
     {
         auth()->logout();
         $this->get(route('vulnerability_toggles'))->assertRedirect(route('login'));
     }
 
-    public function test_unauthenticated_vuln_toggles_update(): void
+    public function testUnauthenticatedVulnTogglesUpdate(): void
     {
         $this->startSession();
         auth()->logout();
         $this->sendUpdateToggleRequest('sqli_on', true)->assertRedirect(route('login'));
     }
 
-    public function test_cannot_update_others_toggles(): void
+    public function testCannotUpdateOthersToggles(): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 
@@ -130,7 +130,7 @@ class VulnTogglesFeatureTest extends TestCase
         );
     }
 
-    public function test_non_csrf_request(): void
+    public function testNonCsrfRequest(): void
     {
         $checkData = [
             'toggle' => 'sqli_on',
@@ -139,7 +139,7 @@ class VulnTogglesFeatureTest extends TestCase
         $this->post(route('vulnerability_toggles.update'), $checkData)->assertCsrfMismatch();
     }
 
-    public function test_invalid_toggle_name_request(): void
+    public function testInvalidToggleNameRequest(): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 
@@ -148,7 +148,7 @@ class VulnTogglesFeatureTest extends TestCase
             ->assertJson(['success' => false, 'error' => 'Invalid toggle name']);
     }
 
-    public function test_invalid_toggle_type_request(): void
+    public function testInvalidToggleTypeRequest(): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 
@@ -157,7 +157,7 @@ class VulnTogglesFeatureTest extends TestCase
             ->assertJson(['success' => false]);
     }
 
-    public function test_invalid_value_type_request(): void
+    public function testInvalidValueTypeRequest(): void
     {
         $this->get(route('vulnerability_toggles'))->assertOk();
 

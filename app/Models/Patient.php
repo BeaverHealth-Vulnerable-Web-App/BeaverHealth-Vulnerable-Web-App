@@ -30,4 +30,3 @@ class Patient extends Model
         return $this->hasMany(PatientFeedback::class, 'patient_id', 'patient_id');
     }
 }
-
