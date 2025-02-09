@@ -26,9 +26,9 @@ prompt_yes_no() {
   while true; do
     read -p "$(echo -e "$1") (y/n): " yn
     case $yn in
-      [Yy]* ) return 0 ;;
-      [Nn]* ) return 1 ;;
-      * ) echo "Please answer yes or no." ;;
+    [Yy]*) return 0 ;;
+    [Nn]*) return 1 ;;
+    *) echo "Please answer yes or no." ;;
     esac
   done
 }
@@ -36,42 +36,42 @@ prompt_yes_no() {
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -f|--fresh)
-        if [[ "$INTERACTIVE" = true ]]; then
-          echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
-          show_help
-          exit 1
-        fi
-        FRESH_DEPLOYMENT=true
-        ;;
-      -i|--interactive)
-        if [[ "$FRESH_DEPLOYMENT" = true ]]; then
-          echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
-          show_help
-          exit 1
-        fi
-        INTERACTIVE=true
-        ;;
-      -h|--help)
-        show_help
-        exit 0
-        ;;
-      *)
-        echo -e "${RED}Unknown option: $1${NO_COLOR}" >&2
+    -f | --fresh)
+      if [[ "$INTERACTIVE" = true ]]; then
+        echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
         show_help
         exit 1
-        ;;
+      fi
+      FRESH_DEPLOYMENT=true
+      ;;
+    -i | --interactive)
+      if [[ "$FRESH_DEPLOYMENT" = true ]]; then
+        echo -e "${RED}Error: Cannot use both --fresh and --interactive${NO_COLOR}"
+        show_help
+        exit 1
+      fi
+      INTERACTIVE=true
+      ;;
+    -h | --help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}Unknown option: $1${NO_COLOR}" >&2
+      show_help
+      exit 1
+      ;;
     esac
     shift
   done
 }
 
 preflight_check() {
-  if ! command -v docker &> /dev/null; then
+  if ! command -v docker &>/dev/null; then
     echo -e "${RED}Error: Docker is not installed${NO_COLOR}"
     exit 1
   fi
-  if ! docker info &> /dev/null; then
+  if ! docker info &>/dev/null; then
     echo -e "${RED}Error: Docker daemon is not running${NO_COLOR}"
     exit 1
   fi
@@ -96,13 +96,13 @@ determine_actions() {
     if prompt_yes_no "${BLUE}Rebuild the application?${NO_COLOR}"; then
       REBUILD_APP=true
       if prompt_yes_no "${BLUE}Use Docker cache for rebuild?${NO_COLOR}"; then
-          USE_DOCKER_CACHE=true
+        USE_DOCKER_CACHE=true
       fi
     fi
     if prompt_yes_no "${BLUE}Migrate and seed database?${NO_COLOR}"; then
       MIGRATE_DB=true
       if prompt_yes_no "${BLUE}Wipe database before migration?${NO_COLOR}"; then
-          WIPE_DB=true
+        WIPE_DB=true
       fi
     fi
     if prompt_yes_no "${BLUE}Clear Laravel caches?${NO_COLOR}"; then
@@ -124,17 +124,17 @@ install_dependencies() {
       -w /var/www/html \
       laravelsail/php82-composer:latest \
       composer install --optimize-autoloader; then
-        echo -e "${RED}Error: Failed to install dependencies${NO_COLOR}"
-        exit 1
+      echo -e "${RED}Error: Failed to install dependencies${NO_COLOR}"
+      exit 1
     fi
   fi
 }
 
 ensure_vendor() {
-    if [[ ! -d './vendor/' ]]; then
-        echo -e "${RED}Missing Laravel dependencies. Make sure to use the --fresh flag for initial deployment.${NO_COLOR}"
-        exit 1
-    fi
+  if [[ ! -d './vendor/' ]]; then
+    echo -e "${RED}Missing Laravel dependencies. Make sure to use the --fresh flag for initial deployment.${NO_COLOR}"
+    exit 1
+  fi
 }
 
 build_application() {
@@ -142,13 +142,13 @@ build_application() {
     echo -e "${CYAN}Building application...${NO_COLOR}"
     if [[ "$USE_DOCKER_CACHE" = true ]]; then
       if ! ./vendor/bin/sail build; then
-          echo -e "${RED}Error: Failed to build application${NO_COLOR}"
-          exit 1
+        echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+        exit 1
       fi
     else
       if ! ./vendor/bin/sail build --no-cache; then
-          echo -e "${RED}Error: Failed to build application${NO_COLOR}"
-          exit 1
+        echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+        exit 1
       fi
     fi
   fi
@@ -169,7 +169,7 @@ wait_for_database() {
     while ! ./vendor/bin/sail exec db mysqladmin ping --silent; do
       echo -e "${YELLOW}Attempt $attempt: Database not ready, waiting 2 seconds...${NO_COLOR}"
       sleep 2
-      attempt=$((attempt+1))
+      attempt=$((attempt + 1))
       if [[ "$attempt" -gt "$MAX_DATABASE_CONNECTION_ATTEMPTS" ]]; then
         echo -e "${RED}Database did not become available after $MAX_DATABASE_CONNECTION_ATTEMPTS attempts.${NO_COLOR}"
         exit 1
