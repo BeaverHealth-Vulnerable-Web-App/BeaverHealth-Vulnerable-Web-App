@@ -9,6 +9,8 @@ RED='\033[1;31m'
 CYAN='\033[1;36m'
 NO_COLOR='\033[0m'
 
+MAX_DATABASE_CONNECTION_ATTEMPTS=30
+
 FRESH_DEPLOYMENT=false
 INTERACTIVE=false
 
@@ -76,7 +78,7 @@ preflight_check() {
 }
 
 setup_trap() {
-  trap 'echo -e "\n${YELLOW}Deployment interrupted. Cleaning up...${NO_COLOR}"; exit 1' INT
+  trap 'echo -e "\n${YELLOW}Deployment interrupted.${NO_COLOR}"; exit 1' INT
 }
 
 determine_actions() {
@@ -116,12 +118,15 @@ determine_actions() {
 install_dependencies() {
   if [[ "$INSTALL_DEPS" = true ]]; then
     echo -e "${CYAN}Installing Laravel dependencies...${NO_COLOR}"
-    docker run --rm \
+    if ! docker run --rm \
       -u "$(id -u):$(id -g)" \
       -v "$(pwd)":/var/www/html \
       -w /var/www/html \
       laravelsail/php82-composer:latest \
-      composer install --optimize-autoloader
+      composer install --optimize-autoloader; then
+        echo -e "${RED}Error: Failed to install dependencies${NO_COLOR}"
+        exit 1
+    fi
   fi
 }
 
@@ -138,10 +143,12 @@ build_application() {
     if [[ "$USE_DOCKER_CACHE" = true ]]; then
       if ! ./vendor/bin/sail build; then
           echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+          exit 1
       fi
     else
       if ! ./vendor/bin/sail build --no-cache; then
           echo -e "${RED}Error: Failed to build application${NO_COLOR}"
+          exit 1
       fi
     fi
   fi
@@ -149,20 +156,22 @@ build_application() {
 
 start_application() {
   echo -e "${CYAN}Starting containers..."
-  ./vendor/bin/sail up -d
+  if ! ./vendor/bin/sail up -d; then
+    echo -e "${RED}Error: Failed to start application${NO_COLOR}"
+    exit 1
+  fi
 }
 
 wait_for_database() {
   if [[ "$MIGRATE_DB" = true ]]; then
     echo -e "${YELLOW}Waiting for the database to be ready...${NO_COLOR}"
-    max_attempts=30
     attempt=1
     while ! ./vendor/bin/sail exec db mysqladmin ping --silent; do
       echo -e "${YELLOW}Attempt $attempt: Database not ready, waiting 2 seconds...${NO_COLOR}"
       sleep 2
       attempt=$((attempt+1))
-      if [[ "$attempt" -gt "$max_attempts" ]]; then
-        echo -e "${RED}Database did not become available after $max_attempts attempts.${NO_COLOR}"
+      if [[ "$attempt" -gt "$MAX_DATABASE_CONNECTION_ATTEMPTS" ]]; then
+        echo -e "${RED}Database did not become available after $MAX_DATABASE_CONNECTION_ATTEMPTS attempts.${NO_COLOR}"
         exit 1
       fi
     done
@@ -173,19 +182,31 @@ wait_for_database() {
 setup_database() {
   if [[ "$MIGRATE_DB" = true ]]; then
     if [[ "$FRESH_DEPLOYMENT" != true ]] && [[ "$WIPE_DB" = true ]]; then
-        ./vendor/bin/sail artisan db:wipe
+      if ! ./vendor/bin/sail artisan db:wipe; then
+        echo -e "${RED}Error: Failed to wipe database${NO_COLOR}"
+        exit 1
+      fi
     fi
     echo -e "${CYAN}Migrating database...${NO_COLOR}"
-    ./vendor/bin/sail artisan migrate
+    if ! ./vendor/bin/sail artisan migrate; then
+      echo -e "${RED}Error: Failed to migrate database${NO_COLOR}"
+      exit 1
+    fi
     echo -e "${CYAN}Seeding database...${NO_COLOR}"
-    ./vendor/bin/sail artisan db:seed
+    if ! ./vendor/bin/sail artisan db:seed; then
+      echo -e "${RED}Error: Failed to seed database${NO_COLOR}"
+      exit 1
+    fi
   fi
 }
 
 clear_laravel_cache() {
   if [[ "$CLEAR_CACHE" = true ]]; then
     echo -e "${CYAN}Clearing Laravel caches...${NO_COLOR}"
-    ./vendor/bin/sail artisan optimize:clear
+    if ! ./vendor/bin/sail artisan optimize:clear; then
+      echo -e "${RED}Error: Failed to clear Laravel caches${NO_COLOR}"
+      exit 1
+    fi
   fi
 }
 
