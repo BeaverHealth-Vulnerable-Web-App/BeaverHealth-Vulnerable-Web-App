@@ -43,8 +43,14 @@ jobs:
       - name: Show .env Contents
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app cat /var/www/html/.env
 
+      - name: Install Ping for Debugging
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app apt-get update && apt-get install -y iputils-ping
+
       - name: Ping the Database Container
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app bash -c "ping -c 3 db"
+
+      - name: Test Database Connectivity with MySQL Client
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app bash -c "mysql -h db -u admin -ppassword -e 'SHOW DATABASES;'"
 
       - name: Test Database Connection via PDO
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php -r "try { new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password'); echo 'Success'; } catch (Exception \\$e) { echo 'Failure - ' . \\$e->getMessage(); }"
