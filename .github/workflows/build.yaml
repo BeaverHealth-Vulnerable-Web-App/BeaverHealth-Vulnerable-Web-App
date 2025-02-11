@@ -19,7 +19,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: artisan, ctype, dom, fileinfo, filter, hash, json, libxml, lib-pcre, mbstring, mysql, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, zip 
+          extensions: ctype, dom, fileinfo, filter, hash, json, libxml, mbstring, mysql, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, zip 
           coverage: none
 
       - name: Setup Docker
@@ -32,7 +32,8 @@ jobs:
 
       - name: Update .env for Docker
         run: |
-          sed -i 's/DB_HOST=.*/DB_HOST=db/g' .env
+          sed -i 's/DB_HOST=.*/DB_HOST=0.0.0.0/g' .env
+          cat .env
 
       - name: Run Laravel Application
         run: vendor/bin/sail up -d --build
@@ -50,6 +51,12 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Migrate Database
+        run: vendor/bin/sail artisan migrate
+
+      - name: Seed Database
+        run: vendor/bin/sail artisan db:seed
 
       - name: Run PHPUnit Tests
         run: vendor/bin/sail test
