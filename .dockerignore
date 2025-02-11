@@ -1,2 +1,4 @@
 public/storage
 public/build
+.env
+.env.ci
