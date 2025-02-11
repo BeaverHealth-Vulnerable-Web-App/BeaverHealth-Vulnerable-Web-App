@@ -37,5 +37,23 @@ jobs:
             fi
           done
 
+      - name: Dump Environment Variables
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app printenv
+
+      - name: Show .env Contents
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app cat /var/www/html/.env
+
+      - name: Ping the Database Container
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app bash -c "ping -c 3 db"
+
+      - name: Test Database Connection via PDO
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php -r "try { new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password'); echo 'Success'; } catch (Exception \$e) { echo 'Failure: ' . \$e->getMessage(); }"
+
+      - name: Show App Container Logs
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml logs app
+
+      - name: Show DB Container Logs
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml logs db
+
       - name: Run Laravel Tests
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan test
