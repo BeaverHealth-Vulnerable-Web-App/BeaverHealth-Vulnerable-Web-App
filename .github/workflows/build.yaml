@@ -41,14 +41,14 @@ jobs:
             fi
           done
 
-      - name: Clear Config Cache
-        run: ./vendor/bin/sail exec app php artisan config:clear
+      - name: Clear Config & Cache
+        run: ./vendor/bin/sail artisan config:clear && ./vendor/bin/sail artisan cache:clear
 
       - name: Migrate Database
-        run: ./vendor/bin/sail exec app php artisan migrate
+        run: ./vendor/bin/sail artisan migrate
 
       - name: Seed Database
-        run: ./vendor/bin/sail exec app php artisan db:seed
+        run: ./vendor/bin/sail artisan db:seed
 
       - name: Run PHPUnit Tests
-        run: ./vendor/bin/sail exec app php artisan test
+        run: ./vendor/bin/sail artisan test
