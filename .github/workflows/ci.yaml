@@ -37,11 +37,8 @@ jobs:
             fi
           done
 
-      - name: Dump Environment Variables
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app printenv
-
-      - name: Show .env Contents
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app cat /var/www/html/.env
+      - name: Run Database Migrations
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan migrate
 
       - name: Test Database Connection via PDO
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php -r "try { new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password'); echo 'Success'; } catch (Exception \$e) { echo 'Failure -- ' . \$e->getMessage(); }"
