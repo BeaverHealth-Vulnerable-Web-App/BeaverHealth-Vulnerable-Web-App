@@ -15,8 +15,6 @@ services:
       DB_DATABASE: vuln_db
       DB_USERNAME: admin
       DB_PASSWORD: password
-    volumes:
-      - ./.env.ci:/var/www/html/.env
 
   db:
     platform: linux/x86_64
