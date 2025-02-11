@@ -3,27 +3,12 @@
 ## Running the Application
 
 1. Install dependencies
-
-- [PHP](https://www.php.net/manual/en/install.php)
-  - You might need to install the PHP Extension `php-xml` through your package manager.
-- [Composer](https://getcomposer.org/doc/00-intro.md)
+Make sure you have Docker and Docker Compose available on your system:
 - [Docker](https://www.docker.com/get-started/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
+- [Docker Compose](https://docs.docker.com/compose/install/) (if not included with Docker)
 2. Clone the repo 🌀
 3. Navigate to the project root 🫚  
   `cd ./BeaverHealth-Vulnerable-Web-App`
-4. Install PHP dependencies 📦  
-  `composer install`
-5. Run the application 🏃  
-  `./vendor/bin/sail up -d`
-6. Allow a minute or two for database to initialize.
-7. Migrate the database 🧳  
-  `./vendor/bin/sail artisan migrate`
-8. Seed the database 🌱  
-  `./vendor/bin/sail artisan db:seed`
-9. In a web browser, navigate to `localhost:9991` 🗺️  
-10. Log in with the following credentials ㊙️  
-
-- Username: `admin`
-- Password: `password`
+4. Run the setup script
+  `./setup.sh --fresh`
+5. In a web browser, navigate to `localhost:9991` 🗺️  
