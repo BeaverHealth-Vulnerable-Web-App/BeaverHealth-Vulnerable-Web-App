@@ -37,5 +37,8 @@ jobs:
             fi
           done
 
+      - name: Clear Laravel Config Cache
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan config:clear
+
       - name: Run Laravel Tests
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan test
