@@ -21,20 +21,13 @@ jobs:
       - name: Run Composer Install
         run: composer install -n --prefer-dist
 
-      - name: Start Laravel Application
-        run: vendor/bin/sail up -d --build
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: db
-          DB_PORT: 3306
-          DB_DATABASE: vuln_db
-          DB_USERNAME: admin
-          DB_PASSWORD: password
+      - name: Build and Start Containers for CI
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml up -d --build
 
       - name: Wait for Database
         run: |
           counter=0
-          until ./vendor/bin/sail exec db mysqladmin ping --silent; do
+          until ./vendor/bin/sail -f docker-compose.ci.yaml exec db mysqladmin ping --silent; do
             echo "Waiting for database..."
             sleep 2
             counter=$((counter+1))
@@ -44,20 +37,5 @@ jobs:
             fi
           done
 
-      - name: Set Permissions
-        run: |
-          sudo chmod -R 777 storage bootstrap/cache
-
-      - name: Test Database Connection
-        run: |
-          ./vendor/bin/sail exec app php -r "
-          try {
-            new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password');
-            echo 'Database connection successful!';
-          } catch (Exception \$e) {
-            echo 'Failed to connect to database: ' . \$e->getMessage();
-            exit(1);
-          }"
-
       - name: Run Laravel Tests
-        run: ./vendor/bin/sail exec app php artisan test
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan test
