@@ -37,6 +37,9 @@ jobs:
             fi
           done
 
+      - name: Extra DB Grace Perios
+        run: sleep 15
+
       - name: Run Database Migrations
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan migrate
 
