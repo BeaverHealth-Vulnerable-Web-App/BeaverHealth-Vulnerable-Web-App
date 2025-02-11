@@ -21,7 +21,3 @@ jobs:
 
       - name: Run PHP CodeSniffer
         run: php phpcs.phar --standard=phpcs.xml
-      # - uses: tinovyatkin/action-php-codesniffer@v1
-      #   with:
-      #     phpcs_path: php phpcs.phar
-      #     standard: phpcs.xml

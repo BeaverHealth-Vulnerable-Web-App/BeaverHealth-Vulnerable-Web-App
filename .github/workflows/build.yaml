@@ -31,6 +31,9 @@ jobs:
       - name: Run Laravel Application
         run: vendor/bin/sail up -d --build
 
+      - name: Docker ps
+        run: docker ps
+
       - name: Migrate Database
         run: vendor/bin/sail artisan migrate
 
