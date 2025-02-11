@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     zip \
     unzip \
+    iputils-ping \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev
