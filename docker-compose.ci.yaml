@@ -6,7 +6,7 @@ services:
     ports:
       - "9991:80"
     environment:
-      APP_ENV: local
+      APP_ENV: ci
       APP_DEBUG: "true"
       APP_KEY: base64:yw6BR9k5FinsLSVQXaeKFNeWkGTU5sR+jwci/WvAzN0=
       DB_CONNECTION: mysql
@@ -15,8 +15,8 @@ services:
       DB_DATABASE: vuln_db
       DB_USERNAME: admin
       DB_PASSWORD: password
-    depends_on:
-      - db
+    volumes:
+      - ./.env.ci:/var/www/html/.env
 
   db:
     platform: linux/x86_64

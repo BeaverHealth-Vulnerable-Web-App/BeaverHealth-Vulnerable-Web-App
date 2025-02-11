@@ -37,8 +37,5 @@ jobs:
             fi
           done
 
-      - name: DEBUG - Check DB_HOST
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app echo $DB_HOST
-
       - name: Run Laravel Tests
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan test
