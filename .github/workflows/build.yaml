@@ -21,15 +21,29 @@ jobs:
       - name: Setup Docker
         uses: docker/setup-buildx-action@v2
         with:
-          php-version: '8.2'
-          extensions: ctype, dom, fileinfo, filter, hash, json, libxml, mbstring, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, lib-pcre, artisan
-          coverage: none
+          version: '8.2'
+          platforms: linux/amd64
+          install: ctype, dom, fileinfo, filter, hash, json, libxml, mbstring, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, lib-pcre, artisan
 
       - name: Run Composer Install
         run: composer install -n --prefer-dist
 
       - name: Run Laravel Application
         run: vendor/bin/sail up -d --build
+
+      - name: Wait for Database
+        run: |
+          MAX_DATABASE_CONNECTION_ATTEMPTS=30
+          attempt=1
+          while ! ./vendor/bin/sail exec db mysqladmin ping --silent; do
+            echo -e "Attempt $attempt: Database not ready, waiting 2 seconds..."
+            sleep 2
+            attempt=$((attempt + 1))
+            if [[ "$attempt" -gt "$MAX_DATABASE_CONNECTION_ATTEMPTS" ]]; then
+              echo -e "Database did not become available after $MAX_DATABASE_CONNECTION_ATTEMPTS attempts."
+              exit 1
+            fi
+          done
 
       - name: Docker ps
         run: docker ps
