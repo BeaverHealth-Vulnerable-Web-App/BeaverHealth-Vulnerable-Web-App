@@ -30,6 +30,10 @@ jobs:
       - name: Run Composer Install
         run: composer install -n --prefer-dist
 
+      - name: Update .env for Docker
+      run: |
+        sed -i 's/DB_HOST=.*/DB_HOST=db/g' .env
+
       - name: Run Laravel Application
         run: vendor/bin/sail up -d --build
 
@@ -46,15 +50,6 @@ jobs:
               exit 1
             fi
           done
-
-      - name: Docker ps
-        run: docker ps
-
-      - name: Migrate Database
-        run: vendor/bin/sail artisan migrate
-
-      - name: Seed Database
-        run: vendor/bin/sail artisan db:seed
 
       - name: Run PHPUnit Tests
         run: vendor/bin/sail test
