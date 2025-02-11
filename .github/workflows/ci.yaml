@@ -43,9 +43,6 @@ jobs:
       - name: Show .env Contents
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app cat /var/www/html/.env
 
-      - name: Ping the Database Container
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app bash -c "ping -c 3 db"
-
       - name: Test Database Connectivity with MySQL Client
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app bash -c "mysql -h db -u admin -ppassword -e 'SHOW DATABASES;'"
 
