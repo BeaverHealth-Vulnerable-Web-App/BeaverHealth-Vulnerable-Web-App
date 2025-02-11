@@ -44,7 +44,7 @@ jobs:
         run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app cat /var/www/html/.env
 
       - name: Test Database Connection via PDO
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php -r "try { new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password'); echo 'Success'; } catch (Exception \\$e) { echo 'Failure - ' . \\$e->getMessage(); }"
+        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php -r "try { new PDO('mysql:host=db;port=3306;dbname=vuln_db', 'admin', 'password'); echo 'Success'; } catch (Exception \\\$e) { echo 'Failure -- ' . \\\$e->getMessage(); }"
 
       - name: Show App Container Logs
         run: ./vendor/bin/sail -f docker-compose.ci.yaml logs app
