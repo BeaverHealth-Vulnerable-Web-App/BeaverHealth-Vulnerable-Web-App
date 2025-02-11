@@ -19,9 +19,8 @@ jobs:
         uses: shivammathur/setup-php@v2
 
       - name: Setup Docker
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
-          version: '8.2'
           platforms: linux/amd64
 
       - name: Run Composer Install
