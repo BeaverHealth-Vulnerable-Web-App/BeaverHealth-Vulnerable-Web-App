@@ -31,8 +31,8 @@ jobs:
         run: composer install -n --prefer-dist
 
       - name: Update .env for Docker
-      run: |
-        sed -i 's/DB_HOST=.*/DB_HOST=db/g' .env
+        run: |
+          sed -i 's/DB_HOST=.*/DB_HOST=db/g' .env
 
       - name: Run Laravel Application
         run: vendor/bin/sail up -d --build
