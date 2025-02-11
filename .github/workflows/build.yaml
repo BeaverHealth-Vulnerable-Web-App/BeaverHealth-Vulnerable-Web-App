@@ -41,6 +41,9 @@ jobs:
             fi
           done
 
+      - name: Clear Config Cache
+        run: ./vendor/bin/sail exec app php artisan config:clear
+
       - name: Migrate Database
         run: ./vendor/bin/sail exec app php artisan migrate
 
