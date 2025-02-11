@@ -2,3 +2,4 @@ public/storage
 public/build
 vendor
 node_modules
+.env
