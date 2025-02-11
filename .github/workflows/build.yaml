@@ -23,7 +23,6 @@ jobs:
         with:
           version: '8.2'
           platforms: linux/amd64
-          install: ctype, dom, fileinfo, filter, hash, json, libxml, mbstring, openssl, pcre, phar, reflection, session, simplexml, tokenizer, xml, xmlwriter, lib-pcre, artisan
 
       - name: Run Composer Install
         run: composer install -n --prefer-dist
