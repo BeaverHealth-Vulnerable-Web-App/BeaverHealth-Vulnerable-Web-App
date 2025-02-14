@@ -38,6 +38,8 @@ COPY . /var/www/html
 RUN chown -R sail:www-data /var/www/html
 RUN chmod -R 775 /var/www/html
 
+USER sail
+
 # Install Composer and dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --optimize-autoloader
