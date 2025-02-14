@@ -18,10 +18,11 @@ class ProfileController extends Controller
         $this->changePasswordService = $changePasswordService;
     }
 
-    public function index(Request $request): View
+    public function index(): View
     {
         return view('profile.change-password');
     }
+
 
     public function changePassword(ChangePasswordRequest $request): RedirectResponse
     {

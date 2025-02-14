@@ -23,7 +23,7 @@
                     <x-input-label for="current_password" :value="__('Current Password')" />
                     <x-text-input id="current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
                     @error('current_password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -31,7 +31,7 @@
                     <x-input-label for="password" :value="__('New Password')" />
                     <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
                     @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -39,7 +39,7 @@
                     <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
                     <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
                     @error('password_confirmation')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
