@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePatientFeedbackTable extends Migration
+return new class extends Migration
 {
     public function up(): void
     {
@@ -29,4 +29,4 @@ class CreatePatientFeedbackTable extends Migration
     {
         Schema::dropIfExists('patient_feedback');
     }
-}
+};
