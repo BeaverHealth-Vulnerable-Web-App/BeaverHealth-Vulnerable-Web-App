@@ -200,6 +200,27 @@ class AccessControlFeatureTest extends TestCase
             ->assertJsonValidationErrors(['role']);
     }
 
+    public function testArrayOfRolesRejected()
+    {
+        $admin = $this->createUserWithRoles(['is_admin' => true]);
+        $targetUser = $this->createUserWithRoles();
+        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
+
+        $this->get(route('admin'));
+        $this->actingAs($admin)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => $roles,
+                    'value' => true
+                ]
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['role']);
+    }
+
 
     public function testInvalidUserIdRejected()
     {
