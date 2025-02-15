@@ -261,6 +261,26 @@ class AccessControlFeatureTest extends TestCase
             ->assertJsonValidationErrors(['value']);
     }
 
+    public function testInvalidRoleTypeRejected()
+    {
+        $admin = $this->createUserWithRoles(['is_admin' => true]);
+        $targetUser = $this->createUserWithRoles();
+
+        $this->get(route('admin'));
+        $this->actingAs($admin)
+            ->withHeaders(['Accept' => 'application/json'])
+            ->postWithCsrf(
+                route('admin.updateRole'),
+                [
+                    'user_id' => $targetUser->user_id,
+                    'role' => 2,
+                    'value' => 'not-a-bool'
+                ]
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['value']);
+    }
+
     public function testMissingFieldsRejected()
     {
         $admin = $this->createUserWithRoles(['is_admin' => true]);
