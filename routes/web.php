@@ -59,8 +59,6 @@ Route::middleware('auth')->group(
             [VulnerabilityTogglesController::class, 'update']
         )->name('vulnerability_toggles.update');
 
-        Route::get('/confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
-        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
     }
 );
