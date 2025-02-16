@@ -50,7 +50,7 @@ Route::middleware('auth')->group(
             '/vulnerability_toggles',
             [VulnerabilityTogglesController::class, 'index']
         )->name('vulnerability_toggles');
-        
+
         Route::post(
             '/vulnerability_toggles/update',
             [VulnerabilityTogglesController::class, 'update']
