@@ -271,7 +271,7 @@ class AuthFeatureTest extends TestCase
         $this->get(route('dashboard'))
             ->assertOk();
 
-        $this->get(route('profile.change-password'))->assertOk();
+        $this->get(route('profile.change-password'))
             ->assertOk();
 
         $this->assertAuthenticatedAs($user);
