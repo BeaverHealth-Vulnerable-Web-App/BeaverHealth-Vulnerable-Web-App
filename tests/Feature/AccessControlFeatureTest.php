@@ -311,16 +311,6 @@ class AccessControlFeatureTest extends TestCase
             ->assertViewIs('records.add');
     }
 
-    // TODO - uncomment when request records page is merged
-    // public function testAnyUserCanAccessRequestRecordsPage()
-    // {
-    //     $user = $this->createUserWithRoles();
-    //     $this->actingAs($user)
-    //         ->get(route('records.request'))
-    //         ->assertOk()
-    //         ->assertViewIs('records.request');
-    // }
-
     // Expected behavior with vulnerable version of access controls
     public function testAnyUserCanAccessPatientInfoPage()
     {
@@ -349,13 +339,22 @@ class AccessControlFeatureTest extends TestCase
             ->assertViewIs('feedback.index');
     }
 
-    // TODO - uncomment when change password page is merged
-    // public function testAnyUserCanAccessChangePasswordPage()
+    public function testAnyUserCanAccessChangePasswordPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('profile.change-password'))
+            ->assertOk()
+            ->assertViewIs('profile.change-password');
+    }
+
+    // TODO - uncomment when request records page is merged
+    // public function testAnyUserCanAccessRequestRecordsPage()
     // {
     //     $user = $this->createUserWithRoles();
     //     $this->actingAs($user)
-    //         ->get(route('profile.change-password'))
+    //         ->get(route('records.request'))
     //         ->assertOk()
-    //         ->assertViewIs('profile.change-password');
+    //         ->assertViewIs('records.request');
     // }
 }
