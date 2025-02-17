@@ -36,8 +36,8 @@
             </div>
 
             <!-- Search Form -->
-            <div class="w-full md:w-1/2 px-4 mb-4">
-                <div class="bg-white rounded-lg shadow-sm">
+            <div class="w-full md:w-1/2 px-4 mb-4 dark:text-white dark:bg-gray-800">
+                <div class="bg-white rounded-lg shadow-sm dark:text-white dark:bg-gray-800">
                     <div class="px-4 py-4 bg-gray-50 border-b border-gray-200 rounded-t-lg font-semibold dark:text-white dark:bg-gray-800">
                         Search Comments
                     </div>
