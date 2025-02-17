@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
-use App\Models\Patient;
-use App\Models\PatientFeedback;
 use App\Services\FeedbackService;
 
 class FeedbackController extends Controller
