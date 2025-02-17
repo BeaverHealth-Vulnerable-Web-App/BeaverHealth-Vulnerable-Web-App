@@ -9,12 +9,14 @@ use Tests\TestCase;
 class FeedbackFeatureTest extends TestCase
 {
     protected $user;
+    protected $patient;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->user = User::factory()->create();
         $this->actingAs($this->user);
+        $this->patient = Patient::factory()->create(['patient_id' => 1000]);
     }
 
     private function sendTestStoreFeedback(): \Illuminate\Testing\TestResponse
@@ -22,7 +24,7 @@ class FeedbackFeatureTest extends TestCase
         return $this->postWithCsrf(
             route('feedback.store'),
             [
-                'patient_id' => 1,
+                'patient_id' => $this->patient->patient_id,
                 'feedback' => 'This is a test comment.'
             ]
         );
@@ -61,9 +63,7 @@ class FeedbackFeatureTest extends TestCase
         $this->sendTestStoreFeedback()
             ->assertRedirect(route('feedback'));
 
-        $patient = Patient::where('patient_id', 1)->first();
-
-        $this->sendTestSearchFeedback($patient->first_name)
+        $this->sendTestSearchFeedback($this->patient->first_name)
             ->assertOk()
             ->assertSeeText('This is a test comment.');
     }
