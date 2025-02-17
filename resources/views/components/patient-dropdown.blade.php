@@ -9,11 +9,13 @@
                     .includes(this.search.toLowerCase())
             );
         }
-    }">
+    }" @click.away="showDropdown = false">
     <label for="patient_search" class="block mb-2 font-semibold text-gray-800 dark:text-gray-200">
         Select Patient:
     </label>
-    <input type="text" id="patient_search" x-model="search" @input="showDropdown = search.length > 0"
+    <input type="text" id="patient_search" x-model="search" 
+           @input="showDropdown = true"
+           @focus="showDropdown = true"
            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" autocomplete="off" />
     <input type="hidden" name="patient_id" x-model="selectedPatientId">
 

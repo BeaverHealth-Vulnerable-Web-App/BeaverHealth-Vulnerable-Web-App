@@ -3,18 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Records\PatientSearchRequest;
-use App\Services\Records\RecordSearchService;
-use App\Services\Files\FileRetrievalService;
+use App\Services\PatientRecordService;
 
 class RequestRecordsController extends Controller
 {
-    protected $recordSearchService;
-    protected $fileRetrievalService;
+    protected $patientRecordService;
 
-    public function __construct(RecordSearchService $recordSearchService, FileRetrievalService $fileRetrievalService)
+    public function __construct(PatientRecordService $patientRecordService)
     {
-        $this->recordSearchService = $recordSearchService;
-        $this->fileRetrievalService = $fileRetrievalService;
+        $this->patientRecordService = $patientRecordService;
     }
 
     public function index()
@@ -30,7 +27,7 @@ class RequestRecordsController extends Controller
 
     public function search(PatientSearchRequest $request)
     {
-        $searchResults = $this->recordSearchService->searchRecords(
+        $searchResults = $this->patientRecordService->searchRecords(
             $request->input('patient_id'),
             $request->input('keyword')
         );
@@ -47,7 +44,7 @@ class RequestRecordsController extends Controller
 
     public function downloadFile($patient_id, $filename)
     {
-        $filePath = $this->fileRetrievalService->getPatientRecordsPath($patient_id) . "/{$filename}";
+        $filePath = $this->patientRecordService->getPatientRecordsPath($patient_id) . "/{$filename}";
 
         if (!file_exists($filePath)) {
             abort(404, 'File not found');

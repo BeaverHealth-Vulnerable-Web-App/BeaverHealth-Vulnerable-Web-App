@@ -41,7 +41,7 @@ Route::middleware('auth')->group(
         Route::get('/records/request', [RequestRecordsController::class, 'index'])->name('records.request');
         Route::post('/records/request', [RequestRecordsController::class, 'search'])->name('records.search');
         Route::get('/download/{patient_id}/{filename}', [RequestRecordsController::class, 'downloadFile'])
-        ->name('records.download');    
+        ->name('records.download');
 
         Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
         Route::post('/feedback/store', [FeedbackController::class, 'store'])->name('feedback.store');

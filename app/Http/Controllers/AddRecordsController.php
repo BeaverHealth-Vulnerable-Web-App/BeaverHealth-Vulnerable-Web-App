@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Records\StoreRecordRequest;
-use App\Services\Records\RecordStorageService;
+use App\Services\PatientRecordService;
 use App\Models\Patient;
 
 class AddRecordsController extends Controller
 {
-    protected $recordStorageService;
+    protected $patientRecordService;
 
-    public function __construct(RecordStorageService $recordStorageService)
+    public function __construct(PatientRecordService $patientRecordService)
     {
-        $this->recordStorageService = $recordStorageService;
+        $this->patientRecordService = $patientRecordService;
     }
 
     public function index()
@@ -23,7 +23,7 @@ class AddRecordsController extends Controller
 
     public function upload(StoreRecordRequest $request)
     {
-        $this->recordStorageService->storeRecord(
+        $this->patientRecordService->storeRecord(
             $request->input('patient_id'),
             $request->file('medical_record')
         );
