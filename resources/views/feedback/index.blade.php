@@ -77,7 +77,7 @@
                 <div class="border-b border-gray-200 mb-4 pb-4">
                     <h5 class="mb-2 text-lg font-medium dark:text-white dark:bg-gray-800">
                         @if($comment->patient)
-                        {!! $comment->patient->first_name !!} {!! $comment->patient->last_name !!}
+                        {{ $comment->patient->first_name }} {{ $comment->patient->last_name }}
                         @endif
                     </h5>
                     {!! $comment->feedback !!}
