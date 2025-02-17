@@ -19,9 +19,8 @@ class FeedbackController extends Controller
 
     public function index()
     {
-        $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        return view('feedback.index', compact('feedback', 'patients'));
+        $data = $this->feedbackService->getFeedbackWithPatients();
+        return view('feedback.index', $data);
     }
 
     public function store(FeedbackCommentRequest $request)

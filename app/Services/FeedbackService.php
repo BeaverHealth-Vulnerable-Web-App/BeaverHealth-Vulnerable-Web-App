@@ -9,6 +9,13 @@ use App\Models\PatientFeedback;
 
 class FeedbackService
 {
+    public function getFeedbackWithPatients()
+    {
+        $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
+        $patients = Patient::all();
+        return ['feedback' => $feedback, 'patients' => $patients];
+    }
+
     public function storeFeedback(FeedbackCommentRequest $request)
     {
         PatientFeedback::create([
