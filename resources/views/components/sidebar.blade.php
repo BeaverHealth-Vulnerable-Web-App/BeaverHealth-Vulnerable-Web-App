@@ -36,8 +36,8 @@
             <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
 
             <!-- Change Password Link -->
-            <a href="{{ route('profile.edit') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Profile</a>
-
+            <a href="{{ route('profile.change-password') }}" class="block py-2 px-4 rounded hover:bg-gray-700">Change Password</a>
+            
             <!-- Log Out Form -->
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
                 @csrf

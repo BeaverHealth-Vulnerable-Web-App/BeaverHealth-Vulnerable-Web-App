@@ -28,9 +28,11 @@ Route::middleware('auth')->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/profile/change-password', [ProfileController::class, 'index'])->name('profile.change-password');
+        Route::post(
+            '/profile/change-password',
+            [ProfileController::class, 'changePassword']
+        )->name('profile.change-password.update');
 
         Route::get('/admin', [AdminController::class, 'index'])->name('admin');
         Route::post('/admin/role', [AdminController::class, 'updateRole'])->name('admin.updateRole');
@@ -47,13 +49,16 @@ Route::middleware('auth')->group(
         Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
         Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
 
-        Route::get('/vulnerability_toggles', [VulnerabilityTogglesController::class, 'index'])
-            ->name('vulnerability_toggles');
-        Route::post('/vulnerability_toggles/update', [VulnerabilityTogglesController::class, 'update'])
-            ->name('vulnerability_toggles.update');
+        Route::get(
+            '/vulnerability_toggles',
+            [VulnerabilityTogglesController::class, 'index']
+        )->name('vulnerability_toggles');
 
-        Route::get('/confirm-password', [AuthenticatedSessionController::class, 'confirm'])->name('password.confirm');
-        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+        Route::post(
+            '/vulnerability_toggles/update',
+            [VulnerabilityTogglesController::class, 'update']
+        )->name('vulnerability_toggles.update');
+
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
     }
 );
