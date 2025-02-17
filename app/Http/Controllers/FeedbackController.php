@@ -6,9 +6,17 @@ use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
+use App\Services\FeedbackService;
 
 class FeedbackController extends Controller
 {
+    protected FeedbackService $feedbackService;
+
+    public function __construct(FeedbackService $feedbackService)
+    {
+        $this->feedbackService = $feedbackService;
+    }
+
     public function index()
     {
         $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
@@ -18,24 +26,14 @@ class FeedbackController extends Controller
 
     public function store(FeedbackCommentRequest $request)
     {
-        PatientFeedback::create([
-            'patient_id' => $request->input('patient_id'),
-            'feedback' => $request->input('feedback')
-        ]);
-
+        $this->feedbackService->storeFeedback($request);
         return redirect()->route('feedback')
             ->with('success', 'Feedback added successfully!');
     }
 
     public function search(FeedbackSearchRequest $request)
     {
-        $name = $request->input('search_name');
-        $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
-            $query->where('first_name', 'like', "%{$name}%")
-                ->orWhere('last_name', 'like', "%{$name}%");
-        })->orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-
-        return view('feedback.index', compact('feedback', 'patients'))->with('search_name', $name);
+        $searchResults = $this->feedbackService->searchFeedback($request);
+        return view('feedback.index', $searchResults)->with('search_name', $request->input('search_name'));
     }
 }
