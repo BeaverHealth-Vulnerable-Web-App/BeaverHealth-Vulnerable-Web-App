@@ -2,33 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Records\StoreRecordRequest;
+use App\Services\PatientRecordService;
+use App\Models\Patient;
 
 class AddRecordsController extends Controller
 {
-    public function index()
+    protected $patientRecordService;
+
+    public function __construct(PatientRecordService $patientRecordService)
     {
-        return view('records.add');
+        $this->patientRecordService = $patientRecordService;
     }
 
-    // File upload
-    public function upload(Request $request)
+    public function index()
     {
-        // Allow only files (no other validation for now)
-        $request->validate(
-            [
-            'file' => 'required|file',
-            ]
+        $patients = Patient::all();
+        return view('records.add', compact('patients'));
+    }
+
+    public function upload(StoreRecordRequest $request)
+    {
+        $this->patientRecordService->storeRecord(
+            $request->input('patient_id'),
+            $request->file('medical_record')
         );
-
-        // Retrieve the uploaded file
-        $file = $request->file('file');
-
-        // Get filename
-        $filename = $file->getClientOriginalName();
-
-        // Store the file in storage/app/public/uploads
-        $path = $file->storeAs('uploads', $filename, 'public');
 
         return back()->with('success', 'File uploaded successfully!');
     }
