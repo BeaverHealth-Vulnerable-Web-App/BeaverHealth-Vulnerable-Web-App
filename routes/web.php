@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AddRecordsController;
@@ -9,8 +10,6 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\PasswordController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PatientInfoController;
 
 Route::middleware('guest')->group(
