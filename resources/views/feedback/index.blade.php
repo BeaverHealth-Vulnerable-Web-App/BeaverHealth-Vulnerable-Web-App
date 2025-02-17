@@ -42,7 +42,7 @@
                         Search Comments
                     </div>
                     <div class="p-4 dark:text-white dark:bg-gray-800">
-                        <form action="{{ route('feedback.search') }}" method="GET">
+                        <form action="{{ route('feedback.search') }}" method="POST">
                             @csrf
                             <div class="mb-4">
                                 <label for="search_name" class="block mb-2 font-semibold dark:text-white dark:bg-gray-800">Search by Name</label>

@@ -42,11 +42,11 @@ Route::middleware('auth')->group(
         Route::get('/records/request', [RequestRecordsController::class, 'index'])->name('records.request');
         Route::post('/records/request', [RequestRecordsController::class, 'search'])->name('records.search');
         Route::get('/download/{patient_id}/{filename}', [RequestRecordsController::class, 'downloadFile'])
-        ->name('records.download');
+            ->name('records.download');
 
         Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
         Route::post('/feedback/store', [FeedbackController::class, 'store'])->name('feedback.store');
-        Route::get('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
+        Route::post('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
 
         Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
         Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
