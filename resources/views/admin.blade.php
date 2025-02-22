@@ -21,7 +21,7 @@
                         </thead>
                         <tbody>
                             @foreach($users as $user)
-                                <tr class="bg-gray-100 dark:bg-gray-900 even:bg-gray-50 dark:even:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
+                                <tr class="bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
                                     <td class="px-4 py-3">{{ $user->username }}</td>
                                     <td class="px-4 py-3 text-center">
                                         <input type="checkbox" class="role-checkbox cursor-pointer" data-user-id="{{ $user->user_id }}" data-role="is_admin" {{ $user->is_admin ? 'checked' : '' }}>
