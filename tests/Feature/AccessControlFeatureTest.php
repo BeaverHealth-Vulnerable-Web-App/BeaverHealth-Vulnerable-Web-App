@@ -348,13 +348,12 @@ class AccessControlFeatureTest extends TestCase
             ->assertViewIs('profile.change-password');
     }
 
-    // TODO - uncomment when request records page is merged
-    // public function testAnyUserCanAccessRequestRecordsPage()
-    // {
-    //     $user = $this->createUserWithRoles();
-    //     $this->actingAs($user)
-    //         ->get(route('records.request'))
-    //         ->assertOk()
-    //         ->assertViewIs('records.request');
-    // }
+    public function testAnyUserCanAccessRequestRecordsPage()
+    {
+        $user = $this->createUserWithRoles();
+        $this->actingAs($user)
+            ->get(route('records.request'))
+            ->assertOk()
+            ->assertViewIs('records.request');
+    }
 }
