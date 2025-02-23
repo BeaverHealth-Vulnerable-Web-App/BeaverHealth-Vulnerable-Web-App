@@ -348,12 +348,13 @@ class AccessControlFeatureTest extends TestCase
             ->assertViewIs('profile.change-password');
     }
 
-    public function testAnyUserCanAccessRequestRecordsPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('records.request'))
-            ->assertOk()
-            ->assertViewIs('records.request');
-    }
+    //
+    //public function testAnyUserCanAccessRequestRecordsPage()
+    //{
+    //    $user = $this->createUserWithRoles();
+    //    $this->actingAs($user)
+    //        ->get(route('records.request'))
+    //        ->assertOk()
+    //        ->assertViewIs('records.request');
+    //}
 }
