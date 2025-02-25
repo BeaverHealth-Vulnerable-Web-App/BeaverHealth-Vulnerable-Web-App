@@ -53,10 +53,6 @@
                         </table>
                     </div>
                 </div>
-
-                <div id="notification" class="hidden absolute top-0 right-0 mt-2 mr-2 p-2 rounded text-sm">
-                    <span id="notification-text"></span>
-                </div>
             </div>
         </div>
     </div>
