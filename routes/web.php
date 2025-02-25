@@ -63,8 +63,6 @@ Route::middleware('auth')->group(
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
 
-        Route::get('/sidebar/refresh', function () {
-            return view('layouts.sidebar');
-        })->name('sidebar.refresh');
+        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))->name('sidebar.refresh');
     }
 );
