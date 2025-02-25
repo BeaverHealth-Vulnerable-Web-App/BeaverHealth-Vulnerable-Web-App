@@ -7,25 +7,11 @@
 
     <div class="w-11/12 max-w-7xl mx-auto mt-8 px-4 dark:text-white dark:bg-gray-900">
         @if(session('success'))
-        <div id="success-message"
-            class="absolute top-0 right-0 mt-2 mr-2 bg-green-100 dark:bg-green-900
-                    border border-green-200 dark:border-green-700 text-green-800 dark:text-green-300
-                    p-2 rounded text-sm">
-            {{ session('success') }}
-        </div>
+            <x-status-message :message="session('success')" type="success" />
+        @endif
 
-        <script>
-            setTimeout(() => {
-                let message = document.getElementById('success-message');
-                if (message) {
-                    message.style.transition = 'opacity 0.5s ease-in-out';
-                    message.style.opacity = '0';
-                    setTimeout(() => {
-                        message.remove();
-                    }, 500);
-                }
-            }, 3000);
-        </script>
+        @if(session('error'))
+            <x-status-message :message="session('error')" type="error" />
         @endif
 
         <div class="flex flex-wrap -mx-4">

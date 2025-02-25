@@ -47,18 +47,6 @@
 
                             <div class="flex items-center gap-4">
                                 <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-                                @if (session('status') === 'password-updated')
-                                    <p
-                                        x-data="{ show: true }"
-                                        x-show="show"
-                                        x-transition
-                                        x-init="setTimeout(() => show = false, 2000)"
-                                        class="text-sm text-gray-600 dark:text-gray-400"
-                                    >
-                                        {{ __('Password Updated!') }}
-                                    </p>
-                                @endif
                             </div>
                         </form>
                     </section>
@@ -66,4 +54,12 @@
             </div>
         </div>
     </div>
+
+    @if (session('status') === 'password-updated')
+        <x-status-message :message="__('Password Updated!')" type="success" />
+    @endif
+
+    @if (session('error'))
+        <x-status-message :message="session('error')" type="error" />
+    @endif
 </x-app-layout>
