@@ -13,7 +13,7 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen flex bg-gray-100 dark:bg-gray-900">
             <!-- Sidebar Component -->
-            <x-sidebar class="w-64 bg-gray-800 text-white fixed h-full p-4" />
+            @include('layouts.sidebar')
 
             <div class="flex-1 ml-64">
                 <!-- Page Heading -->

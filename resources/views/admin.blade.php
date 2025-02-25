@@ -5,6 +5,15 @@
         </h2>
     </x-slot>
 
+    <script>
+    window.appRoutes = {
+        updateRole: '{{ route('admin.updateRole') }}',
+        sidebarRefresh: '{{ route('sidebar.refresh') }}'
+    };
+    window.currentUserId = '{{ auth()->id() }}';
+    </script>
+    @vite(['resources/js/admin.js'])
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -43,44 +52,4 @@
             </div>
         </div>
     </div>
-
-    <!-- JavaScript to handle AJAX requests -->
-    <script>
-        document.querySelectorAll('.role-checkbox').forEach((checkbox) => {
-            checkbox.addEventListener('change', function () {
-                const userId = this.dataset.userId;
-                const role = this.dataset.role;
-                const isChecked = this.checked;
-
-                fetch('{{ route('admin.updateRole') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        role: role,
-                        value: isChecked
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        console.log('Role updated successfully');
-                    } else {
-                        console.error('Failed to update role');
-                    }
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
-            });
-        });
-    </script>
 </x-app-layout>

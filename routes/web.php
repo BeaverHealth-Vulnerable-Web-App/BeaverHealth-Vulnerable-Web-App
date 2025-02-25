@@ -62,5 +62,9 @@ Route::middleware('auth')->group(
         )->name('vulnerability_toggles.update');
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
+
+        Route::get('/sidebar/refresh', function () {
+            return view('layouts.sidebar');
+        })->name('sidebar.refresh');
     }
 );
