@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class ProfileController extends Controller
+class PasswordController extends Controller
 {
     protected $changePasswordService;
 
