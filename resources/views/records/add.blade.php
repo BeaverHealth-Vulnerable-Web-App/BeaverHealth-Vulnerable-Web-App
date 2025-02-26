@@ -39,8 +39,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Success/Error Messages using the component -->
+    <!-- Status message -->
     @if (session('success'))
         <x-status-message :message="session('success')" type="success" />
     @endif

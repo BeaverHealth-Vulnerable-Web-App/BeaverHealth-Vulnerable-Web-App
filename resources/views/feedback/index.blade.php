@@ -6,14 +6,6 @@
     </x-slot>
 
     <div class="w-11/12 max-w-7xl mx-auto mt-8 px-4 dark:text-white dark:bg-gray-900">
-        @if(session('success'))
-            <x-status-message :message="session('success')" type="success" />
-        @endif
-
-        @if(session('error'))
-            <x-status-message :message="session('error')" type="error" />
-        @endif
-
         <div class="flex flex-wrap -mx-4">
             <!-- Comment Form -->
             <div class="w-full md:w-1/2 px-4 mb-4">
@@ -95,4 +87,12 @@
             </div>
         </div>
     </div>
+    <!-- Status message -->
+    @if(session('success'))
+        <x-status-message :message="session('success')" type="success" />
+    @endif
+
+    @if(session('error'))
+        <x-status-message :message="session('error')" type="error" />
+    @endif
 </x-app-layout>
