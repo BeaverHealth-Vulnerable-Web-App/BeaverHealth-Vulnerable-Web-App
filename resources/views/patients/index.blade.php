@@ -13,7 +13,7 @@
                         ['text' => 'Date of Birth'],
                         ['text' => 'Policy Number'],
                         ['text' => 'Address'],
-                        ['text' => 'Actions', 'align' => 'center']
+                        ['text' => 'Details'],
                     ]">
                         @foreach ($patients as $patient)
                             <x-table-row>
