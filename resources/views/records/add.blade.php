@@ -48,4 +48,4 @@
     @if (session('error'))
         <x-status-message :message="session('error')" type="error" />
     @endif
-</x-app-layout>>
+</x-app-layout>
