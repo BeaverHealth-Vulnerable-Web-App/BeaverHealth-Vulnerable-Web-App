@@ -20,8 +20,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Role updated successfully');
-
                     if (userId === window.currentUserId) {
                         updateSidebar();
                     }
@@ -36,6 +34,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateSidebar() {
+        const currentPath = window.location.pathname;
+        const currentRoute = currentPath.split('/').pop() || 'dashboard';
+
         fetch(window.appRoutes.sidebarRefresh, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -43,7 +44,20 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.text())
         .then(html => {
-            document.querySelector('nav.bg-gray-800').outerHTML = html;
+            const sidebarContainer = document.querySelector('nav.bg-gray-800');
+            sidebarContainer.outerHTML = html;
+
+            const newSidebar = document.querySelector('nav.bg-gray-800');
+            const links = newSidebar.querySelectorAll('a');
+
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && (href.includes(currentRoute) ||
+                    (currentRoute === 'admin' && href.includes('admin')))) {
+                    link.classList.add('bg-gray-700');
+                    link.classList.remove('hover:bg-gray-600');
+                }
+            });
         })
         .catch(error => {
             console.error('Failed to update sidebar:', error);

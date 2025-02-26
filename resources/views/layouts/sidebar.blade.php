@@ -1,50 +1,53 @@
 <nav class="bg-gray-800 text-white w-64 min-h-screen p-4 fixed flex flex-col">
     <!-- Logo -->
-    <div class="mb-8 text-center">
-        <a href="{{ route('dashboard') }}" class="block text-lg font-semibold text-white">
-            <button class="px-4 py-2 bg-gray-700 text-white rounded">Beaver Healthcare</button>
-        </a>
+    <div class="mt-3 mb-6">
+        <div class="block px-4 text-lg font-semibold">Beaver Healthcare</div>
     </div>
 
     <!-- Navigation Links -->
     <div class="flex-grow">
         <nav class="space-y-4">
-            <!-- Admin Link -->
+
+            <!-- Dashboard -->
+            <a href="{{ route('dashboard') }}" class="block py-2 px-4 rounded {{ request()->routeIs('dashboard') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Dashboard</a>
+
+            <!-- Admin -->
             @if(auth()->user()->is_admin)
-                <a href="{{ route('admin') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Admin</a>
+                <a href="{{ route('admin') }}" class="block py-2 px-4 rounded {{ request()->routeIs('admin') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Admin</a>
             @endif
 
-            <!-- Records Add Link -->
+            <!-- Add Medical Records -->
             @if(auth()->user()->load_records)
-                <a href="{{ route('records.add') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Add Records</a>
+                <a href="{{ route('records.add') }}" class="block py-2 px-4 rounded {{ request()->routeIs('records.add') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Add Medical Records</a>
             @endif
 
-            <!-- Records Request Link -->
+            <!-- Request Medical Records -->
             @if(auth()->user()->request_records)
-                <a href="{{ route('records.request') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Request Records</a>
+                <a href="{{ route('records.request') }}" class="block py-2 px-4 rounded {{ request()->routeIs('records.request') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Request Medical Records</a>
             @endif
 
-            <!-- Feedback Link -->
-            <a href="{{ route('feedback') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Feedback</a>
+            <!-- Feedback -->
+            <a href="{{ route('feedback') }}" class="block py-2 px-4 rounded {{ request()->routeIs('feedback') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Patient Feedback</a>
 
-            <!-- Patient Information Link -->
+            <!-- Patient Information -->
             @if(auth()->user()->view_patient_info)
-                <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Patient Information</a>
+                <a href="{{ route('patients.index') }}" class="block py-2 px-4 rounded {{ request()->routeIs('patients.index') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Patient Information</a>
             @endif
 
-            <!-- Vulnerability Toggles Link -->
-            <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded hover:bg-gray-600">Vulnerability Toggles</a>
+            <!-- Vulnerability Toggles -->
+            <a href="{{ route('vulnerability_toggles') }}" class="block py-2 px-4 rounded {{ request()->routeIs('vulnerability_toggles') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Vulnerability Toggles</a>
 
-            <!-- Change Password Link -->
-            <a href="{{ route('profile.change-password') }}" class="block py-2 px-4 rounded hover:bg-gray-700">Change Password</a>
+            <!-- Change Password -->
+            <a href="{{ route('profile.change-password') }}" class="block py-2 px-4 rounded {{ request()->routeIs('profile.change-password') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">Change Password</a>
 
-            <!-- Log Out Form -->
+            <!-- Log Out -->
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
                 @csrf
                 <button type="submit" class="w-full text-left block py-2 px-4 rounded hover:bg-gray-600">
                     Log Out
                 </button>
             </form>
+
         </nav>
     </div>
 </nav>
