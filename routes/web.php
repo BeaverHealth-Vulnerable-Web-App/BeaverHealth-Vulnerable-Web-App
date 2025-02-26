@@ -23,7 +23,7 @@ Route::middleware('guest')->group(
     }
 );
 
-Route::middleware('auth')->group(
+Route::middleware(['auth', 'check.permission'])->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
