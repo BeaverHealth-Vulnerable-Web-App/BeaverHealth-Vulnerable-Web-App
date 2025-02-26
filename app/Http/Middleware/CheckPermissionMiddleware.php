@@ -37,8 +37,12 @@ class CheckPermissionMiddleware
             $requiredPermission = $routePermissionMap[$routeName];
 
             if (!$user->{$requiredPermission}) {
-                return redirect()->route('dashboard')
-                    ->with('error', 'You do not have permission to access this page.');
+                session()->flash('status', [
+                    'type' => 'error',
+                    'message' => 'Access denied: You do not have permission to view this page.'
+                ]);
+
+                return redirect()->route('dashboard');
             }
         }
 
