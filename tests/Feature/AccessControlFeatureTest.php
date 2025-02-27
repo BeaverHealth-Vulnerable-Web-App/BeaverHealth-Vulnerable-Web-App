@@ -310,10 +310,10 @@ class AccessControlFeatureTest extends TestCase
         $this->actingAs(
             $this->createUser(
                 [
-                'is_admin' => true,
-                'request_records' => true,
-                'load_records' => true,
-                'view_patient_info' => true,
+                    'is_admin' => true,
+                    'request_records' => true,
+                    'load_records' => true,
+                    'view_patient_info' => true,
                 ]
             )
         )
