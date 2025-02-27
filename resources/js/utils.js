@@ -1,3 +1,7 @@
+/**
+ * HTTP status codes
+ * @enum {number}
+ */
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
@@ -9,6 +13,12 @@ export const HTTP_STATUS = {
   INTERNAL_SERVER_ERROR: 500
 };
 
+/**
+ * Displays a temporary status message on the page
+ *
+ * @param {string} message - The message to display
+ * @param {'success' | 'error'} [type='success'] - The type of message (determines styling)
+ */
 export function showStatusMessage(message, type = 'success') {
     const existingMessage = document.getElementById('status-message');
     if (existingMessage) {
