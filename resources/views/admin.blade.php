@@ -4,14 +4,19 @@
             {{ __('Admin') }}
         </h2>
     </x-slot>
+
     <script>
-    window.appRoutes = {
-        updateRole: '{{ route('admin.updateRole') }}',
-        sidebarRefresh: '{{ route('sidebar.refresh') }}'
-    };
-    window.currentUserId = '{{ auth()->id() }}';
+        window.appRoutes = {
+            updateRole: '{{ route('admin.updateRole') }}',
+            sidebarRefresh: '{{ route('sidebar.refresh') }}'
+        };
+        window.currentUserId = '{{ auth()->id() }}';
+        window.currentUserIsAdmin = '{{ auth()->user()->is_admin ? 'true' : 'false' }}';
+        window.currentUserIdorOn = '{{ auth()->user()->idor_on ? 'true' : 'false' }}';
     </script>
+
     @vite(['resources/js/admin.js'])
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -27,16 +32,40 @@
                             <x-table-row>
                                 <td class="px-4 py-3">{{ $user->username }}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" class="role-checkbox cursor-pointer" data-user-id="{{ $user->user_id }}" data-role="is_admin" {{ $user->is_admin ? 'checked' : '' }}>
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="is_admin"
+                                        {{ $user->is_admin ? 'checked' : '' }}
+                                    >
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" class="role-checkbox cursor-pointer" data-user-id="{{ $user->user_id }}" data-role="request_records" {{ $user->request_records ? 'checked' : '' }}>
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="request_records"
+                                        {{ $user->request_records ? 'checked' : '' }}
+                                    >
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" class="role-checkbox cursor-pointer" data-user-id="{{ $user->user_id }}" data-role="load_records" {{ $user->load_records ? 'checked' : '' }}>
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="load_records"
+                                        {{ $user->load_records ? 'checked' : '' }}
+                                    >
                                 </td>
                                 <td class="px-4 py-3 text-center">
-                                    <input type="checkbox" class="role-checkbox cursor-pointer" data-user-id="{{ $user->user_id }}" data-role="view_patient_info" {{ $user->view_patient_info ? 'checked' : '' }}>
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="view_patient_info"
+                                        {{ $user->view_patient_info ? 'checked' : '' }}
+                                    >
                                 </td>
                             </x-table-row>
                         @endforeach
