@@ -117,8 +117,9 @@ class AccessControlFeatureTest extends TestCase
     #[DataProvider('accessControlProvider')]
     public function testAccessControl($route, $roles, $idor_on, $should_have_access, $expected_view)
     {
-        $user = $this->createUser($roles, $idor_on);
-        $response = $this->actingAs($user)->get(route($route));
+        $response = $this->actingAs(
+            $this->createUser($roles, $idor_on)
+        )->get(route($route));
 
         if ($should_have_access) {
             $response->assertOk();
