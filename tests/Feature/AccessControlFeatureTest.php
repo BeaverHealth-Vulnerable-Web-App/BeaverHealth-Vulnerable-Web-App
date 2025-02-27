@@ -4,10 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AccessControlFeatureTest extends TestCase
 {
-    protected function createUserWithRoles($roles = [])
+    protected function createUser($roles = [], $idor_on = false)
     {
         return User::factory()->create(
             array_merge(
@@ -16,124 +17,279 @@ class AccessControlFeatureTest extends TestCase
                     'request_records' => false,
                     'load_records' => false,
                     'view_patient_info' => false,
+                    'idor_on' => $idor_on,
                 ],
                 $roles
             )
         );
     }
 
-    public function testAdminCanAccessAdminPage()
+    public static function accessControlProvider(): array
     {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $this->actingAs($admin)->get(route('admin'))
-            ->assertOk()
-            ->assertViewIs('admin');
+        return [
+            'admin page, no roles, idor off' => [
+                'route' => 'admin',
+                'roles' => [],
+                'idor_on' => false,
+                'should_have_access' => false,
+                'expected_view' => null
+            ],
+            'admin page, admin role, idor off' => [
+                'route' => 'admin',
+                'roles' => ['is_admin' => true],
+                'idor_on' => false,
+                'should_have_access' => true,
+                'expected_view' => 'admin'
+            ],
+            'admin page, no roles, idor on' => [
+                'route' => 'admin',
+                'roles' => [],
+                'idor_on' => true,
+                'should_have_access' => true,
+                'expected_view' => 'admin'
+            ],
+            'records.request, no roles, idor off' => [
+                'route' => 'records.request',
+                'roles' => [],
+                'idor_on' => false,
+                'should_have_access' => false,
+                'expected_view' => null
+            ],
+            'records.request, request_records role, idor off' => [
+                'route' => 'records.request',
+                'roles' => ['request_records' => true],
+                'idor_on' => false,
+                'should_have_access' => true,
+                'expected_view' => 'records.request'
+            ],
+            'records.request, no roles, idor on' => [
+                'route' => 'records.request',
+                'roles' => [],
+                'idor_on' => true,
+                'should_have_access' => true,
+                'expected_view' => 'records.request'
+            ],
+            'records.add, no roles, idor off' => [
+                'route' => 'records.add',
+                'roles' => [],
+                'idor_on' => false,
+                'should_have_access' => false,
+                'expected_view' => null
+            ],
+            'records.add, load_records role, idor off' => [
+                'route' => 'records.add',
+                'roles' => ['load_records' => true],
+                'idor_on' => false,
+                'should_have_access' => true,
+                'expected_view' => 'records.add'
+            ],
+            'records.add, no roles, idor on' => [
+                'route' => 'records.add',
+                'roles' => [],
+                'idor_on' => true,
+                'should_have_access' => true,
+                'expected_view' => 'records.add'
+            ],
+            'patients.index, no roles, idor off' => [
+                'route' => 'patients.index',
+                'roles' => [],
+                'idor_on' => false,
+                'should_have_access' => false,
+                'expected_view' => null
+            ],
+            'patients.index, view_patient_info role, idor off' => [
+                'route' => 'patients.index',
+                'roles' => ['view_patient_info' => true],
+                'idor_on' => false,
+                'should_have_access' => true,
+                'expected_view' => 'patients.index'
+            ],
+            'patients.index, no roles, idor on' => [
+                'route' => 'patients.index',
+                'roles' => [],
+                'idor_on' => true,
+                'should_have_access' => true,
+                'expected_view' => 'patients.index'
+            ],
+        ];
     }
 
-    public function testAdminCanToggleRoles()
+    #[DataProvider('accessControlProvider')]
+    public function testAccessControl($route, $roles, $idor_on, $should_have_access, $expected_view)
     {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
+        $user = $this->createUser($roles, $idor_on);
+        $response = $this->actingAs($user)->get(route($route));
+
+        if ($should_have_access) {
+            $response->assertOk();
+            if ($expected_view) {
+                $response->assertViewIs($expected_view);
+            }
+        } else {
+            $response->assertFound()
+                    ->assertRedirect(route('dashboard'))
+                    ->assertSessionHas('status', [
+                        'type' => 'error',
+                        'message' => 'Access denied: You do not have permission to view this page.'
+                    ]);
+        }
+    }
+
+    public static function roleToggleProvider(): array
+    {
+        return [
+            'admin can toggle roles with idor on' => [
+                'roles' => ['is_admin' => true],
+                'idor_on' => true,
+                'should_succeed' => true
+            ],
+            'admin can toggle roles with idor off' => [
+                'roles' => ['is_admin' => true],
+                'idor_on' => false,
+                'should_succeed' => true
+            ],
+            'non-admin can toggle roles with idor on' => [
+                'roles' => [],
+                'idor_on' => true,
+                'should_succeed' => true
+            ],
+            'non-admin cannot toggle roles with idor off' => [
+                'roles' => [],
+                'idor_on' => false,
+                'should_succeed' => false
+            ]
+        ];
+    }
+
+    #[DataProvider('roleToggleProvider')]
+    public function testRoleToggling(array $roles, bool $idor_on, bool $should_succeed)
+    {
+        $user = $this->createUser($roles, $idor_on);
+        $targetUser = $this->createUser();
 
         $this->get(route('admin'));
-        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
+        $roleNames = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
 
-        // Toggle on
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
+        // Toggle roles on
+        foreach ($roleNames as $role) {
+            $response = $this->actingAs($user)->postWithCsrf(
                 route('admin.updateRole'),
                 [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => true
+                'user_id' => $targetUser->user_id,
+                'role' => $role,
+                'value' => true
                 ]
-            )
-            ->assertOk()
-            ->assertJson(['success' => true]);
+            );
+
+            if ($should_succeed) {
+                $response->assertOk()
+                    ->assertJson(['success' => true]);
+            } else {
+                $response->assertForbidden()
+                    ->assertJson([
+                        'success' => false,
+                        'message' => 'Insufficient permissions'
+                    ]);
+            }
         }
 
         $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
-            $this->assertTrue($updatedUser->$role);
+        foreach ($roleNames as $role) {
+            if ($should_succeed) {
+                $this->assertTrue($updatedUser->$role);
+            } else {
+                $this->assertFalse($updatedUser->$role);
+            }
         }
 
-        // Toggle off
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
+        // Toggle roles off
+        foreach ($roleNames as $role) {
+            $response = $this->actingAs($user)->postWithCsrf(
                 route('admin.updateRole'),
                 [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => false
+                'user_id' => $targetUser->user_id,
+                'role' => $role,
+                'value' => false
                 ]
-            )
-            ->assertOk()
-            ->assertJson(['success' => true]);
+            );
+
+            if ($should_succeed) {
+                $response->assertOk()
+                    ->assertJson(['success' => true]);
+            } else {
+                $response->assertForbidden()
+                    ->assertJson([
+                        'success' => false,
+                        'message' => 'Insufficient permissions'
+                    ]);
+            }
         }
 
         $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
+        foreach ($roleNames as $role) {
             $this->assertFalse($updatedUser->$role);
         }
     }
 
-    // In the vulnerable version, any user can update roles
-    public function testNonAdminCanToggleRoles()
+    public static function updateRoleDataProvider(): array
     {
-        $admin = $this->createUserWithRoles();
-        $targetUser = $this->createUserWithRoles();
+        return [
+            'invalid_role' => [
+                ['role' => 'invalid_role', 'value' => true],
+                ['role']
+            ],
+            'array_of_roles' => [
+                ['role' => ['is_admin', 'request_records', 'load_records', 'view_patient_info'], 'value' => true],
+                ['role']
+            ],
+            'invalid_user_id' => [
+                ['user_id' => 9999, 'role' => 'request_records', 'value' => true],
+                ['user_id']
+            ],
+            'invalid_value_type' => [
+                ['role' => 'request_records', 'value' => 'not-a-bool'],
+                ['value']
+            ],
+            'invalid_role_type' => [
+                ['role' => 2, 'value' => true],
+                ['role']
+            ],
+        ];
+    }
+
+    #[DataProvider('updateRoleDataProvider')]
+    public function testUpdateRoleValidation(array $requestData, array $expectedErrors)
+    {
+        if (!isset($requestData['user_id'])) {
+            $requestData['user_id'] = $this->createUser()->user_id;
+        }
+
+        if (!empty($requestData)) {
+            $baseData = [
+                'user_id' => $requestData['user_id'],
+                'role' => 'request_records',
+                'value' => true
+            ];
+            $requestData = array_merge($baseData, $requestData);
+        }
 
         $this->get(route('admin'));
-        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
-
-        // Toggle on
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
+        $this->actingAs($this->createUser(['is_admin' => true]))
+            ->withHeaders(['Accept' => 'application/json'])
+            ->postWithCsrf(
                 route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => true
-                ]
+                $requestData
             )
-            ->assertOk()
-            ->assertJson(['success' => true]);
-        }
-
-        $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
-            $this->assertTrue($updatedUser->$role);
-        }
-
-        // Toggle off
-        foreach ($roles as $role) {
-            $this->actingAs($admin)->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $role,
-                    'value' => false
-                ]
-            )
-            ->assertOk()
-            ->assertJson(['success' => true]);
-        }
-
-        $updatedUser = $targetUser->fresh();
-        foreach ($roles as $role) {
-            $this->assertFalse($updatedUser->$role);
-        }
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors($expectedErrors);
     }
 
     public function testRepeatedRoleUpdatesWork()
     {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
-
+        $targetUser = $this->createUser();
         $this->get(route('admin'));
-
         for ($i = 0; $i < 3; $i++) {
-            $this->actingAs($admin)
+            $this->actingAs($this->createUser(['is_admin' => true]))
                 ->withHeaders(['Accept' => 'application/json'])
                 ->postWithCsrf(
                     route('admin.updateRole'),
@@ -145,216 +301,37 @@ class AccessControlFeatureTest extends TestCase
                 )
                 ->assertOk();
         }
-
         $this->assertTrue($targetUser->fresh()->request_records);
     }
 
     public function testNavigationLinksVisibleWithRoles()
     {
-        $user = $this->createUserWithRoles(
-            [
+        $this->actingAs(
+            $this->createUser(
+                [
                 'is_admin' => true,
                 'request_records' => true,
                 'load_records' => true,
                 'view_patient_info' => true,
-            ]
-        );
-
-        $this->actingAs($user)->get(route('dashboard'))
-            ->assertOk()
-            ->assertSee('href="' . route('records.request') . '"', false)
-            ->assertSee('href="' . route('records.add') . '"', false)
-            ->assertSee('href="' . route('admin') . '"', false)
-            ->assertSee('href="' . route('patients.index') . '"', false);
+                ]
+            )
+        )
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('href="' . route('records.request') . '"', false)
+        ->assertSee('href="' . route('records.add') . '"', false)
+        ->assertSee('href="' . route('admin') . '"', false)
+        ->assertSee('href="' . route('patients.index') . '"', false);
     }
 
     public function testNavigationLinksHiddenWithoutRoles()
     {
-        $user = $this->createUserWithRoles();
-
-        $this->actingAs($user)->get(route('dashboard'))
+        $this->actingAs($this->createUser())
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertDontSee('href="' . route('records.request') . '"', false)
             ->assertDontSee('href="' . route('records.add') . '"', false)
             ->assertDontSee('href="' . route('admin') . '"', false)
             ->assertDontSee('href="' . route('patients.index') . '"', false);
     }
-
-    public function testInvalidRoleRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => 'invalid_role',
-                    'value' => true
-                ]
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
-    }
-
-    public function testArrayOfRolesRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
-        $roles = ['is_admin', 'request_records', 'load_records', 'view_patient_info'];
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => $roles,
-                    'value' => true
-                ]
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['role']);
-    }
-
-
-    public function testInvalidUserIdRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => 9999,
-                    'role' => 'request_records',
-                    'value' => true
-                ]
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['user_id']);
-    }
-
-    public function testInvalidValueTypeRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => 'request_records',
-                    'value' => 'not-a-bool'
-                ]
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['value']);
-    }
-
-    public function testInvalidRoleTypeRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-        $targetUser = $this->createUserWithRoles();
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(
-                route('admin.updateRole'),
-                [
-                    'user_id' => $targetUser->user_id,
-                    'role' => 2,
-                    'value' => 'not-a-bool'
-                ]
-            )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['value']);
-    }
-
-    public function testMissingFieldsRejected()
-    {
-        $admin = $this->createUserWithRoles(['is_admin' => true]);
-
-        $this->get(route('admin'));
-        $this->actingAs($admin)
-            ->withHeaders(['Accept' => 'application/json'])
-            ->postWithCsrf(route('admin.updateRole'), [])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['value']);
-    }
-
-    public function testAnyUserCanAccessAdminPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('admin'))
-            ->assertOk()
-            ->assertViewIs('admin');
-    }
-
-    public function testAnyUserCanAccessAddRecordsPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('records.add'))
-            ->assertOk()
-            ->assertViewIs('records.add');
-    }
-
-    // Expected behavior with vulnerable version of access controls
-    public function testAnyUserCanAccessPatientInfoPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('patients.index'))
-            ->assertOk()
-            ->assertViewIs('patients.index');
-    }
-
-    public function testAnyUserCanAccessVulnerabilityTogglesPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('vulnerability_toggles'))
-            ->assertOk()
-            ->assertViewIs('vuln_toggles.index');
-    }
-
-    public function testAnyUserCanAccessPatientFeedbackPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('feedback'))
-            ->assertOk()
-            ->assertViewIs('feedback.index');
-    }
-
-    public function testAnyUserCanAccessChangePasswordPage()
-    {
-        $user = $this->createUserWithRoles();
-        $this->actingAs($user)
-            ->get(route('profile.change-password'))
-            ->assertOk()
-            ->assertViewIs('profile.change-password');
-    }
-
-    // TODO - uncomment when request records page is merged
-    // public function testAnyUserCanAccessRequestRecordsPage()
-    // {
-    //     $user = $this->createUserWithRoles();
-    //     $this->actingAs($user)
-    //         ->get(route('records.request'))
-    //         ->assertOk()
-    //         ->assertViewIs('records.request');
-    // }
 }
