@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -31,25 +31,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate(
             [
-            'username' => ['required', 'string', 'max:255', 'unique:user'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'username' => ['required', 'string', 'max:255', 'unique:user'],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]
         );
 
         $user = User::create(
             [
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'is_admin' => false,
-            'request_records' => true,
-            'load_records' => true,
-            'view_patient_info' => false,
-            'sqli_on' => false,
-            'file_upload_on' => false,
-            'cmd_inject_on' => false,
-            'xss_reflected_on' => false,
-            'xss_stored_on' => false,
-            'idor_on' => false,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'is_admin' => false,
+                'request_records' => true,
+                'load_records' => true,
+                'view_patient_info' => false,
+                'sqli_on' => false,
+                'file_upload_on' => false,
+                'cmd_inject_on' => false,
+                'xss_reflected_on' => false,
+                'xss_stored_on' => false,
+                'idor_on' => false,
             ]
         );
 
