@@ -31,6 +31,11 @@ class FeedbackController extends Controller
     public function search(FeedbackSearchRequest $request)
     {
         $searchResults = $this->feedbackService->searchFeedback($request);
-        return view('feedback.index', $searchResults)->with('search_name', $request->input('search_name'));
+        if (auth()->user()->xss_reflected_on) {
+            $search_name = $request->input('search_name');
+            return view('feedback.index', $searchResults)->with('search_name', $search_name);
+        }
+        $sanitized_name = htmlspecialchars($request->input('search_name'));
+        return view('feedback.index', $searchResults)->with('search_name', $sanitized_name);
     }
 }
