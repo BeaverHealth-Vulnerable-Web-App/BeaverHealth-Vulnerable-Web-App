@@ -127,8 +127,14 @@ class AccessControlFeatureTest extends TestCase
                 $response->assertViewIs($expected_view);
             }
         } else {
+            // Using assertStringStartsWith instead of assertRedirect because our implementation
+            // adds a timestamp parameter to the dashboard URL for cache-busting on back button
+            $this->assertStringStartsWith(
+                rtrim(route('dashboard'), '/'),
+                $response->headers->get('Location'),
+                "Response does not redirect to the dashboard route"
+            );
             $response->assertFound()
-                    ->assertRedirect(route('dashboard'))
                     ->assertSessionHas('status', [
                         'type' => 'error',
                         'message' => 'Access denied: You do not have permission to view this page.'
