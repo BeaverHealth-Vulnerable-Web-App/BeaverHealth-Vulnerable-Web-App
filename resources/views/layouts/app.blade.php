@@ -32,7 +32,7 @@
             </div>
         </div>
     </body>
-    @if(session('status'))
+    @if(session('status') && is_array(session('status')))
         <x-status-message
             :message="session('status')['message']"
             :type="session('status')['type']"
