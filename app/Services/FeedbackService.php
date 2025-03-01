@@ -6,6 +6,7 @@ use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
+use App\Models\User;
 
 class FeedbackService
 {
@@ -18,10 +19,18 @@ class FeedbackService
 
     public function storeFeedback(FeedbackCommentRequest $request)
     {
-        PatientFeedback::create([
-            'patient_id' => $request->input('patient_id'),
-            'feedback' => $request->input('feedback')
-        ]);
+        if (auth()->user()->xss_stored_on) {
+            PatientFeedback::create([
+                'patient_id' => $request->input('patient_id'),
+                'feedback' => $request->input('feedback')
+            ]);
+        } else {
+            $sanitizedFeedback = htmlspecialchars($request->input('feedback'));
+            PatientFeedback::create([
+                'patient_id' => $request->input('patient_id'),
+                'feedback' => $sanitizedFeedback
+            ]);
+        }
     }
 
     public function searchFeedback(FeedbackSearchRequest $request)
