@@ -127,12 +127,18 @@ class AccessControlFeatureTest extends TestCase
                 $response->assertViewIs($expected_view);
             }
         } else {
-            // Using assertStringStartsWith instead of assertRedirect because our implementation
-            // adds a timestamp parameter to the dashboard URL for cache-busting on back button
+            // Using assertStringStartsWith and assertMatchesRegularExpression instead of assertRedirect because
+            // our implementation adds a timestamp parameter to the dashboard URL for cache-busting on back button
+            $redirectUrl = $response->headers->get('Location');
             $this->assertStringStartsWith(
                 rtrim(route('dashboard'), '/'),
-                $response->headers->get('Location'),
+                $redirectUrl,
                 "Response does not redirect to the dashboard route"
+            );
+            $this->assertMatchesRegularExpression(
+                '/\/\d+$/',
+                $redirectUrl,
+                'Redurect URL does not end with a numeric timestamp parameter'
             );
             $response->assertFound()
                     ->assertSessionHas('status', [
@@ -340,5 +346,24 @@ class AccessControlFeatureTest extends TestCase
             ->assertDontSee('href="' . route('records.add') . '"', false)
             ->assertDontSee('href="' . route('admin') . '"', false)
             ->assertDontSee('href="' . route('patients.index') . '"', false);
+    }
+
+    public function testProtectedPagesHaveCacheControlHeaders()
+    {
+        $response = $this->actingAs($this->createUser(['load_records' => true]))
+                        ->get(route('records.add'))
+                        ->assertHeader('Pragma', 'no-cache');
+
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('no-cache', $cacheControl);
+        $this->assertStringContainsString('must-revalidate', $cacheControl);
+        $this->assertStringContainsString('max-age=0', $cacheControl);
+
+        $this->assertLessThan(
+            time(),
+            strtotime($response->headers->get('Expires')),
+            'Expires header should be in the past'
+        );
     }
 }
