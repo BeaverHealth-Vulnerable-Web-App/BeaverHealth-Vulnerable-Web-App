@@ -23,19 +23,22 @@ class FeedbackController extends Controller
 
     public function store(FeedbackCommentRequest $request)
     {
-        $this->feedbackService->storeFeedback($request);
+        if (auth()->user()->xss_stored_on) {
+            $this->feedbackService->storeFeedbackInsecure($request);
+        } else {
+            $this->feedbackService->storeFeedbackSecure($request);
+        }
         return redirect()->route('feedback')
             ->with('success', 'Feedback added successfully!');
     }
 
     public function search(FeedbackSearchRequest $request)
     {
-        $searchResults = $this->feedbackService->searchFeedback($request);
         if (auth()->user()->xss_reflected_on) {
-            $search_name = $request->input('search_name');
-            return view('feedback.index', $searchResults)->with('search_name', $search_name);
+            $searchResults = $this->feedbackService->searchFeedbackInsecure($request);
+            return view('feedback.index', $searchResults[0])->with('search_name', $searchResults[1]);
         }
-        $sanitized_name = htmlspecialchars($request->input('search_name'));
-        return view('feedback.index', $searchResults)->with('search_name', $sanitized_name);
+        $searchResults = $this->feedbackService->searchFeedbackSecure($request);
+        return view('feedback.index', $searchResults[0])->with('search_name', $searchResults[1]);
     }
 }
