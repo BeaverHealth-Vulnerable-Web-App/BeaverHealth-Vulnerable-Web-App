@@ -18,11 +18,6 @@ class CheckPermissionMiddleware
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-
-        if ($user->idor_on) {
-            return $next($request);
-        }
-
         $routePermissionMap = [
             'admin' => 'is_admin',
             'records.request' => 'request_records',
@@ -32,20 +27,31 @@ class CheckPermissionMiddleware
         ];
 
         $routeName = $request->route()->getName();
+        $isProtectedRoute = array_key_exists($routeName, $routePermissionMap);
 
-        if (array_key_exists($routeName, $routePermissionMap)) {
+        if ($user->idor_on) {
+            $response = $next($request);
+        } elseif ($isProtectedRoute) {
             $requiredPermission = $routePermissionMap[$routeName];
-
             if (!$user->{$requiredPermission}) {
                 session()->flash('status', [
                     'type' => 'error',
                     'message' => 'Access denied: You do not have permission to view this page.'
                 ]);
 
-                return redirect()->route('dashboard');
+                return redirect()->route('dashboard', ['_refresh' => time()]);
             }
+            $response = $next($request);
+        } else {
+            $response = $next($request);
         }
 
-        return $next($request);
+        if ($isProtectedRoute) {
+            $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+        }
+
+        return $response;
     }
 }
