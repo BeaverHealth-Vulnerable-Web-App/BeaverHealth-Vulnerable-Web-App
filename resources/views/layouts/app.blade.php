@@ -32,10 +32,10 @@
             </div>
         </div>
     </body>
-    @if(session('status') && is_array(session('status')))
+    @if(session('access-status'))
         <x-status-message
-            :message="session('status')['message']"
-            :type="session('status')['type']"
+            :message="session('access-status')['message']"
+            :type="session('access-status')['type']"
         />
     @endif
 </html>

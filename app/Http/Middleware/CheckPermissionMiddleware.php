@@ -32,7 +32,7 @@ class CheckPermissionMiddleware
         if (!$user->idor_on && $isProtectedRoute) {
             $requiredPermission = $routePermissionMap[$routeName];
             if (!$user->{$requiredPermission}) {
-                session()->flash('status', [
+                session()->flash('access-status', [
                     'type' => 'error',
                     'message' => 'Access denied: You do not have permission to view this page.'
                 ]);

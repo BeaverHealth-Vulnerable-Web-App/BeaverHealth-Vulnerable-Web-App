@@ -88,11 +88,10 @@
         </div>
     </div>
     <!-- Status message -->
-    @if(session('success'))
-        <x-status-message :message="session('success')" type="success" />
-    @endif
-
-    @if(session('error'))
-        <x-status-message :message="session('error')" type="error" />
+    @if(session('feedback-status'))
+        <x-status-message
+            :message="session('feedback-status')['message']"
+            :type="session('feedback-status')['type']"
+        />
     @endif
 </x-app-layout>

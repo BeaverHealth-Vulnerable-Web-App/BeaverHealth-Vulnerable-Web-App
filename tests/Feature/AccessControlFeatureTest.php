@@ -141,7 +141,7 @@ class AccessControlFeatureTest extends TestCase
                 'Redurect URL does not end with a numeric timestamp parameter'
             );
             $response->assertFound()
-                    ->assertSessionHas('status', [
+                    ->assertSessionHas('access-status', [
                         'type' => 'error',
                         'message' => 'Access denied: You do not have permission to view this page.'
                     ]);
