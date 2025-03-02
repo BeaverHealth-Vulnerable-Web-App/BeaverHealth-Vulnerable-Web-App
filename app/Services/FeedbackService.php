@@ -6,7 +6,6 @@ use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
-use App\Models\User;
 
 class FeedbackService
 {
