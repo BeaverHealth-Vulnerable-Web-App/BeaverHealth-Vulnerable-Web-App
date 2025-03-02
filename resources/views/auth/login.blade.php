@@ -25,8 +25,8 @@
         </div>
 
         <!-- Login Button -->
-        <div class="flex items-center justify-between mt-4">
-            <x-primary-button class="ms-3">
+        <div class="flex items-center justify-center mt-4">
+            <x-primary-button class="ml-0">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

@@ -1,15 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AddRecordsController;
 use App\Http\Controllers\RequestRecordsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\PatientInfoController;
 
 Route::middleware('guest')->group(
@@ -27,10 +27,10 @@ Route::middleware('auth')->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::get('/profile/change-password', [ProfileController::class, 'index'])->name('profile.change-password');
+        Route::get('/profile/change-password', [PasswordController::class, 'index'])->name('profile.change-password');
         Route::post(
             '/profile/change-password',
-            [ProfileController::class, 'changePassword']
+            [PasswordController::class, 'changePassword']
         )->name('profile.change-password.update');
 
         Route::get('/admin', [AdminController::class, 'index'])->name('admin');
@@ -62,5 +62,7 @@ Route::middleware('auth')->group(
         )->name('vulnerability_toggles.update');
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
+
+        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))->name('sidebar.refresh');
     }
 );
