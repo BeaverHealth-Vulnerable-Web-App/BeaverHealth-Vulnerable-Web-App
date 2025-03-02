@@ -18,7 +18,7 @@ class FeedbackService
 
     public function storeFeedbackSecure(FeedbackCommentRequest $request)
     {
-        $sanitizedFeedback = htmlspecialchars($request->input('feedback'));
+        $sanitizedFeedback = htmlspecialchars($request->input('feedback'), ENT_QUOTES, 'UTF-8');
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
             'feedback' => $sanitizedFeedback
@@ -35,7 +35,7 @@ class FeedbackService
 
     public function searchFeedbackSecure(FeedbackSearchRequest $request)
     {
-        $name = htmlspecialchars($request->input('search_name'));
+        $name = htmlspecialchars($request->input('search_name'), ENT_QUOTES, 'UTF-8');
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
             $query->where('first_name', 'like', "%{$name}%")
                 ->orWhere('last_name', 'like', "%{$name}%");
