@@ -23,11 +23,11 @@ class UserSeeder extends Seeder
                 'cmd_inject_on' => false,
                 'xss_reflected_on' => false,
                 'xss_stored_on' => false,
-                'idor_on' => false,
+                'bac_on' => false,
             ]
         );
 
-        // Create 10 fake users
+        // Create 10 fake regular users
         User::factory()->count(10)->create();
     }
 }

@@ -28,7 +28,7 @@ return new class extends Migration
                 $table->boolean('cmd_inject_on')->default(false);
                 $table->boolean('xss_reflected_on')->default(false);
                 $table->boolean('xss_stored_on')->default(false);
-                $table->boolean('idor_on')->default(false);
+                $table->boolean('bac_on')->default(false);
                 $table->timestamps();
             }
         );

@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
                 'cmd_inject_on' => false,
                 'xss_reflected_on' => false,
                 'xss_stored_on' => false,
-                'idor_on' => false,
+                'bac_on' => false,
             ]
         );
 

@@ -40,9 +40,9 @@ async function handleRoleCheckboxChange(event) {
  */
 function hasPermissionToModifyRoles() {
     const isAdmin = window.currentUserIsAdmin === 'true';
-    const idorOn = window.currentUserIdorOn === 'true';
+    const bacOn = window.currentUserBacOn === 'true';
 
-    return isAdmin || idorOn;
+    return isAdmin || bacOn;
 }
 
 /**

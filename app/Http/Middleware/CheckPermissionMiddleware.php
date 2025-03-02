@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class CheckPermissionMiddleware
 {
     /**
-    * Enforces role-based access control and handles IDOR vulnerability toggling.
+    * Enforces role-based access control and handles BAC vulnerability toggling.
     *
     * @param  \Illuminate\Http\Request  $request
     * @param  \Closure  $next
@@ -29,7 +29,7 @@ class CheckPermissionMiddleware
         $routeName = $request->route()->getName();
         $isProtectedRoute = array_key_exists($routeName, $routePermissionMap);
 
-        if (!$user->idor_on && $isProtectedRoute) {
+        if (!$user->bac_on && $isProtectedRoute) {
             $requiredPermission = $routePermissionMap[$routeName];
             if (!$user->{$requiredPermission}) {
                 session()->flash('access-status', [

@@ -26,7 +26,7 @@ class User extends Authenticatable
         'cmd_inject_on',
         'xss_reflected_on',
         'xss_stored_on',
-        'idor_on',
+        'bac_on',
     ];
 
     protected $hidden = [
@@ -43,6 +43,6 @@ class User extends Authenticatable
         'cmd_inject_on' => 'boolean',
         'xss_reflected_on' => 'boolean',
         'xss_stored_on' => 'boolean',
-        'idor_on' => 'boolean',
+        'bac_on' => 'boolean',
     ];
 }

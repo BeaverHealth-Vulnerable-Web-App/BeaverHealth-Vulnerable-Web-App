@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 class AccessControlFeatureTest extends TestCase
 {
-    protected function createUser($roles = [], $idor_on = false)
+    protected function createUser($roles = [], $bac_on = false)
     {
         return User::factory()->create(
             array_merge(
@@ -17,7 +17,7 @@ class AccessControlFeatureTest extends TestCase
                     'request_records' => false,
                     'load_records' => false,
                     'view_patient_info' => false,
-                    'idor_on' => $idor_on,
+                    'bac_on' => $bac_on,
                 ],
                 $roles
             )
@@ -27,87 +27,87 @@ class AccessControlFeatureTest extends TestCase
     public static function accessControlProvider(): array
     {
         return [
-            'admin page, no roles, idor off' => [
+            'admin page, no roles, bac off' => [
                 'route' => 'admin',
                 'roles' => [],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => false,
                 'expected_view' => null
             ],
-            'admin page, admin role, idor off' => [
+            'admin page, admin role, bac off' => [
                 'route' => 'admin',
                 'roles' => ['is_admin' => true],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => true,
                 'expected_view' => 'admin'
             ],
-            'admin page, no roles, idor on' => [
+            'admin page, no roles, bac on' => [
                 'route' => 'admin',
                 'roles' => [],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_have_access' => true,
                 'expected_view' => 'admin'
             ],
-            'records.request, no roles, idor off' => [
+            'records.request, no roles, bac off' => [
                 'route' => 'records.request',
                 'roles' => [],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => false,
                 'expected_view' => null
             ],
-            'records.request, request_records role, idor off' => [
+            'records.request, request_records role, bac off' => [
                 'route' => 'records.request',
                 'roles' => ['request_records' => true],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => true,
                 'expected_view' => 'records.request'
             ],
-            'records.request, no roles, idor on' => [
+            'records.request, no roles, bac on' => [
                 'route' => 'records.request',
                 'roles' => [],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_have_access' => true,
                 'expected_view' => 'records.request'
             ],
-            'records.add, no roles, idor off' => [
+            'records.add, no roles, bac off' => [
                 'route' => 'records.add',
                 'roles' => [],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => false,
                 'expected_view' => null
             ],
-            'records.add, load_records role, idor off' => [
+            'records.add, load_records role, bac off' => [
                 'route' => 'records.add',
                 'roles' => ['load_records' => true],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => true,
                 'expected_view' => 'records.add'
             ],
-            'records.add, no roles, idor on' => [
+            'records.add, no roles, bac on' => [
                 'route' => 'records.add',
                 'roles' => [],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_have_access' => true,
                 'expected_view' => 'records.add'
             ],
-            'patients.index, no roles, idor off' => [
+            'patients.index, no roles, bac off' => [
                 'route' => 'patients.index',
                 'roles' => [],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => false,
                 'expected_view' => null
             ],
-            'patients.index, view_patient_info role, idor off' => [
+            'patients.index, view_patient_info role, bac off' => [
                 'route' => 'patients.index',
                 'roles' => ['view_patient_info' => true],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_have_access' => true,
                 'expected_view' => 'patients.index'
             ],
-            'patients.index, no roles, idor on' => [
+            'patients.index, no roles, bac on' => [
                 'route' => 'patients.index',
                 'roles' => [],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_have_access' => true,
                 'expected_view' => 'patients.index'
             ],
@@ -115,10 +115,10 @@ class AccessControlFeatureTest extends TestCase
     }
 
     #[DataProvider('accessControlProvider')]
-    public function testAccessControl($route, $roles, $idor_on, $should_have_access, $expected_view)
+    public function testAccessControl($route, $roles, $bac_on, $should_have_access, $expected_view)
     {
         $response = $this->actingAs(
-            $this->createUser($roles, $idor_on)
+            $this->createUser($roles, $bac_on)
         )->get(route($route));
 
         if ($should_have_access) {
@@ -151,33 +151,33 @@ class AccessControlFeatureTest extends TestCase
     public static function roleToggleProvider(): array
     {
         return [
-            'admin can toggle roles with idor on' => [
+            'admin can toggle roles with bac on' => [
                 'roles' => ['is_admin' => true],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_succeed' => true
             ],
-            'admin can toggle roles with idor off' => [
+            'admin can toggle roles with bac off' => [
                 'roles' => ['is_admin' => true],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_succeed' => true
             ],
-            'non-admin can toggle roles with idor on' => [
+            'non-admin can toggle roles with bac on' => [
                 'roles' => [],
-                'idor_on' => true,
+                'bac_on' => true,
                 'should_succeed' => true
             ],
-            'non-admin cannot toggle roles with idor off' => [
+            'non-admin cannot toggle roles with bac off' => [
                 'roles' => [],
-                'idor_on' => false,
+                'bac_on' => false,
                 'should_succeed' => false
             ]
         ];
     }
 
     #[DataProvider('roleToggleProvider')]
-    public function testRoleToggling(array $roles, bool $idor_on, bool $should_succeed)
+    public function testRoleToggling(array $roles, bool $bac_on, bool $should_succeed)
     {
-        $user = $this->createUser($roles, $idor_on);
+        $user = $this->createUser($roles, $bac_on);
         $targetUser = $this->createUser();
 
         $this->get(route('admin'));

@@ -12,7 +12,7 @@
         };
         window.currentUserId = '{{ auth()->id() }}';
         window.currentUserIsAdmin = '{{ auth()->user()->is_admin ? 'true' : 'false' }}';
-        window.currentUserIdorOn = '{{ auth()->user()->idor_on ? 'true' : 'false' }}';
+        window.currentUserBacOn = '{{ auth()->user()->bac_on ? 'true' : 'false' }}';
     </script>
 
     @vite(['resources/js/admin.js'])

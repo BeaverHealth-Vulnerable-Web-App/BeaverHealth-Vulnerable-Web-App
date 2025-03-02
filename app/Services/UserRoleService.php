@@ -14,7 +14,7 @@ class UserRoleService
     public function authorize(): bool
     {
         $currentUser = auth()->user();
-        if (!($currentUser->is_admin || $currentUser->idor_on)) {
+        if (!($currentUser->is_admin || $currentUser->bac_on)) {
             return false;
         }
         return true;
