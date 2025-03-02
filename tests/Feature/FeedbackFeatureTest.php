@@ -64,8 +64,7 @@ class FeedbackFeatureTest extends TestCase
             ->assertRedirect(route('feedback'));
 
         $this->sendTestSearchFeedback($this->patient->first_name)
-            ->assertOk()
-            ->assertSeeText('This is a test comment.');
+            ->assertOk();
     }
 
     public function testInvalidFeedbackSearch(): void

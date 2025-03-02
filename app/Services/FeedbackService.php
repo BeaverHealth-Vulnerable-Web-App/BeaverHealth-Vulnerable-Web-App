@@ -9,49 +9,44 @@ use App\Models\PatientFeedback;
 
 class FeedbackService
 {
-    public function getFeedbackWithPatients()
+    public function getFeedbackWithPatients(bool $xss_stored_on)
     {
         $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        return ['feedback' => $feedback, 'patients' => $patients];
+        if ($xss_stored_on) {
+            $feedback->each(function ($item) {
+                $item->feedback = e($item->feedback);
+            });
+        }
+
+        return ['feedback' => $feedback, 'patients' => Patient::all()];
     }
 
-    public function storeFeedbackSecure(FeedbackCommentRequest $request)
+    public function storeFeedback(FeedbackCommentRequest $request, bool $xss_stored_on)
     {
-        $sanitizedFeedback = htmlspecialchars($request->input('feedback'), ENT_QUOTES, 'UTF-8');
+        $feedback = $request->input('feedback');
+        if (!$xss_stored_on) {
+            $feedback = htmlspecialchars($feedback, ENT_QUOTES, 'UTF-8');
+            $feedback = e($feedback);
+        }
+
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
-            'feedback' => $sanitizedFeedback
+            'feedback' => $feedback
         ]);
     }
 
-    public function storeFeedbackInsecure(FeedbackCommentRequest $request)
-    {
-        PatientFeedback::create([
-            'patient_id' => $request->input('patient_id'),
-            'feedback' => $request->input('feedback')
-        ]);
-    }
-
-    public function searchFeedbackSecure(FeedbackSearchRequest $request)
-    {
-        $name = htmlspecialchars($request->input('search_name'), ENT_QUOTES, 'UTF-8');
-        $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
-            $query->where('first_name', 'like', "%{$name}%")
-                ->orWhere('last_name', 'like', "%{$name}%");
-        })->orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        return [['feedback' => $feedback, 'patients' => $patients], $name];
-    }
-
-    public function searchFeedbackInsecure(FeedbackSearchRequest $request)
+    public function searchFeedback(FeedbackSearchRequest $request, bool $xss_reflected_on)
     {
         $name = $request->input('search_name');
+        if (!$xss_reflected_on) {
+            $name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        }
+
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
-            $query->where('first_name', 'like', "%{$name}%")
-                ->orWhere('last_name', 'like', "%{$name}%");
+            $query->where('first_name', 'like', "%{name}%")
+            ->orWhere('last_name', 'like', "%{name}%");
         })->orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        return [['feedback' => $feedback, 'patients' => $patients], $name];
+
+        return [['feedback' => $feedback, 'patients' => Patient::all()], $name];
     }
 }
