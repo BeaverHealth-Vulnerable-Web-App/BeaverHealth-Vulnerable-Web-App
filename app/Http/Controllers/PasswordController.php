@@ -8,7 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class ProfileController extends Controller
+class PasswordController extends Controller
 {
     protected $changePasswordService;
 
@@ -30,8 +30,11 @@ class ProfileController extends Controller
         $success = $this->changePasswordService->updatePassword($user, $request);
 
         if ($success) {
-            return redirect()->route('profile.change-password')
-                             ->with('status', 'password-updated');
+            session()->flash('change-password-status', [
+                'type' => 'success',
+                'message' => 'Password updated',
+            ]);
+            return redirect()->route('profile.change-password');
         }
 
         return redirect()->route('profile.change-password')

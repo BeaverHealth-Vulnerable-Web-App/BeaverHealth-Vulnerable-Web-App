@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>Beaver Health</title>
+        <title>BeaverHealth</title>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,7 +13,7 @@
     <body class="font-sans antialiased">
         <div class="min-h-screen flex bg-gray-100 dark:bg-gray-900">
             <!-- Sidebar Component -->
-            <x-sidebar class="w-64 bg-gray-800 text-white fixed h-full p-4" />
+            @include('layouts.sidebar')
 
             <div class="flex-1 ml-64">
                 <!-- Page Heading -->
@@ -32,4 +32,10 @@
             </div>
         </div>
     </body>
+    @if(session('access-status'))
+        <x-status-message
+            :message="session('access-status')['message']"
+            :type="session('access-status')['type']"
+        />
+    @endif
 </html>

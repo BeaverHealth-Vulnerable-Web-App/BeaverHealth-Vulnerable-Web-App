@@ -5,82 +5,73 @@
         </h2>
     </x-slot>
 
+    <script>
+        window.appRoutes = {
+            updateRole: '{{ route('admin.updateRole') }}',
+            sidebarRefresh: '{{ route('sidebar.refresh') }}'
+        };
+        window.currentUserId = '{{ auth()->id() }}';
+        window.currentUserIsAdmin = '{{ auth()->user()->is_admin ? 'true' : 'false' }}';
+        window.currentUserBacOn = '{{ auth()->user()->bac_on ? 'true' : 'false' }}';
+    </script>
+
+    @vite(['resources/js/admin.js'])
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <table class="table-auto w-full bg-gray-200 dark:bg-gray-800 border-separate border-spacing-2">
-                        <thead>
-                            <tr class="bg-gray-700 text-white">
-                                <th class="p-4 text-left">User</th>
-                                <th class="p-4 text-center">Administrator</th>
-                                <th class="p-4 text-center">Request Records</th>
-                                <th class="p-4 text-center">Add Records</th>
-                                <th class="p-4 text-center">View Patient Info</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($users as $user)
-                                <tr class="bg-gray-100 dark:bg-gray-900 hover:bg-gray-300 dark:hover:bg-gray-700">
-                                    <td class="p-4">{{ $user->username }}</td>
-                                    <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="is_admin" {{ $user->is_admin ? 'checked' : '' }}>
-                                    </td>
-                                    <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="request_records" {{ $user->request_records ? 'checked' : '' }}>
-                                    </td>
-                                    <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="load_records" {{ $user->load_records ? 'checked' : '' }}>
-                                    </td>
-                                    <td class="p-4 text-center">
-                                        <input type="checkbox" class="role-checkbox" data-user-id="{{ $user->user_id }}" data-role="view_patient_info" {{ $user->view_patient_info ? 'checked' : '' }}>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <x-table :headers="[
+                        ['text' => 'User'],
+                        ['text' => 'Administrator', 'align' => 'center'],
+                        ['text' => 'Request Records', 'align' => 'center'],
+                        ['text' => 'Add Records', 'align' => 'center'],
+                        ['text' => 'View Patient Info', 'align' => 'center']
+                    ]">
+                        @foreach($users as $user)
+                            <x-table-row>
+                                <td class="px-4 py-3">{{ $user->username }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="is_admin"
+                                        {{ $user->is_admin ? 'checked' : '' }}
+                                    >
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="request_records"
+                                        {{ $user->request_records ? 'checked' : '' }}
+                                    >
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="load_records"
+                                        {{ $user->load_records ? 'checked' : '' }}
+                                    >
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox cursor-pointer"
+                                        data-target-user-id="{{ $user->user_id }}"
+                                        data-role="view_patient_info"
+                                        {{ $user->view_patient_info ? 'checked' : '' }}
+                                    >
+                                </td>
+                            </x-table-row>
+                        @endforeach
+                    </x-table>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- JavaScript to handle AJAX requests -->
-    <script>
-        document.querySelectorAll('.role-checkbox').forEach((checkbox) => {
-            checkbox.addEventListener('change', function () {
-                const userId = this.dataset.userId;
-                const role = this.dataset.role;
-                const isChecked = this.checked;
-
-                fetch('{{ route('admin.updateRole') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        role: role,
-                        value: isChecked
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        console.log('Role updated successfully');
-                    } else {
-                        console.error('Failed to update role');
-                    }
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
-            });
-        });
-    </script>
 </x-app-layout>
