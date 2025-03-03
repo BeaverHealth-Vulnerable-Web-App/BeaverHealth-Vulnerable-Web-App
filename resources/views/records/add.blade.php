@@ -40,11 +40,10 @@
         </div>
     </div>
     <!-- Status message -->
-    @if (session('success'))
-        <x-status-message :message="session('success')" type="success" />
-    @endif
-
-    @if (session('error'))
-        <x-status-message :message="session('error')" type="error" />
+    @if (session('records-status'))
+        <x-status-message
+            :message="session('records-status')['message']"
+            :type="session('records-status')['type']"
+        />
     @endif
 </x-app-layout>

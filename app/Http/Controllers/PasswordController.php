@@ -30,8 +30,11 @@ class PasswordController extends Controller
         $success = $this->changePasswordService->updatePassword($user, $request);
 
         if ($success) {
-            return redirect()->route('profile.change-password')
-                             ->with('status', 'password-updated');
+            session()->flash('change-password-status', [
+                'type' => 'success',
+                'message' => 'Password updated',
+            ]);
+            return redirect()->route('profile.change-password');
         }
 
         return redirect()->route('profile.change-password')

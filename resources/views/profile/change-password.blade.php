@@ -55,11 +55,10 @@
         </div>
     </div>
 
-    @if (session('status') === 'password-updated')
-        <x-status-message :message="__('Password Updated!')" type="success" />
-    @endif
-
-    @if (session('error'))
-        <x-status-message :message="session('error')" type="error" />
+    @if (session('change-password-status'))
+        <x-status-message
+            :message="session('change-password-status')['message']"
+            :type="session('change-password-status')['type']"
+        />
     @endif
 </x-app-layout>
