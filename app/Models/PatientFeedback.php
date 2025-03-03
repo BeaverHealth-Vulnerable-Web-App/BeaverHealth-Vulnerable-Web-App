@@ -15,6 +15,7 @@ class PatientFeedback extends Model
     protected $fillable = [
         'patient_id',
         'feedback',
+        'is_vulnerable'
     ];
 
     /**

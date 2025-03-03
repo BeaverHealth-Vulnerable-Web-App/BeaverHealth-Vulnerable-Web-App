@@ -20,6 +20,7 @@ return new class extends Migration
                     ->on('patient')
                     ->onDelete('cascade');
                 $table->text('feedback');
+                $table->boolean('is_vulnerable')->default(false);
                 $table->timestamps();
             }
         );

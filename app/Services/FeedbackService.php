@@ -22,8 +22,9 @@ class FeedbackService
     private function sanitizeStoredFeedback(Collection &$feedback): void
     {
         for ($i = 0; $i < count($feedback); $i++) {
-            $feedback[$i]->feedback = html_entity_decode($feedback[$i]->feedback);
-            $feedback[$i]->feedback = e($feedback[$i]->feedback);
+            if ($feedback[$i]->is_vulnerable == true) {
+                $feedback[$i]->feedback = e($feedback[$i]->feedback);
+            }
         }
     }
 
@@ -41,10 +42,16 @@ class FeedbackService
     public function storeFeedback(FeedbackCommentRequest $request)
     {
         $feedback = $this->processString($request->input('feedback'), auth()->user()->xss_stored_on);
+        if (auth()->user()->xss_stored_on) {
+            $isVulnerable = true;
+        } else {
+            $isVulnerable = false;
+        }
 
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
-            'feedback' => $feedback
+            'feedback' => $feedback,
+            'is_vulnerable' => $isVulnerable
         ]);
     }
 
