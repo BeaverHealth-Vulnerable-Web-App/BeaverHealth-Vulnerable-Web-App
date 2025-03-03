@@ -10,20 +10,16 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FeedbackService
 {
-    private function processString(string $string, bool $toggle): string
+    private function processInput(string $userInput, bool $useRaw): string
     {
-        if ($toggle) {
-            return $string;
-        } else {
-            return e($string);
-        }
+        return $useRaw ? $userInput : e($userInput);
     }
 
     private function sanitizeStoredFeedback(Collection &$feedback): void
     {
-        for ($i = 0; $i < count($feedback); $i++) {
-            if ($feedback[$i]->is_vulnerable == true) {
-                $feedback[$i]->feedback = e($feedback[$i]->feedback);
+        foreach ($feedback as $item) {
+            if ($item->is_vulnerable) {
+                $item->feedback = e($item->feedback);
             }
         }
     }
@@ -31,40 +27,32 @@ class FeedbackService
     public function getFeedbackWithPatients()
     {
         $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        if (auth()->user()->xss_stored_on) {
-            return ['feedback' => $feedback, 'patients' => $patients];
+        if (!auth()->user()->xss_stored_on) {
+            $this->sanitizeStoredFeedback($feedback);
         }
-        $this->sanitizeStoredFeedback($feedback);
-        return ['feedback' => $feedback, 'patients' => $patients];
+        return ['feedback' => $feedback, 'patients' => Patient::all()];
     }
 
     public function storeFeedback(FeedbackCommentRequest $request)
     {
-        $feedback = $this->processString($request->input('feedback'), auth()->user()->xss_stored_on);
-        if (auth()->user()->xss_stored_on) {
-            $isVulnerable = true;
-        } else {
-            $isVulnerable = false;
-        }
+        $xssStoredToggle = auth()->user()->xss_stored_on;
 
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
-            'feedback' => $feedback,
-            'is_vulnerable' => $isVulnerable
+            'feedback' => $this->processInput($request->input('feedback'), $xssToggle),
+            'is_vulnerable' => $xssToggle ? true : false
         ]);
     }
 
     public function searchFeedback(FeedbackSearchRequest $request)
     {
-        $name = $this->processString($request->input('search_name'), auth()->user()->xss_reflected_on);
+        $name = $this->processInput($request->input('search_name'), auth()->user()->xss_reflected_on);
 
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
             $query->where('first_name', 'like', "%{$name}%")
                 ->orWhere('last_name', 'like', "%{$name}%");
         })->orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
-        $this->sanitizeStoredFeedback($feedback);
-        return [['feedback' => $feedback, 'patients' => $patients], $name];
+        $this->sanitizeStoredFeedback($feedback); // Sanitized so that it doesn't interfere with the Reflective XSS
+        return [['feedback' => $feedback, 'patients' => Patient::all()], $name];
     }
 }
