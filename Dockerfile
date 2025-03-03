@@ -27,6 +27,11 @@ RUN a2enmod rewrite
 # Replace default Apache config with Laravel-specific config
 COPY apache-laravel.conf /etc/apache2/sites-available/000-default.conf
 
+# Set PHP file upload limits dynamically using an environment variable
+ARG UPLOAD_LIMIT=100M
+RUN echo "upload_max_filesize=${UPLOAD_LIMIT}" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=${UPLOAD_LIMIT}" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # Set up the sail user
 RUN groupadd -g 1000 sail && \
     useradd -u 1000 -g sail -m sail && \

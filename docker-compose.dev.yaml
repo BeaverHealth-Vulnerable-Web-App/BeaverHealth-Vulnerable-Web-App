@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - UPLOAD_LIMIT=100M
     ports:
       - "9991:80"
     environment:

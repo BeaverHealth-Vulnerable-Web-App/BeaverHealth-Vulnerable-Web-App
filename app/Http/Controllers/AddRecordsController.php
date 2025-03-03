@@ -26,15 +26,25 @@ class AddRecordsController extends Controller
         $file = $request->file('medical_record');
         $filename = $file->getClientOriginalName();
 
-        $this->patientRecordService->storeRecord(
-            $request->input('patient_id'),
-            $file
-        );
+        $secureMode = !auth()->user()->insecure_mode_on;
 
-        session()->flash('records-status', [
-            'type' => 'success',
-            'message' => "File '{$filename}' uploaded successfully!"
-        ]);
+        try {
+            $this->patientRecordService->storeRecord(
+                $request->input('patient_id'),
+                $file,
+                $secureMode
+            );
+
+            session()->flash('records-status', [
+                'type' => 'success',
+                'message' => "File '{$filename}' uploaded successfully!"
+            ]);
+        } catch (\Exception $e) {
+            session()->flash('records-status', [
+                'type' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
 
         return back();
     }

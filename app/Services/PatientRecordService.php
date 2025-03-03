@@ -60,14 +60,36 @@ class PatientRecordService
         ];
     }
 
-    public function storeRecord($patientId, $file)
+    public function storeRecord($patientId, $file, $secureMode = true)
     {
         $patient = Patient::find($patientId);
         if (!$patient) {
             throw new \Exception('Patient not found.');
         }
+        if ($secureMode) {
+            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+            $maxFileSize = 5 * 1024 * 1024; // 5MB in bytes
 
-        $filePath = $this->storeFile($patient->patient_id, $file);
+            $extension = strtolower($file->getClientOriginalExtension());
+            $fileSize = $file->getSize();
+
+            if (!in_array($extension, $allowedExtensions)) {
+                throw new \Exception('Invalid file type. Only PDF, JPG, and PNG are allowed.');
+            }
+
+            if ($fileSize > $maxFileSize) {
+                throw new \Exception('File is too large. Maximum size allowed is 5MB.');
+            }
+
+            $filename = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $directory = "patient_records/{$patient->patient_id}";
+            Storage::makeDirectory($directory);
+            $filePath = $file->storeAs($directory, $filename, 'public');
+        } else {
+            $directory = "patient_records/{$patient->patient_id}";
+            Storage::makeDirectory($directory);
+            $filePath = $file->storeAs($directory, $file->getClientOriginalName(), 'public');
+        }
 
         return PatientFile::create([
             'patient_id' => $patient->patient_id,
