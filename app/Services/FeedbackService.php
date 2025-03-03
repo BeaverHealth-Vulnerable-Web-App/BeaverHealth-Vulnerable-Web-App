@@ -39,8 +39,8 @@ class FeedbackService
 
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
-            'feedback' => $this->processInput($request->input('feedback'), $xssToggle),
-            'is_vulnerable' => $xssToggle ? true : false
+            'feedback' => $this->processInput($request->input('feedback'), $xssStoredToggle),
+            'is_vulnerable' => $xssStoredToggle ? true : false
         ]);
     }
 
