@@ -31,6 +31,11 @@ class AddRecordsController extends Controller
             $file
         );
 
-        return back()->with('success', "File '{$filename}' uploaded successfully!");
+        session()->flash('records-status', [
+            'type' => 'success',
+            'message' => "File '{$filename}' uploaded successfully!"
+        ]);
+
+        return back();
     }
 }

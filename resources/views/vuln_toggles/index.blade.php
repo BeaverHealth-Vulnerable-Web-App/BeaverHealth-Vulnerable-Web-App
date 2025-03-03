@@ -22,7 +22,7 @@
                             $vulnerabilities = [
                                 'sqli_on' => ['SQL Injection', 'Change Password'],
                                 'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
-                                'idor_on' => ['Insecure Direct Object Reference', 'Patient Information & Admin Page'],
+                                'bac_on' => ['Broken Access Control', 'Admin, Patient Info, Add Records, and Request Records'],
                                 'file_upload_on' => ['File Upload', 'Add Medical Records'],
                                 'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
                                 'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],

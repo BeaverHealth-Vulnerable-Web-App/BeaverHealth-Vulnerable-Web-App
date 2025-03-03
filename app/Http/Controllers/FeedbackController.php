@@ -24,8 +24,11 @@ class FeedbackController extends Controller
     public function store(FeedbackCommentRequest $request)
     {
         $this->feedbackService->storeFeedback($request);
-        return redirect()->route('feedback')
-            ->with('success', 'Feedback added successfully!');
+        session()->flash('feedback-status', [
+            'type' => 'success',
+            'message' => 'Feedback added successfully!'
+        ]);
+        return redirect()->route('feedback');
     }
 
     public function search(FeedbackSearchRequest $request)

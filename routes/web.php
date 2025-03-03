@@ -23,9 +23,11 @@ Route::middleware('guest')->group(
     }
 );
 
-Route::middleware('auth')->group(
+Route::middleware(['auth', 'check.permission'])->group(
     function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/{_refresh?}', [DashboardController::class, 'index'])
+            ->where('_refresh', '[0-9]+')
+            ->name('dashboard');
 
         Route::get('/profile/change-password', [PasswordController::class, 'index'])->name('profile.change-password');
         Route::post(

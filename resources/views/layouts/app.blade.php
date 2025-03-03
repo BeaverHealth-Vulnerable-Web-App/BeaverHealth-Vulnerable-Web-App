@@ -32,4 +32,10 @@
             </div>
         </div>
     </body>
+    @if(session('access-status'))
+        <x-status-message
+            :message="session('access-status')['message']"
+            :type="session('access-status')['type']"
+        />
+    @endif
 </html>
