@@ -6,52 +6,58 @@ use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
+use Illuminate\Database\Eloquent\Collection;
 
 class FeedbackService
 {
+    private function processString(string $string, bool $toggle): string
+    {
+        if ($toggle) {
+            return $string;
+        } else {
+            return e($string);
+        }
+    }
+
+    private function sanitizeStoredFeedback(Collection &$feedback): void
+    {
+        for ($i = 0; $i < count($feedback); $i++) {
+            $feedback[$i]->feedback = html_entity_decode($feedback[$i]->feedback);
+            $feedback[$i]->feedback = e($feedback[$i]->feedback);
+        }
+    }
+
     public function getFeedbackWithPatients()
     {
         $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
         $patients = Patient::all();
+        if (auth()->user()->xss_stored_on) {
+            return ['feedback' => $feedback, 'patients' => $patients];
+        }
+        $this->sanitizeStoredFeedback($feedback);
         return ['feedback' => $feedback, 'patients' => $patients];
     }
 
-    public function storeFeedbackSecure(FeedbackCommentRequest $request)
+    public function storeFeedback(FeedbackCommentRequest $request)
     {
-        $sanitizedFeedback = htmlspecialchars($request->input('feedback'), ENT_QUOTES, 'UTF-8');
+        $feedback = $this->processString($request->input('feedback'), auth()->user()->xss_stored_on);
+
         PatientFeedback::create([
             'patient_id' => $request->input('patient_id'),
-            'feedback' => $sanitizedFeedback
+            'feedback' => $feedback
         ]);
     }
 
-    public function storeFeedbackInsecure(FeedbackCommentRequest $request)
+    public function searchFeedback(FeedbackSearchRequest $request)
     {
-        PatientFeedback::create([
-            'patient_id' => $request->input('patient_id'),
-            'feedback' => $request->input('feedback')
-        ]);
-    }
+        $name = $this->processString($request->input('search_name'), auth()->user()->xss_reflected_on);
 
-    public function searchFeedbackSecure(FeedbackSearchRequest $request)
-    {
-        $name = htmlspecialchars($request->input('search_name'), ENT_QUOTES, 'UTF-8');
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
             $query->where('first_name', 'like', "%{$name}%")
                 ->orWhere('last_name', 'like', "%{$name}%");
         })->orderBy('created_at', 'desc')->get();
         $patients = Patient::all();
-        return [['feedback' => $feedback, 'patients' => $patients], $name];
-    }
-
-    public function searchFeedbackInsecure(FeedbackSearchRequest $request)
-    {
-        $name = $request->input('search_name');
-        $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
-            $query->where('first_name', 'like', "%{$name}%")
-                ->orWhere('last_name', 'like', "%{$name}%");
-        })->orderBy('created_at', 'desc')->get();
-        $patients = Patient::all();
+        $this->sanitizeStoredFeedback($feedback);
         return [['feedback' => $feedback, 'patients' => $patients], $name];
     }
 }
