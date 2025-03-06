@@ -20,28 +20,28 @@
                         ]">
                             @php
                             $vulnerabilities = [
-                                'sqli_on' => ['SQL Injection', 'Change Password'],
-                                'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
-                                'bac_on' => ['Broken Access Control', 'Admin, Patient Info, Add Records, and Request Records'],
-                                'file_upload_on' => ['File Upload', 'Add Medical Records'],
-                                'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
-                                'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],
+                            'sqli_on' => ['SQL Injection', 'Change Password'],
+                            'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
+                            'bac_on' => ['Broken Access Control', 'Admin, Patient Info, Add Records, and Request Records'],
+                            'file_upload_on' => ['Unrestricted File Upload', 'Add Medical Records'],
+                            'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
+                            'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],
                             ];
                             @endphp
                             @foreach ($vulnerabilities as $toggle => $details)
-                                <x-table-row>
-                                    <td class="px-4 py-3">
-                                        <input
-                                            type="checkbox"
-                                            class="toggle-checkbox cursor-pointer"
-                                            id="{{ $toggle }}"
-                                            data-toggle="{{ $toggle }}"
-                                            data-vuln-name="{{ $details[0] }}"
-                                            {{ $user[$toggle] ? 'checked' : '' }}>
-                                    </td>
-                                    <td class="px-4 py-3">{{ $details[0] }}</td>
-                                    <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $details[1] }}</td>
-                                </x-table-row>
+                            <x-table-row>
+                                <td class="px-4 py-3">
+                                    <input
+                                        type="checkbox"
+                                        class="toggle-checkbox cursor-pointer"
+                                        id="{{ $toggle }}"
+                                        data-toggle="{{ $toggle }}"
+                                        data-vuln-name="{{ $details[0] }}"
+                                        {{ $user[$toggle] ? 'checked' : '' }}>
+                                </td>
+                                <td class="px-4 py-3">{{ $details[0] }}</td>
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $details[1] }}</td>
+                            </x-table-row>
                             @endforeach
                         </x-table>
                     </div>
