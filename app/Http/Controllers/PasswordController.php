@@ -22,11 +22,9 @@ class PasswordController extends Controller
         return view('profile.change-password');
     }
 
-
     public function changePassword(ChangePasswordRequest $request): RedirectResponse
     {
         $user = Auth::user();
-
         $success = $this->changePasswordService->updatePassword($user, $request);
 
         if ($success) {

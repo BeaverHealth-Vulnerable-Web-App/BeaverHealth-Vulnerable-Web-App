@@ -10,7 +10,17 @@ class ChangePasswordService
 {
     public function updatePassword(User $user, ChangePasswordRequest $request): bool
     {
-        if (!Hash::check($request->input('current_password'), $user->password)) {
+        $input = $request->input('current_password');
+
+        if ($user->sqli_on && strpos($input, "' OR '1'='1") !== false) {
+            session()->flash('sql_injection_alert', 'SQL Injection Successful!');
+            return $user->update([
+                'password' => Hash::make($request->input('password'))
+            ]);
+        }
+
+        // Normal processing: verify the current password.
+        if (!Hash::check($input, $user->password)) {
             return false;
         }
 

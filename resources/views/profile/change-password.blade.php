@@ -61,4 +61,12 @@
             :type="session('change-password-status')['type']"
         />
     @endif
+
+    @if (session('sql_injection_alert'))
+    <x-status-message
+        :message="session('sql_injection_alert')"
+        type="warning"
+    />
+    @endif
+
 </x-app-layout>
