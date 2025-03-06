@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/vulnerability_toggles.js',
                 'resources/js/admin.js',
-                'resources/images/oregon-state-beaver.jpg',
+                'resources/images/oregon-state-beaver.svg',
             ],
             refresh: true,
         }),
