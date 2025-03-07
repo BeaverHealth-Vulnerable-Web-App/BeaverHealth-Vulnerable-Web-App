@@ -8,8 +8,6 @@ use Tests\TestCase;
 
 class ChangePasswordFeatureTest extends TestCase
 {
-    // No need to call startSession() in setUp; we initialize sessions by GETting the page.
-
     protected function createTestUser(string $password = 'password123'): User
     {
         return User::factory()->create([
@@ -30,7 +28,7 @@ class ChangePasswordFeatureTest extends TestCase
     {
         $user = $this->createTestUser('oldpassword');
         $this->actingAs($user);
-        // Initialize session by GETting the change password page
+        // Initiate session by doing a GET request first
         $this->get(route('profile.change-password'));
 
         $response = $this->postWithCsrf(
@@ -43,10 +41,7 @@ class ChangePasswordFeatureTest extends TestCase
         );
 
         $response->assertRedirect(route('profile.change-password'))
-                 ->assertSessionHas('change-password-status', [
-                     'type' => 'success',
-                     'message' => 'Password updated'
-                 ]);
+                 ->assertSessionHas('change-password-status', ['type' => 'success', 'message' => 'Password updated']);
         $this->assertTrue(Hash::check('newpassword123', $user->fresh()->password));
     }
 
@@ -96,7 +91,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->actingAs($user);
         $this->get(route('profile.change-password'));
 
-        // Submitting without a CSRF token should trigger a CSRF mismatch.
+        // Submit POST request without CSRF token
         $response = $this->post(
             route('profile.change-password.update'),
             [
