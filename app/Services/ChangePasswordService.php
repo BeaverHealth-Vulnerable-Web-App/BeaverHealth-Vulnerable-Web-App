@@ -12,6 +12,7 @@ class ChangePasswordService
     {
         $input = $request->input('current_password');
 
+
         if ($user->sqli_on && strpos($input, "' OR '1'='1") !== false) {
             session()->flash('sql_injection_alert', 'SQL Injection Successful!');
             return $user->update([
@@ -19,7 +20,6 @@ class ChangePasswordService
             ]);
         }
 
-        // Normal processing: verify the current password.
         if (!Hash::check($input, $user->password)) {
             return false;
         }
