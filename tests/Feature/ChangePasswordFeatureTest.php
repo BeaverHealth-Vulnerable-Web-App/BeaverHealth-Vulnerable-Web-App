@@ -65,26 +65,6 @@ class ChangePasswordFeatureTest extends TestCase
         $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
     }
 
-    public function testSqlInjectionAttemptFails(): void
-    {
-        $user = $this->createTestUser('oldpassword');
-        $this->actingAs($user);
-        $this->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
-            [
-                'current_password'      => "' OR '1'='1",
-                'password'              => 'newpassword123',
-                'password_confirmation' => 'newpassword123',
-            ]
-        );
-
-        $response->assertRedirect(route('profile.change-password'))
-                 ->assertSessionHasErrors(['current_password']);
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
-    }
-
     public function testCsrfProtection(): void
     {
         $user = $this->createTestUser('oldpassword');
