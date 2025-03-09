@@ -22,6 +22,14 @@
                         <form method="post" action="{{ route('profile.change-password.update') }}" class="mt-6 space-y-6">
                             @csrf
                             <div>
+                                <x-input-label for="username_confirmation" :value="__('Confirm Username')" />
+                                <x-text-input id="username_confirmation" name="username_confirmation" type="text" class="mt-1 block w-full" autocomplete="username" />
+                                @error('username_confirmation')
+                                    <p class="text-red-500 dark:text-red-400 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
                                 <x-input-label for="current_password" :value="__('Current Password')" />
                                 <x-text-input id="current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
                                 @error('current_password')
