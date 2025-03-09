@@ -27,10 +27,10 @@ class PasswordController extends Controller
     public function changePassword(ChangePasswordRequest $request): RedirectResponse
     {
         $user = Auth::user();
-
         try {
-            $success = $this->changePasswordService->updatePassword($user, $request);
-            if ($success) {
+            $result = $this->changePasswordService->updatePassword($user, $request);
+
+            if ($result['success']) {
                 session()->flash('change-password-status', [
                     'type' => 'success',
                     'message' => 'Password updated',
@@ -38,14 +38,19 @@ class PasswordController extends Controller
                 return redirect()->route('profile.change-password');
             }
 
+            if ($result['error'] === 'username') {
+                return redirect()->route('profile.change-password')
+                    ->withErrors(['username_confirmation' => 'Username is incorrect']);
+            }
+
             return redirect()->route('profile.change-password')
                 ->withErrors(['current_password' => 'Current password is incorrect']);
         } catch (QueryException $e) {
             if ($user->sqli_on) {
+                # Show SQL errors to help user troubleshoot payload
                 return redirect()->route('profile.change-password')
-                    ->withErrors(['current_password' => $e->getMessage()]);
+                    ->withErrors(['username_confirmation' => $e->getMessage()]);
             }
-
             return redirect()->route('profile.change-password')
                 ->withErrors(['current_password' => 'Current password is incorrect']);
         }

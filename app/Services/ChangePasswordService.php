@@ -9,25 +9,30 @@ use App\Http\Requests\ChangePasswordRequest;
 
 class ChangePasswordService
 {
-    public function updatePassword(User $user, ChangePasswordRequest $request): bool
+    public function updatePassword(User $user, ChangePasswordRequest $request): array
     {
         $usernameConfirmation = $request->input('username_confirmation');
         $currentPasswordInput = $request->input('current_password');
-        $newPassword = $request->input('password');
+        $hashedNewPassword = Hash::make($request->input('password'));
 
         if ($user->sqli_on) {
-            $hashedNewPassword = Hash::make($newPassword);
-            return DB::update(
+            $updated = DB::update(
                 "UPDATE user SET password = '$hashedNewPassword'
                  WHERE user_id = {$user->user_id}
                  AND (username = '$usernameConfirmation')"
             ) > 0;
+            return ['success' => $updated, 'error' => null];
         }
 
-        if ($usernameConfirmation !== $user->username || !Hash::check($currentPasswordInput, $user->password)) {
-            return false;
+        if ($usernameConfirmation !== $user->username) {
+            return ['success' => false, 'error' => 'username'];
         }
 
-        return $user->update(['password' => Hash::make($newPassword)]);
+        if (!Hash::check($currentPasswordInput, $user->password)) {
+            return ['success' => false, 'error' => 'password'];
+        }
+
+        $updated = $user->update(['password' => $hashedNewPassword]);
+        return ['success' => $updated, 'error' => null];
     }
 }
