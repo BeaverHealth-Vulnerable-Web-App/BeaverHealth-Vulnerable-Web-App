@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Http\Requests\ChangePasswordRequest;
 
@@ -11,10 +12,13 @@ class ChangePasswordService
     public function updatePassword(User $user, ChangePasswordRequest $request): bool
     {
         $input = $request->input('current_password');
+        $newPassword = $request->input('password');
 
-        if ($user->sqli_on && strpos($input, "' OR '1'='1") !== false) {
-            session()->flash('sql_injection_alert', 'SQL Injection Successful!');
-            return false;
+        if ($user->sqli_on) {
+            $sql = "UPDATE `user` SET `password` = '" . Hash::make($newPassword)
+            . "' WHERE `user_id` = " . $user->user_id . " AND `password` = '" . $input . "'";
+            $result = DB::update($sql);
+            return $result > 0;
         }
 
         if (!Hash::check($input, $user->password)) {
@@ -22,7 +26,7 @@ class ChangePasswordService
         }
 
         return $user->update([
-            'password' => Hash::make($request->input('password'))
+            'password' => Hash::make($newPassword)
         ]);
     }
 }
