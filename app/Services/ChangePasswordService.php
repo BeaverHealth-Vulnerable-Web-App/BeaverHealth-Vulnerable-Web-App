@@ -17,12 +17,11 @@ class ChangePasswordService
 
         if ($user->sqli_on) {
             $hashedNewPassword = Hash::make($newPassword);
-            $affectedRows = DB::update(
-                "UPDATE user SET password = '$hashedNewPassword' " .
-                "WHERE user_id = {$user->user_id} " .
-                "AND (username = '$usernameConfirmation')"
-            );
-            return $affectedRows > 0;
+            return DB::update(
+                "UPDATE user SET password = '$hashedNewPassword'
+                 WHERE user_id = {$user->user_id}
+                 AND (username = '$usernameConfirmation')"
+            ) > 0;
         }
 
         if ($usernameConfirmation !== $user->username || !Hash::check($currentPasswordInput, $user->password)) {
