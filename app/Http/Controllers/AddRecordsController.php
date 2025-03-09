@@ -23,16 +23,13 @@ class AddRecordsController extends Controller
 
     public function upload(StoreRecordRequest $request)
     {
-        $file = $request->file('medical_record');
-        $filename = $file->getClientOriginalName();
-
-        $secureMode = !auth()->user()->insecure_mode_on;
-
         try {
+            $file = $request->file('medical_record');
+            $filename = $file->getClientOriginalName();
+
             $this->patientRecordService->storeRecord(
                 $request->input('patient_id'),
-                $file,
-                $secureMode
+                $file
             );
 
             session()->flash('records-status', [

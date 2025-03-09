@@ -26,15 +26,17 @@
                         </div>
 
                         @if (session('success'))
-                            <div class="mt-4 p-2 text-green-800 bg-green-100 border border-green-500 rounded">
-                                {{ session('success') }}
-                            </div>
+                            <x-status-message
+                                :message="session('success')"
+                                type="success"
+                            />
                         @endif
-
+                        
                         @if (session('error'))
-                            <div class="mt-4 p-2 text-red-800 bg-red-100 border border-red-500 rounded">
-                                {{ session('error') }}
-                            </div>
+                            <x-status-message
+                                :message="session('error')"
+                                type="error"
+                            />
                         @endif
 
                         <button type="submit" 

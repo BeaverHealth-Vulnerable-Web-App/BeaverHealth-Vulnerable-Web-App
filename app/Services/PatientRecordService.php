@@ -21,26 +21,34 @@ class PatientRecordService
         return storage_path("app/public/patient_records/{$patientId}");
     }
 
-    public function listFiles($directory, $keyword = '')
+    public function listFiles($directory, $keyword = '', $isInsecure = false)
     {
         if (!is_dir($directory)) {
             return [];
         }
 
-        $command = empty($keyword)
-            ? "ls -1 {$directory} 2>&1"
-            : "ls -1 {$directory} | grep -i {$keyword} 2>&1";
+        if ($isInsecure) {
+            $command = empty($keyword)
+                ? "ls -1 {$directory} 2>&1"
+                : "ls -1 {$directory} | grep -i {$keyword} 2>&1";
 
-        return array_filter(explode("\n", shell_exec($command) ?? ''), 'strlen');
-    }
+            return array_filter(explode("\n", shell_exec($command) ?? ''), 'strlen');
+        } else {
+            if (preg_match('/[;|&$><`\]}\.\/]/', $keyword)) {
+                throw new \Exception('Invalid characters detected in search query.');
+            }
 
-    public function storeFile($patientId, $file)
-    {
-        $directory = "patient_records/{$patientId}";
-        Storage::makeDirectory($directory);
+            $safeKeyword = preg_replace('/[^a-zA-Z0-9_-]/', '', $keyword);
 
-        $fileName = $file->getClientOriginalName();
-        return $file->storeAs($directory, $fileName, 'public');
+            $files = scandir($directory);
+            if (!$files) {
+                return [];
+            }
+
+            return array_filter($files, function ($file) use ($safeKeyword) {
+                return stripos($file, $safeKeyword) !== false;
+            });
+        }
     }
 
     public function searchRecords($patientId, $keyword = '')
@@ -50,51 +58,61 @@ class PatientRecordService
             return ['error' => 'Patient not found.'];
         }
 
-        $recordsPath = $this->getPatientRecordsPath($patient->patient_id);
-        $fileList = $this->listFiles($recordsPath, $keyword);
-        $downloadLinks = $this->filePresenter->generateDownloadLinks($fileList, $patient->patient_id);
+        $isInsecure = auth()->user()->cmd_inject_on ?? false;
 
-        return [
-            'patientInfo' => $patient,
-            'patientFiles' => count($downloadLinks) ? implode('<br>', $downloadLinks) : 'No files found.',
-        ];
+        try {
+            $recordsPath = $this->getPatientRecordsPath($patient->patient_id);
+            $fileList = $this->listFiles($recordsPath, $keyword, $isInsecure);
+            $downloadLinks = $this->filePresenter->generateDownloadLinks($fileList, $patient->patient_id);
+
+            return [
+                'patientInfo' => $patient,
+                'patientFiles' => count($downloadLinks) ? implode('<br>', $downloadLinks) : 'No files found.',
+            ];
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
     }
 
-    public function storeRecord($patientId, $file, $secureMode = true)
+    public function storeRecord($patientId, $file)
     {
         $patient = Patient::find($patientId);
         if (!$patient) {
             throw new \Exception('Patient not found.');
         }
-        if ($secureMode) {
-            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
-            $maxFileSize = 5 * 1024 * 1024; // 5MB in bytes
 
-            $extension = strtolower($file->getClientOriginalExtension());
+        $isInsecure = auth()->user()->file_upload_on ?? false;
+
+        if (!$isInsecure) {
+            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'docx'];
+            $maxFileSize = 5 * 1024 * 1024;
+            $fileExtension = strtolower($file->getClientOriginalExtension());
             $fileSize = $file->getSize();
 
-            if (!in_array($extension, $allowedExtensions)) {
-                throw new \Exception('Invalid file type. Only PDF, JPG, and PNG are allowed.');
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                throw new \Exception('Invalid file type. Allowed types: PDF, JPG, PNG, and DOCX.');
             }
 
             if ($fileSize > $maxFileSize) {
-                throw new \Exception('File is too large. Maximum size allowed is 5MB.');
+                throw new \Exception('File too large. Maximum size allowed is 5MB.');
             }
-
-            $filename = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
-            $directory = "patient_records/{$patient->patient_id}";
-            Storage::makeDirectory($directory);
-            $filePath = $file->storeAs($directory, $filename, 'public');
-        } else {
-            $directory = "patient_records/{$patient->patient_id}";
-            Storage::makeDirectory($directory);
-            $filePath = $file->storeAs($directory, $file->getClientOriginalName(), 'public');
         }
+
+        $filePath = $this->storeFile($patient->patient_id, $file);
 
         return PatientFile::create([
             'patient_id' => $patient->patient_id,
             'filename'   => $file->getClientOriginalName(),
             'path'       => $filePath
         ]);
+    }
+
+    protected function storeFile($patientId, $file)
+    {
+        $directory = "patient_records/{$patientId}";
+        Storage::makeDirectory($directory);
+
+        $fileName = $file->getClientOriginalName();
+        return $file->storeAs($directory, $fileName, 'public');
     }
 }
