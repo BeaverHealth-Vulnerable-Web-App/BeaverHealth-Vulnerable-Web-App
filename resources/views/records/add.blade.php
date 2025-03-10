@@ -23,8 +23,7 @@
                                 Select File:
                             </label>
                             <input type="file" name="medical_record" id="medical_record" required
-                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                   onchange="validateFileSize(this)">
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             
                             <!-- File Size Error Message -->
                             <div id="file-size-error" class="text-red-600 text-sm mt-1" style="display: none;"></div>
@@ -53,19 +52,6 @@
         />
     @endif
 
-    <!-- JavaScript for File Size Validation -->
-    <script>
-        function validateFileSize(input) {
-            const maxSize = 100 * 1024 * 1024;
-            const file = input.files[0];
-
-            if (file && file.size > maxSize) {
-                document.getElementById('file-size-error').innerText = 'File size exceeds the maximum limit of 100MB.';
-                document.getElementById('file-size-error').style.display = 'block';
-                input.value = '';
-            } else {
-                document.getElementById('file-size-error').style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Include records.js -->
+    @vite(['resources/js/records.js'])
 </x-app-layout>

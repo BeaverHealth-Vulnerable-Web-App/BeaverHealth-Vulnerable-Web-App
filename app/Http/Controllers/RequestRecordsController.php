@@ -34,7 +34,10 @@ class RequestRecordsController extends Controller
 
         if (isset($searchResults['error'])) {
             return redirect()->route('records.request')
-                             ->with('error', $searchResults['error']);
+                             ->with('records-request-status', [
+                                 'message' => $searchResults['error'],
+                                 'type' => 'error'
+                             ]);
         }
 
         return redirect()->route('records.request')
