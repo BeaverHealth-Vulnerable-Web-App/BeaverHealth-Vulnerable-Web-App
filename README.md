@@ -21,4 +21,4 @@ This application is intended for educational and testing purposes only, and we d
 
 ## Warning
 
-Do not publicly expose this application to the internet on any machine you control, as it contains vulnerabilities that are not intended to be used in a production environment or exposed to the internet. It is recommend using a virtual machine (such as VirtualBox or VMWare) and setting up the virtual machine to NAT networking mode for the best security of your host machine when running the application.
+Do not expose this application to the internet, as it contains vulnerabilities that could be exploited, potentially compromising your system. If you are not fully confident in your network security settings, consider running it in a virtual machine with NAT mode to better isolate it from your host system.
