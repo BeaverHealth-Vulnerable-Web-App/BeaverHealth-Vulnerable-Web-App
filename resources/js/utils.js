@@ -1,5 +1,5 @@
 /**
- * Maximum file size allowed for uploads (100MB)
+ * Maximum file size allowed for uploads (100MiB)
  * @constant {number}
  */
 export const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024;
