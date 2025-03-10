@@ -3,7 +3,8 @@
 ## Running the Application
 
 1. Install dependencies
-Make sure you have Docker and Docker Compose available on your system:
+
+    Make sure you have Docker and Docker Compose available on your system:
 
     - [Docker](https://www.docker.com/get-started/)
     - [Docker Compose](https://docs.docker.com/compose/install/) (if not included with Docker)
