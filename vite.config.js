@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/vulnerability_toggles.js',
                 'resources/js/admin.js',
+                'resources/js/records.js'
             ],
             refresh: true,
         }),

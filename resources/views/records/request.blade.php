@@ -25,16 +25,11 @@
                                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         </div>
 
-                        @if (session('success'))
-                            <div class="mt-4 p-2 text-green-800 bg-green-100 border border-green-500 rounded">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="mt-4 p-2 text-red-800 bg-red-100 border border-red-500 rounded">
-                                {{ session('error') }}
-                            </div>
+                        @if (session('records-request-status'))
+                            <x-status-message
+                                :message="session('records-request-status')['message']"
+                                :type="session('records-request-status')['type']"
+                            />
                         @endif
 
                         <button type="submit" 
