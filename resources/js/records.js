@@ -8,7 +8,7 @@ import { MAX_FILE_SIZE_BYTES } from './utils.js';
 function validateFileSize(input) {
     const file = input.files[0];
 
-    if (file && file.size > MAX_FILE_SIZE_BYTES) {
+    if (file && file.size >= MAX_FILE_SIZE_BYTES) {
         document.getElementById('file-size-error').innerText = 'File size exceeds the maximum limit of 100MiB.';
         document.getElementById('file-size-error').style.display = 'block';
         input.value = '';
