@@ -43,6 +43,7 @@ class PatientRecordService
         $safeKeyword = preg_replace('/[^a-zA-Z0-9_-]/', '', $keyword);
 
         $files = scandir($directory);
+        $files = array_diff($files, ['.', '..']);
         if (!$files) {
             return [];
         }
