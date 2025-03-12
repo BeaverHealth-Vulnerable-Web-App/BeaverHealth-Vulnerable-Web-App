@@ -65,11 +65,10 @@
             </a>
             
             <!-- Reset App -->
-            <form method="POST" action="{{ route('app.reset') }}" class="mt-4">
-                @csrf
-                <button type="submit" class="w-full text-left block py-2 px-4 rounded hover:bg-gray-600">
+            <form method="GET" action="{{ route('app.reset.confirm') }}" class="mt-4">
+                <a href="{{ route('app.reset.confirm') }}" class="block py-2 px-4 rounded hover:bg-gray-600">
                     Reset Application
-                </button>
+                </a>
             </form>
 
             <!-- Log Out -->

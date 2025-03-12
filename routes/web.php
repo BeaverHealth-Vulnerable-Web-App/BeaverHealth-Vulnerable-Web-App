@@ -62,6 +62,7 @@ Route::middleware(['auth', 'check.permission'])->group(
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
 
+        Route::get('/app/reset', [AppResetController::class, 'confirmReset'])->name('app.reset.confirm');
         Route::post('/app/reset', [AppResetController::class, 'reset'])->name('app.reset');
 
         Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))

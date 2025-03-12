@@ -15,21 +15,20 @@ class VulnTogglesService
         if (array_key_exists($toggle, $user->getAttributes())) {
             $user->update([$toggle => $value]);
             $user->save();
-            $this->logUpdateAttempt(true, $user->username, $toggle, $value, $request->ip);
+            $this->logUpdateAttempt(true, $user->username, $toggle, $value);
             return response()->json(['success' => true]);
         } else {
-            $this->logUpdateAttempt(false, $user->username, $toggle, $value, $request->ip);
+            $this->logUpdateAttempt(false, $user->username, $toggle, $value);
             return response()->json(['success' => false, 'error' => 'Invalid toggle name'], 422);
         }
     }
 
-    private function logUpdateAttempt($success, $username, $toggleName, $toggleValue, $ip)
+    private function logUpdateAttempt($success, $username, $toggleName, $toggleValue)
     {
         $logData = [
             'username' => $username,
             'toggle_name' => $toggleName,
             'toggle_value' => $toggleValue,
-            'ip' => $ip,
         ];
 
         $logLevel = $success ? 'info' : 'warning';

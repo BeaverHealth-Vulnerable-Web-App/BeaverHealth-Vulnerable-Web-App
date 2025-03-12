@@ -4,11 +4,21 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AppResetController extends Controller
 {
+    public function confirmReset()
+    {
+        return view('components.confirm-reset');
+    }
+
     public function reset()
     {
+        Log::channel('user_activity')->info('User is resetting application', [
+            'username' => auth()->user()->username,
+        ]);
+
         $this->deletePatientRecordFiles();
 
         Artisan::call('db:wipe');
