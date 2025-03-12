@@ -9,15 +9,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Real users
         $this->createUser('gokul', 'eN%f0G6M!xGiX@^K7$');
+        $this->createUser('grader', 'JRhAT%YzGx1iSn!U6i');
         $this->createUser('cody', 'cBLc8*R1EGu56t%KD9');
         $this->createUser('brynn', 'Jw%yr95FgYdKXx%Dt6');
         $this->createUser('sean', 'GkNA*yoBrQvTZf4rZP');
         $this->createUser('alexa', 'Mo8*AqTe6vaUm0f98j');
-
-        // Fake users
-        User::factory()->count(10)->create();
     }
 
     private function createUser(string $username, string $password): void
