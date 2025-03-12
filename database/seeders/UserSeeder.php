@@ -23,8 +23,8 @@ class UserSeeder extends Seeder
     private function createUser(string $username, string $password): void
     {
         User::updateOrCreate(
+            ['username' => $username],
             [
-                'username' => $username,
                 'password' => bcrypt($password),
                 'is_admin' => false,
                 'request_records' => true,
