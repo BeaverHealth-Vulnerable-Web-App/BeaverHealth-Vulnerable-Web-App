@@ -61,7 +61,7 @@ Route::middleware(['auth', 'check.permission'])->group(
         )->name('vulnerability_toggles.update');
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
-        
+
         Route::post('/app/reset', [AppResetController::class, 'reset'])->name('app.reset');
 
         Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))->name('sidebar.refresh');

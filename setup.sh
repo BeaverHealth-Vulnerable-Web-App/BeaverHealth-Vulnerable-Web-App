@@ -215,7 +215,7 @@ main() {
   preflight_check
   setup_trap
   determine_actions
-  echo -e "${CYAN}Starting local deployment...${NO_COLOR}"
+  echo -e "${CYAN}Starting deployment...${NO_COLOR}"
   install_dependencies
   ensure_vendor
   build_application
@@ -223,7 +223,7 @@ main() {
   wait_for_database
   setup_database
   clear_laravel_cache
-  echo -e "${GREEN}Setup complete! Visit the app at http://localhost:9991${NO_COLOR}"
+  echo -e "${GREEN}Setup complete!${NO_COLOR}"
 }
 
 main "$@"
