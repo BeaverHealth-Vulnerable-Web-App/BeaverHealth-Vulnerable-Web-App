@@ -92,8 +92,11 @@ class PatientRecordService
         }
 
         $user = auth()->user();
-        $filename = $file->getClientOriginalName();
         $isSecure = !($user->file_upload_on ?? false);
+        $filename = $file->getClientOriginalName();
+        $fileExtension = strtolower($file->getClientOriginalExtension());
+        $fileSize = $file->getSize();
+        $mimeType = $file->getMimeType();
 
         if ($isSecure) {
             $allowedExtensions = [
@@ -109,10 +112,6 @@ class PatientRecordService
                 'application/pdf',
                 'text/plain'
             ];
-
-            $fileExtension = strtolower($file->getClientOriginalExtension());
-            $fileSize = $file->getSize();
-            $mimeType = $file->getMimeType();
 
             if (!in_array($fileExtension, $allowedExtensions) || !in_array($mimeType, $allowedMimeTypes)) {
                 $this->logUploadAttempt(false, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, false);
