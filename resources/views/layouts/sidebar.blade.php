@@ -63,6 +63,14 @@
                class="block py-2 px-4 rounded {{ request()->routeIs('profile.change-password') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">
                 Change Password
             </a>
+            
+            <!-- Reset App -->
+            <form method="POST" action="{{ route('app.reset') }}" class="mt-4">
+                @csrf
+                <button type="submit" class="w-full text-left block py-2 px-4 rounded hover:bg-gray-600">
+                    Reset Application
+                </button>
+            </form>
 
             <!-- Log Out -->
             <form method="POST" action="{{ route('logout') }}" class="mt-4">
