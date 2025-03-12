@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Patient;
 use App\Models\PatientFile;
 use App\Presenters\FilePresenter;
@@ -60,7 +61,14 @@ class PatientRecordService
             return ['error' => 'Patient not found.'];
         }
 
-        $isInsecure = auth()->user()->cmd_inject_on ?? false;
+        $user = auth()->user();
+        $isInsecure = $user->cmd_inject_on ?? false;
+
+        Log::channel('user_activity')->info('User searched patient files', [
+            'username' => $user->username,
+            'search_term' => $keyword,
+            'cmd_inject_on' => $user->cmd_inject_on,
+        ]);
 
         try {
             $recordsPath = $this->getPatientRecordsPath($patient->patient_id);
@@ -83,7 +91,9 @@ class PatientRecordService
             throw new \Exception('Patient not found.');
         }
 
-        $isSecure = !(auth()->user()->file_upload_on ?? false);
+        $user = auth()->user();
+        $filename = $file->getClientOriginalName();
+        $isSecure = !($user->file_upload_on ?? false);
 
         if ($isSecure) {
             $allowedExtensions = [
@@ -105,19 +115,23 @@ class PatientRecordService
             $mimeType = $file->getMimeType();
 
             if (!in_array($fileExtension, $allowedExtensions) || !in_array($mimeType, $allowedMimeTypes)) {
+                $this->logUploadAttempt(false, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, false);
                 throw new \Exception('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions) . '.');
             }
 
             if ($fileSize > self::MAX_FILE_SIZE_BYTES) {
+                $this->logUploadAttempt(false, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, false);
                 throw new \Exception('File too large. Maximum size allowed is 5MiB.');
             }
         }
 
         $filePath = $this->storeFile($patient->patient_id, $file);
 
+        $this->logUploadAttempt(true, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, $isSecure);
+
         return PatientFile::create([
             'patient_id' => $patient->patient_id,
-            'filename'   => $file->getClientOriginalName(),
+            'filename'   => $filename,
             'path'       => $filePath
         ]);
     }
@@ -129,5 +143,25 @@ class PatientRecordService
 
         $fileName = $file->getClientOriginalName();
         return $file->storeAs($directory, $fileName, 'public');
+    }
+
+    private function logUploadAttempt($success, $username, $patientId, $filename, $fileExtension, $fileMimeType, $fileSize, $isSecure)
+    {
+        $logData = [
+            'username' => $username,
+            'patient_id' => $patientId,
+            'filename' => $filename,
+            'file_extension' => $fileExtension,
+            'file_mime_type' => $fileMimeType,
+            'file_size' => $fileSize,
+            'unrestricted_file_upload' => $isSecure,
+        ];
+
+        $logLevel = $success ? 'info' : 'warning';
+        $message = $success
+            ? 'User uploaded a patient file'
+            : 'User attempted to upload a patient file';
+
+        Log::channel('user_activity')->{$logLevel}($message, $logData);
     }
 }

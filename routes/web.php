@@ -64,6 +64,8 @@ Route::middleware(['auth', 'check.permission'])->group(
 
         Route::post('/app/reset', [AppResetController::class, 'reset'])->name('app.reset');
 
-        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))->name('sidebar.refresh');
+        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))
+            ->name('sidebar.refresh')
+            ->middleware('ajax');
     }
 );

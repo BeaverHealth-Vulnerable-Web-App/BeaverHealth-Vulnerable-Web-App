@@ -7,6 +7,7 @@ use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class FeedbackService
 {
@@ -35,18 +36,35 @@ class FeedbackService
 
     public function storeFeedback(FeedbackCommentRequest $request)
     {
-        $xssStoredToggle = auth()->user()->xss_stored_on;
+        $user = auth()->user();
+        $patientId = $request->input('patient_id');
+        $feedback = $request->input('feedback');
+        $xssStoredToggle = $user->xss_stored_on;
+
+        Log::channel('user_activity')->info('User stored patient feedback', [
+            'username' => $user->username,
+            'patient_id' => $patientId,
+            'feedback' => $feedback,
+            'xss_enabled' => $xssStoredToggle ? true : false,
+        ]);
 
         PatientFeedback::create([
-            'patient_id' => $request->input('patient_id'),
-            'feedback' => $this->processInput($request->input('feedback'), $xssStoredToggle),
+            'patient_id' => $patientId,
+            'feedback' => $this->processInput($feedback, $xssStoredToggle),
             'is_vulnerable' => $xssStoredToggle ? true : false
         ]);
     }
 
     public function searchFeedback(FeedbackSearchRequest $request)
     {
-        $name = $this->processInput($request->input('search_name'), auth()->user()->xss_reflected_on);
+        $user = auth()->user();
+        $name = $this->processInput($request->input('search_name'), $user->xss_reflected_on);
+
+        Log::channel('user_activity')->info('User searched for patient feedback', [
+            'username' => $user->username,
+            'search_term' => $name,
+            'xss_enabled' => $user->xss_reflected_on,
+        ]);
 
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {
             $query->where('first_name', 'like', "%{$name}%")
