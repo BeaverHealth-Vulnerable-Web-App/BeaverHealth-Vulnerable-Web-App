@@ -3,13 +3,10 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Logout;
 use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\TrustProxiesMiddleware;
 use App\Http\Middleware\LogUserActivityMiddleware;
-use App\Listeners\LogSuccessfulLogin;
-use App\Listeners\LogSuccessfulLogout;
+use App\Providers\EventServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,13 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         }
     )
-    ->withEvents([
-        Login::class => [
-            LogSuccessfulLogin::class,
-        ],
-        Logout::class => [
-            LogSuccessfulLogout::class,
-        ],
+    ->withProviders([
+        EventServiceProvider::class,
     ])
     ->withExceptions(
         function (Exceptions $exceptions) {
