@@ -9,11 +9,23 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Gokul's account
+        // Real users
+        $this->createUser('gokul', 'eN%f0G6M!xGiX@^K7$');
+        $this->createUser('cody', 'cBLc8*R1EGu56t%KD9');
+        $this->createUser('brynn', 'Jw%yr95FgYdKXx%Dt6');
+        $this->createUser('sean', 'GkNA*yoBrQvTZf4rZP');
+        $this->createUser('alexa', 'Mo8*AqTe6vaUm0f98j');
+
+        // Fake users
+        User::factory()->count(10)->create();
+    }
+
+    private function createUser(string $username, string $password): void
+    {
         User::updateOrCreate(
-            ['username' => 'gokul'],
             [
-                'password' => bcrypt('eN%f0G6M!xGiX@^K7$'),
+                'username' => $username,
+                'password' => bcrypt($password),
                 'is_admin' => false,
                 'request_records' => true,
                 'load_records' => true,
@@ -26,8 +38,5 @@ class UserSeeder extends Seeder
                 'bac_on' => false,
             ]
         );
-
-        // Create 10 fake regular users
-        User::factory()->count(10)->create();
     }
 }
