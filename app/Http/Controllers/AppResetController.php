@@ -15,7 +15,7 @@ class AppResetController extends Controller
 
     public function reset()
     {
-        Log::channel('user_activity')->info('User is resetting application', [
+        Log::channel('user_activity')->info('User reset application', [
             'username' => auth()->user()->username,
         ]);
 

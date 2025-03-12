@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CheckPermissionMiddleware
 {
@@ -32,6 +33,12 @@ class CheckPermissionMiddleware
         if (!$user->bac_on && $isProtectedRoute) {
             $requiredPermission = $routePermissionMap[$routeName];
             if (!$user->{$requiredPermission}) {
+                Log::channel('user_activity')->info("Access denied to user", [
+                    'username' => $user->username,
+                    'route' => $routeName,
+                    'bac_enabled' => $user->bac_on,
+                ]);
+
                 session()->flash('access-status', [
                     'type' => 'error',
                     'message' => 'Access denied: You do not have permission to view this page.'

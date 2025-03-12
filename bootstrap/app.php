@@ -8,7 +8,6 @@ use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\TrustProxiesMiddleware;
 use App\Http\Middleware\LogUserActivityMiddleware;
 use App\Http\Middleware\AjaxMiddleware;
-use App\Providers\EventServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,9 +26,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ]);
         }
     )
-    ->withProviders([
-        EventServiceProvider::class,
-    ])
     ->withExceptions(
         function (Exceptions $exceptions) {
             $exceptions->renderable(function (NotFoundHttpException $e, $request) {
