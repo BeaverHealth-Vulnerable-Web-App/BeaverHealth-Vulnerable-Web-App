@@ -9,7 +9,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\AuthenticatedSessionController;
-use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\PatientInfoController;
 
 Route::middleware('guest')->group(
@@ -17,9 +16,6 @@ Route::middleware('guest')->group(
         Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
         Route::get('/', fn() => redirect(route('login')));
         Route::post('/login', [AuthenticatedSessionController::class, 'login'])->name('login.attempt');
-
-        Route::get('/register', [RegisteredUserController::class, 'index'])->name('register');
-        Route::post('/register', [RegisteredUserController::class, 'register'])->name('register.attempt');
     }
 );
 

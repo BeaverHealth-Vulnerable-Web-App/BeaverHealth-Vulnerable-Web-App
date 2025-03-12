@@ -9,15 +9,15 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create the admin user
+        // Create Gokul's account
         User::updateOrCreate(
-            ['username' => 'admin'],
+            ['username' => 'gokul'],
             [
-                'password' => bcrypt('password'),
-                'is_admin' => true,
+                'password' => bcrypt('eN%f0G6M!xGiX@^K7$'),
+                'is_admin' => false,
                 'request_records' => true,
                 'load_records' => true,
-                'view_patient_info' => true,
+                'view_patient_info' => false,
                 'sqli_on' => false,
                 'file_upload_on' => false,
                 'cmd_inject_on' => false,
