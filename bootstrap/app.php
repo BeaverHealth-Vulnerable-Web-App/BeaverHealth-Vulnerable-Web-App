@@ -8,6 +8,7 @@ use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\TrustProxiesMiddleware;
 use App\Http\Middleware\LogUserActivityMiddleware;
 use App\Http\Middleware\AjaxMiddleware;
+use App\Http\Middleware\LoginPageRateLimiter;
 use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $middleware->alias([
                 'check.permission' => CheckPermissionMiddleware::class,
                 'ajax' => AjaxMiddleware::class,
+                'login.page.limit' => LoginPageRateLimiter::class,
             ]);
         }
     )

@@ -7,7 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
@@ -73,6 +72,6 @@ class LoginRequest extends FormRequest
 
     protected function throttleKey(): string
     {
-        return Str::lower($this->string('username') . '|' . $this->ip());
+        return $this->ip();
     }
 }

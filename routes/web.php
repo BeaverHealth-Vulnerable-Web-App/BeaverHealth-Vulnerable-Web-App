@@ -12,7 +12,7 @@ use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\PatientInfoController;
 use App\Http\Controllers\AppResetController;
 
-Route::middleware('guest')->group(
+Route::middleware(['guest', 'login.page.limit'])->group(
     function () {
         Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
         Route::get('/', fn() => redirect(route('login')));
