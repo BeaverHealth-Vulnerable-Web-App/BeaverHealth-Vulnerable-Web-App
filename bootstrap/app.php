@@ -8,6 +8,7 @@ use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\TrustProxiesMiddleware;
 use App\Http\Middleware\LogUserActivityMiddleware;
 use App\Http\Middleware\AjaxMiddleware;
+use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,11 +30,28 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(
         function (Exceptions $exceptions) {
             $exceptions->renderable(function (NotFoundHttpException $e, $request) {
-                if (auth()->check()) {
-                    return redirect()->route('dashboard');
-                }
+                $path = $request->path();
+                $method = $request->method();
+                $ip = $request->ip();
 
-                return redirect()->route('login');
+                $logData = [
+                    'path' => $path,
+                    'method' => $method,
+                    'ip' => $ip,
+                    'user_agent' => $request->userAgent()
+                ];
+
+                if (auth()->check()) {
+                    $user = auth()->user();
+                    $logData['user_id'] = $user->user_id;
+                    $logData['username'] = $user->username;
+
+                    Log::channel('user_activity')->warning('User accessed unregistered route', $logData);
+                    return redirect()->route('dashboard');
+                } else {
+                    Log::channel('user_activity')->warning('Guest accessed unregistered route', $logData);
+                    return redirect()->route('login');
+                }
             });
         }
     )->create();

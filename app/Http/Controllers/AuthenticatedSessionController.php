@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -14,8 +15,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        Log::channel('user_activity')->info("Login page accessed", [
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         return view('auth.login');
     }
 
