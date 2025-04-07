@@ -20,12 +20,12 @@ class FeedbackFeatureTest extends TestCase
         $this->patient = Patient::factory()->create(['patient_id' => 1000]);
     }
 
-    private function sendTestStoreFeedback($comment): TestResponse
+    private function sendTestStoreFeedback($comment, $patientID = 1000): TestResponse
     {
         return $this->postWithCsrf(
             route('feedback.store'),
             [
-                'patient_id' => $this->patient->patient_id,
+                'patient_id' => $patientID,
                 'feedback' => $comment
             ]
         );
@@ -80,6 +80,17 @@ class FeedbackFeatureTest extends TestCase
             ->assertSee('<script>alert("hello");</script>', false);
     }
 
+    public function testInvalidUserIdWhenStoring(): void
+    {
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestStoreFeedback('This is a test comment.', 88)
+            ->assertRedirect(route('feedback'));
+
+        $this->get(route('feedback'))
+            ->assertSeeText('The selected patient id is invalid.');
+    }
+
     public function testValidUsernameSearch(): void
     {
         $this->get(route('feedback'))->assertOk();
@@ -92,7 +103,7 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('This is a test comment.');
     }
 
-    public function testInvalidUsernameSearch(): void
+    public function testInvalidUsernameSearch(): void  // Change name of function
     {
         $this->get(route('feedback'))->assertOk();
 
