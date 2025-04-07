@@ -68,6 +68,18 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('&lt;script&gt;alert(&quot;hello&quot;);&lt;/script&gt;', false);
     }
 
+    public function testAddingExploitFeedbackDataOnUnsecuredVersion(): void
+    {
+        $this->user->update(['xss_stored_on' => true]);
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestStoreFeedback('<script>alert("hello");</script>')
+            ->assertRedirect(route('feedback'));
+
+        $this->get(route('feedback'))
+            ->assertSee('<script>alert("hello");</script>', false);
+    }
+
     public function testValidUsernameSearch(): void
     {
         $this->get(route('feedback'))->assertOk();
