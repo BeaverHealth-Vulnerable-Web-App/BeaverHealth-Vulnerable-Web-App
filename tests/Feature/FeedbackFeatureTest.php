@@ -103,7 +103,7 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('This is a test comment.');
     }
 
-    public function testInvalidUsernameSearch(): void  // Change name of function
+    public function testUnknownPatientNameSearch(): void
     {
         $this->get(route('feedback'))->assertOk();
 
@@ -113,5 +113,24 @@ class FeedbackFeatureTest extends TestCase
         $this->sendTestSearchFeedback('invalid_name')
             ->assertOk()
             ->assertDontSeeText('This is a test comment.');
+    }
+
+    public function testSearchWithExploitDataOnSecuredVersion(): void
+    {
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestSearchFeedback('<script>alert("hello");</script>')
+            ->assertOk()
+            ->assertSeeText('&lt;script&gt;alert(&quot;hello&quot;);&lt;/script&gt;', false);
+    }
+
+    public function testSearchWithExploitDataOnUnsecuredVersion(): void
+    {
+        $this->user->update(['xss_reflected_on' => true]);
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestSearchFeedback('<script>alert("hello");</script>')
+            ->assertOk()
+            ->assertSee('<script>alert("hello");</script>', false);
     }
 }
