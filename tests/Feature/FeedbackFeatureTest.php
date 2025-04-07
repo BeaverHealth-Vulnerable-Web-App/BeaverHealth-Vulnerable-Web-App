@@ -57,7 +57,7 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('This is a test comment.');
     }
 
-    public function testAddingExploitFeedbackDataOnSecuredVersion(): void
+    public function testStoreWithExploitFeedbackDataOnSecuredVersion(): void
     {
         $this->get(route('feedback'))->assertOk();
 
@@ -68,7 +68,7 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('&lt;script&gt;alert(&quot;hello&quot;);&lt;/script&gt;', false);
     }
 
-    public function testAddingExploitFeedbackDataOnUnsecuredVersion(): void
+    public function testStoreWithExploitFeedbackDataOnUnsecuredVersion(): void
     {
         $this->user->update(['xss_stored_on' => true]);
         $this->get(route('feedback'))->assertOk();
