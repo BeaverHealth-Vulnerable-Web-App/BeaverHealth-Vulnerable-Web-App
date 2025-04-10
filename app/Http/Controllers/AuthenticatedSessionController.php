@@ -7,26 +7,25 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
+     *
+     * @return View
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        Log::channel('user_activity')->info("Login page accessed", [
-            'ip' => $request->ip(),
-            'user_agent' => $request->userAgent()
-        ]);
-
         return view('auth.login');
     }
 
     /**
      * Handle an incoming authentication request.
+     *
+     * @param LoginRequest $request The login request
+     * @return RedirectResponse
      */
     public function login(LoginRequest $request): RedirectResponse
     {
@@ -37,6 +36,9 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destroy an authenticated session.
+     *
+     * @param LoginRequest $request The login request
+     * @return RedirectResponse
      */
     public function logout(Request $request): RedirectResponse
     {

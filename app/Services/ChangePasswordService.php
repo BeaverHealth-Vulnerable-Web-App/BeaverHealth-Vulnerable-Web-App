@@ -4,12 +4,16 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Services\UserActivityLogger;
 
 class ChangePasswordService
 {
+    public function __construct(private UserActivityLogger $logger)
+    {
+    }
+
     public function updatePassword(User $user, ChangePasswordRequest $request): array
     {
         $usernameConfirmation = $request->input('username_confirmation');
@@ -24,48 +28,31 @@ class ChangePasswordService
                  AND (username = '$usernameConfirmation')"
             ) > 0;
 
-            $this->logUpdateAttempt($updated, $user->username, $usernameConfirmation, $user->sqli_on);
+            $this->logPasswordUpdateAttempt($usernameConfirmation, $user->sqli_on, $updated);
             return ['success' => $updated, 'error' => null];
         }
 
         if ($usernameConfirmation !== $user->username) {
-            $this->logUpdateAttempt(false, $user->username, $usernameConfirmation, $user->sqli_on);
+            $this->logPasswordUpdateAttempt($usernameConfirmation, $user->sqli_on, false);
             return ['success' => false, 'error' => 'username'];
         }
 
         if (!Hash::check($currentPasswordInput, $user->password)) {
-            $this->logUpdateAttempt(false, $user->username, $usernameConfirmation, $user->sqli_on);
+            $this->logPasswordUpdateAttempt($usernameConfirmation, $user->sqli_on, false);
             return ['success' => false, 'error' => 'password'];
         }
 
-        $updated = $user->update([
-            'password' => $hashedNewPassword
-        ]);
-
-        $this->logUpdateAttempt($updated, $user->username, $usernameConfirmation, $user->sqli_on);
-
-        Log::channel('user_activity')->info('User updated password', [
-            'username' => $user->username,
-            'current_password' => $currentPasswordInput,
-            'new_password' => $newPassword,
-        ]);
-
+        $updated = $user->update(['password' => $hashedNewPassword]);
+        $this->logPasswordUpdateAttempt($usernameConfirmation, $user->sqli_on, $updated);
         return ['success' => $updated, 'error' => null];
     }
 
-    private function logUpdateAttempt($success, $username, $usernameConfirmation, $sqli_enabled)
+    private function logPasswordUpdateAttempt(string $usernameConfirmation, bool $sqliOn, bool $success): void
     {
-        $logData = [
-            'username' => $username,
+        $this->logger->info('Password update attempt', [
             'username_confirmation' => $usernameConfirmation,
-            'sqli_enabled' => $sqli_enabled,
-        ];
-
-        $logLevel = $success ? 'info' : 'warning';
-        $message = $success
-            ? 'User updated their password'
-            : 'User attempted to update their password';
-
-        Log::channel('user_activity')->{$logLevel}($message, $logData);
+            'sqli_on'               => $sqliOn,
+            'success'               => $success
+        ]);
     }
 }

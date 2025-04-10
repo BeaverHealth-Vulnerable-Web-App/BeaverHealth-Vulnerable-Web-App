@@ -1,15 +1,15 @@
 <?php
 
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\CheckPermissionMiddleware;
 use App\Http\Middleware\TrustProxiesMiddleware;
 use App\Http\Middleware\LogUserActivityMiddleware;
 use App\Http\Middleware\AjaxMiddleware;
 use App\Http\Middleware\LoginPageRateLimiter;
-use Illuminate\Support\Facades\Log;
+use App\Services\UserActivityLogger;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,29 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withExceptions(
         function (Exceptions $exceptions) {
-            $exceptions->renderable(function (NotFoundHttpException $e, $request) {
-                $path = $request->path();
-                $method = $request->method();
-                $ip = $request->ip();
-
-                $logData = [
-                    'path' => $path,
-                    'method' => $method,
-                    'ip' => $ip,
-                    'user_agent' => $request->userAgent()
-                ];
-
-                if (auth()->check()) {
-                    $user = auth()->user();
-                    $logData['user_id'] = $user->user_id;
-                    $logData['username'] = $user->username;
-
-                    Log::channel('user_activity')->warning('User accessed unregistered route', $logData);
-                    return redirect()->route('dashboard');
-                } else {
-                    Log::channel('user_activity')->warning('Guest accessed unregistered route', $logData);
-                    return redirect()->route('login');
+            $exceptions->renderable(
+                function () {
+                    $logger = app(UserActivityLogger::class);
+                    if (Auth::check()) {
+                        $logger->info('User accessed unregistered route');
+                        return redirect()->route('dashboard');
+                    } else {
+                        $logger->warning('Guest accessed unregistered route');
+                        return redirect()->route('login');
+                    }
                 }
-            });
+            );
         }
     )->create();

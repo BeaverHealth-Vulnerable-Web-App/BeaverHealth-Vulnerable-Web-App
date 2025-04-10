@@ -2,57 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserActivityLogger;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class AppResetController extends Controller
 {
-    public function confirmReset()
+    /**
+     * Displays the reset confirmation view.
+     *
+     * @return View
+     */
+    public function confirmReset(): View
     {
         return view('components.confirm-reset');
     }
 
-    public function reset()
+    /**
+     * Resets the application. Deletes patient files, wipes and resets
+     * the database, and logs out the current user.
+     *
+     * @param UserActivityLogger $logger The user activity logger
+     * @return RedirectResponse
+     */
+    public function reset(UserActivityLogger $logger): RedirectResponse
     {
-        Log::channel('user_activity')->info('User reset application', [
-            'username' => auth()->user()->username,
-        ]);
+        $logger->info('User reset application');
 
         $this->deletePatientRecordFiles();
-
         Artisan::call('db:wipe');
         Artisan::call('migrate');
         Artisan::call('db:seed');
-
         Auth::logout();
 
-        session()->invalidate();
-        session()->regenerateToken();
-
-        return redirect()->route('login')->with('status', 'Application has been reset successfully.');
+        return redirect()->route('login')
+            ->with('status', 'Application has been reset successfully.');
     }
 
-    private function deletePatientRecordFiles()
+    /**
+     * Deletes all patient record files.
+     *
+     * @return void
+     */
+    private function deletePatientRecordFiles(): void
     {
         $publicPath = storage_path('app/public/patient_records');
-        if (is_dir($publicPath)) {
-            $files = glob($publicPath . '/*');
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-        }
-
         $privatePath = storage_path('app/private/patient_records');
-        if (is_dir($privatePath)) {
-            $files = glob($privatePath . '/*');
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
+
+        if (File::isDirectory($publicPath)) {
+            File::deleteDirectory($publicPath);
+            File::makeDirectory($publicPath);
+        }
+        if (File::isDirectory($privatePath)) {
+            File::deleteDirectory($privatePath);
+            File::makeDirectory($privatePath);
         }
     }
 }

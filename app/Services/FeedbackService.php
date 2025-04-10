@@ -6,11 +6,15 @@ use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Models\Patient;
 use App\Models\PatientFeedback;
+use App\Services\UserActivityLogger;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 
 class FeedbackService
 {
+    public function __construct(private UserActivityLogger $logger)
+    {
+    }
+
     private function processInput(string $userInput, bool $useRaw): string
     {
         return $useRaw ? $userInput : e($userInput);
@@ -39,19 +43,17 @@ class FeedbackService
         $user = auth()->user();
         $patientId = $request->input('patient_id');
         $feedback = $request->input('feedback');
-        $xssStoredToggle = $user->xss_stored_on;
 
-        Log::channel('user_activity')->info('User stored patient feedback', [
-            'username' => $user->username,
+        $this->logger->info('User stored patient feedback', [
             'patient_id' => $patientId,
-            'feedback' => $feedback,
-            'xss_enabled' => $xssStoredToggle ? true : false,
+            'feedback'   => $feedback,
+            'xss_enabled' => $user->xss_stored_on
         ]);
 
         PatientFeedback::create([
             'patient_id' => $patientId,
-            'feedback' => $this->processInput($feedback, $xssStoredToggle),
-            'is_vulnerable' => $xssStoredToggle ? true : false
+            'feedback' => $this->processInput($feedback, $user->xss_stored_on),
+            'is_vulnerable' => $user->xss_stored_on
         ]);
     }
 
@@ -60,10 +62,9 @@ class FeedbackService
         $user = auth()->user();
         $name = $this->processInput($request->input('search_name'), $user->xss_reflected_on);
 
-        Log::channel('user_activity')->info('User searched for patient feedback', [
-            'username' => $user->username,
+        $this->logger->info('User searched for patient feedback', [
             'search_term' => $name,
-            'xss_enabled' => $user->xss_reflected_on,
+            'xss_enabled' => $user->xss_reflected_on
         ]);
 
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($name) {

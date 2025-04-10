@@ -4,31 +4,21 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Services\UserActivityLogger;
 
 class LogUserActivityMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    /**
+     * Handle an incoming request and log user activity if the user is authenticated.
+     *
+     * @param Request $request The current HTTP request
+     * @param Closure $next    The next middleware to call
+     * @return mixed
+     */
+    public function __invoke(Request $request, Closure $next): mixed
     {
         $response = $next($request);
-
-        if (Auth::check()) {
-            $user = Auth::user();
-            $path = $request->path();
-            $method = $request->method();
-            $ip = $request->ip();
-
-            Log::channel('user_activity')->info("User activity", [
-                'user_id' => $user->user_id,
-                'username' => $user->username,
-                'path' => $path,
-                'method' => $method,
-                'ip' => $ip,
-                'user_agent' => $request->userAgent()
-            ]);
-        }
-
+        app(UserActivityLogger::class)->info('User accessed route');
         return $response;
     }
 }

@@ -3,19 +3,34 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use App\Models\Patient;
 use App\Models\PatientFile;
 use App\Presenters\FilePresenter;
+use App\Services\UserActivityLogger;
 
 class PatientRecordService
 {
-    protected $filePresenter;
-    private const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+    private const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-    public function __construct(FilePresenter $filePresenter)
-    {
-        $this->filePresenter = $filePresenter;
+    private const ALLOWED_EXTENSIONS = [
+        'csv', 'xlsx', 'json', 'edi', 'xml', 'pdf', 'txt'
+    ];
+
+    private const ALLOWED_MIME_TYPES = [
+        'text/csv',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/json',
+        'application/EDI-X12',
+        'application/xml',
+        'text/xml',
+        'application/pdf',
+        'text/plain'
+    ];
+
+    public function __construct(
+        private FilePresenter $filePresenter,
+        private UserActivityLogger $logger
+    ) {
     }
 
     public function getPatientRecordsPath($patientId)
@@ -23,7 +38,82 @@ class PatientRecordService
         return storage_path("app/public/patient_records/{$patientId}");
     }
 
-    public function listFiles($directory, $keyword = '', $isInsecure = false)
+    public function searchRecords($patientId, $keyword = '')
+    {
+        $user = auth()->user();
+
+        $patient = Patient::find($patientId);
+        if (!$patient) {
+            return ['error' => 'Patient not found.'];
+        }
+
+        try {
+            $recordsPath = $this->getPatientRecordsPath($patientId);
+            $fileList = $this->listFiles($recordsPath, $keyword, $user->cmd_inject_on);
+            $downloadLinks = $this->filePresenter->generateDownloadLinks($fileList, $patientId);
+
+            $this->logSearchAttempt($patientId, $keyword, $user->cmd_inject_on, null);
+
+            return [
+                'patientInfo' => $patient,
+                'patientFiles' => count($downloadLinks) ? implode('<br>', $downloadLinks) : 'No files found.',
+            ];
+        } catch (\Exception $e) {
+            $this->logSearchAttempt($patientId, $keyword, $user->cmd_inject_on, $e->getMessage());
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function storeRecord($patientId, $file)
+    {
+        $user = auth()->user();
+
+        $patient = Patient::find($patientId);
+        if (!$patient) {
+            $error = 'Patient not found.';
+            $this->logger->info('File upload attempt', ['error' => $error]);
+            throw new \Exception($error);
+        }
+
+        $filename = $file->getClientOriginalName();
+        $fileExtension = strtolower($file->getClientOriginalExtension());
+        $fileSize = $file->getSize();
+        $fileMimeType = $file->getMimeType();
+
+        if (!$user->file_upload_on) {
+            $error = $this->validateFile($fileExtension, $fileMimeType, $fileSize);
+            $this->logUploadAttempt(
+                $patientId,
+                $filename,
+                $fileExtension,
+                $fileMimeType,
+                $fileSize,
+                $user->file_upload_on,
+                $error
+            );
+            throw new \Exception($error);
+        }
+
+        $filePath = $this->storeFile($patientId, $file);
+
+        $this->logUploadAttempt(
+            $patientId,
+            $filename,
+            $fileExtension,
+            $fileMimeType,
+            $fileSize,
+            $user->file_upload_on,
+            null
+        );
+
+        return PatientFile::create([
+            'patient_id' => $patientId,
+            'filename'   => $filename,
+            'path'       => $filePath
+        ]);
+    }
+
+    private function listFiles($directory, $keyword = '', $isInsecure = false)
     {
         if (!is_dir($directory)) {
             return [];
@@ -54,88 +144,21 @@ class PatientRecordService
         });
     }
 
-    public function searchRecords($patientId, $keyword = '')
+    private function validateFile($extension, $mimeType, $size): ?string
     {
-        $patient = Patient::find($patientId);
-        if (!$patient) {
-            return ['error' => 'Patient not found.'];
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
+            return 'Invalid file extension. Allowed extensions: ' . implode(', ', self::ALLOWED_EXTENSIONS) . '.';
         }
-
-        $user = auth()->user();
-        $isInsecure = $user->cmd_inject_on ?? false;
-
-        Log::channel('user_activity')->info('User searched patient files', [
-            'username' => $user->username,
-            'search_term' => $keyword,
-            'cmd_inject_on' => $user->cmd_inject_on,
-        ]);
-
-        try {
-            $recordsPath = $this->getPatientRecordsPath($patient->patient_id);
-            $fileList = $this->listFiles($recordsPath, $keyword, $isInsecure);
-            $downloadLinks = $this->filePresenter->generateDownloadLinks($fileList, $patient->patient_id);
-
-            return [
-                'patientInfo' => $patient,
-                'patientFiles' => count($downloadLinks) ? implode('<br>', $downloadLinks) : 'No files found.',
-            ];
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
+        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES)) {
+            return 'Invalid file type. Allowed MIME types: ' . implode(', ', self::ALLOWED_MIME_TYPES) . '.';
         }
+        if ($size > self::MAX_FILE_BYTES) {
+            return "File too large. Maximum size allowed is 5MiB.";
+        }
+        return null;
     }
 
-    public function storeRecord($patientId, $file)
-    {
-        $patient = Patient::find($patientId);
-        if (!$patient) {
-            throw new \Exception('Patient not found.');
-        }
-
-        $user = auth()->user();
-        $isSecure = !($user->file_upload_on ?? false);
-        $filename = $file->getClientOriginalName();
-        $fileExtension = strtolower($file->getClientOriginalExtension());
-        $fileSize = $file->getSize();
-        $mimeType = $file->getMimeType();
-
-        if ($isSecure) {
-            $allowedExtensions = [
-                'csv', 'xlsx', 'json', 'edi', 'xml', 'pdf', 'txt'
-            ];
-            $allowedMimeTypes = [
-                'text/csv',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/json',
-                'application/EDI-X12',
-                'application/xml',
-                'text/xml',
-                'application/pdf',
-                'text/plain'
-            ];
-
-            if (!in_array($fileExtension, $allowedExtensions) || !in_array($mimeType, $allowedMimeTypes)) {
-                $this->logUploadAttempt(false, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, false);
-                throw new \Exception('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions) . '.');
-            }
-
-            if ($fileSize > self::MAX_FILE_SIZE_BYTES) {
-                $this->logUploadAttempt(false, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, false);
-                throw new \Exception('File too large. Maximum size allowed is 5MiB.');
-            }
-        }
-
-        $filePath = $this->storeFile($patient->patient_id, $file);
-
-        $this->logUploadAttempt(true, $user->username, $patientId, $filename, $fileExtension, $mimeType, $fileSize, $isSecure);
-
-        return PatientFile::create([
-            'patient_id' => $patient->patient_id,
-            'filename'   => $filename,
-            'path'       => $filePath
-        ]);
-    }
-
-    protected function storeFile($patientId, $file)
+    private function storeFile($patientId, $file)
     {
         $directory = "patient_records/{$patientId}";
         Storage::makeDirectory($directory);
@@ -144,23 +167,39 @@ class PatientRecordService
         return $file->storeAs($directory, $fileName, 'public');
     }
 
-    private function logUploadAttempt($success, $username, $patientId, $filename, $fileExtension, $fileMimeType, $fileSize, $isSecure)
-    {
-        $logData = [
-            'username' => $username,
-            'patient_id' => $patientId,
-            'filename' => $filename,
-            'file_extension' => $fileExtension,
-            'file_mime_type' => $fileMimeType,
-            'file_size' => $fileSize,
-            'unrestricted_file_upload' => $isSecure,
-        ];
+    private function logSearchAttempt(
+        int $patientId,
+        string $searchTerm,
+        bool $cmdInjectOn,
+        ?string $error
+    ) {
+        $this->logger->info('User searched for patient files', [
+            'patient_id'    => $patientId,
+            'search_term'   => $searchTerm,
+            'cmd_inject_on' => $cmdInjectOn,
+            'success'       => $error === null,
+            'error'         => $error
+        ]);
+    }
 
-        $logLevel = $success ? 'info' : 'warning';
-        $message = $success
-            ? 'User uploaded a patient file'
-            : 'User attempted to upload a patient file';
-
-        Log::channel('user_activity')->{$logLevel}($message, $logData);
+    private function logUploadAttempt(
+        int $patientId,
+        string $filename,
+        string $fileExtension,
+        string $fileMimeType,
+        int $fileSize,
+        bool $insecureFileUploadOn,
+        ?string $error
+    ) {
+        $this->logger->info('File upload attempt', [
+            'patient_id'              => $patientId,
+            'filename'                => $filename,
+            'file_extension'          => $fileExtension,
+            'file_mime_type'          => $fileMimeType,
+            'file_size'               => $fileSize,
+            'insecure_file_upload_on' => $insecureFileUploadOn,
+            'success'                 => $error === null,
+            'error'                   => $error
+        ]);
     }
 }
