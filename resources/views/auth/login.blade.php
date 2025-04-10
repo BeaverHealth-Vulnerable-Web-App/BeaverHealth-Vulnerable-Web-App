@@ -31,5 +31,11 @@
             </x-primary-button>
         </div>
 
+        <!-- Register Button -->
+        <div class="flex items-center justify-center mt-4">
+            <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:border-gray-300 dark:focus:border-gray-600 focus:ring ring-gray-300 dark:ring-gray-600">
+                {{ __('Create an Account') }}
+            </a>
+        </div>
     </form>
 </x-guest-layout>
