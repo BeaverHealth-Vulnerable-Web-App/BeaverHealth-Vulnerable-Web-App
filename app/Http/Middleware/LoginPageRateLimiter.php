@@ -16,7 +16,8 @@ class LoginPageRateLimiter
      * @param Request $request The current HTTP request
      * @param Closure $next    The next middleware handler
      *
-     * @return Response A 429 response if too many attempts were made, or the response from the next middleware/controller
+     * @return Response A 429 response if too many attempts were made,
+     *                  or the response from the next middleware/controller
      */
     public function handle(Request $request, Closure $next): Response
     {

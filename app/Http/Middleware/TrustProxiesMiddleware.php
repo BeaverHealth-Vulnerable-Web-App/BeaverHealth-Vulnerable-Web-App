@@ -8,22 +8,16 @@ use Illuminate\Http\Request;
 class TrustProxiesMiddleware extends TrustProxies
 {
     /**
-     * The trusted proxies for this application.
-     *
-     * In production (when the app is behind a load balancer), trust all proxies so
-     * Laravel uses the X-Forwarded-* headers to determine the original client IP.
-     *
-     * In local/dev environments, don't trust any proxies to avoid inaccurate IP detection.
+     * The trusted proxies for the application.
      *
      * @var array|string|null
      */
-    protected $proxies = config('app.env') === 'prod' ? '*' : null;
+    protected $proxies;
 
     /**
      * The headers that should be used to detect proxies.
      *
-     * Set by GCP's load balancer. Laravel will only use them when the request comes through
-     * a trusted proxy (see $proxies).
+     * Set by GCP's load balancer. Laravel will only use them when the request comes through a trusted proxy.
      *
      * @var int
      */
@@ -31,4 +25,17 @@ class TrustProxiesMiddleware extends TrustProxies
                          Request::HEADER_X_FORWARDED_HOST |
                          Request::HEADER_X_FORWARDED_PORT |
                          Request::HEADER_X_FORWARDED_PROTO;
+
+    /**
+     * Create a new TrustProxiesMiddleware instance.
+     *
+     * In production (when the app is behind a load balancer), trust all proxies so Laravel
+     * uses the X-Forwarded-* headers to determine the original client IP.
+     *
+     * In local/dev environments, don't trust any proxies to avoid inaccurate IP detection.
+     */
+    public function __construct()
+    {
+        $this->proxies = config('app.env') === 'prod' ? '*' : null;
+    }
 }
