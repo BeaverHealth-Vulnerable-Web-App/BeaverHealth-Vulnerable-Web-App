@@ -40,8 +40,6 @@ class AdminController extends Controller
      */
     public function updateRole(UpdateUserRoleRequest $request): JsonResponse
     {
-        $user = Auth::user();
-
         if (!$this->roleService->authorize()) {
             return response()->json(
                 [
@@ -53,7 +51,6 @@ class AdminController extends Controller
         }
 
         $updateResult = $this->roleService->updateRole(
-            $user,
             User::findOrFail($request->input('user_id')),
             $request->input('role'),
             $request->boolean('value')

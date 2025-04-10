@@ -11,7 +11,7 @@ use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\PatientInfoController;
 use App\Http\Controllers\AppResetController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\RegisteredUserController;
 
 Route::middleware(['guest', 'login.page.limit'])->group(
     function () {
@@ -19,8 +19,8 @@ Route::middleware(['guest', 'login.page.limit'])->group(
         Route::get('/', fn() => redirect(route('login')));
         Route::post('/login', [AuthenticatedSessionController::class, 'login'])->name('login.attempt');
 
-        Route::get('/register', [RegisteredUserController::class], 'index')->name('register');
-        Route::post('/register', [RegisteredUserController::class], 'register')->name('register.attempt');
+        Route::get('/register', [RegisteredUserController::class, 'index'])->name('register');
+        Route::post('/register', [RegisteredUserController::class, 'register'])->name('register.attempt');
     }
 );
 

@@ -188,9 +188,9 @@ class AccessControlFeatureTest extends TestCase
             $response = $this->actingAs($user)->postWithCsrf(
                 route('admin.updateRole'),
                 [
-                'user_id' => $targetUser->user_id,
-                'role' => $role,
-                'value' => true
+                    'user_id' => $targetUser->user_id,
+                    'role' => $role,
+                    'value' => true
                 ]
             );
 

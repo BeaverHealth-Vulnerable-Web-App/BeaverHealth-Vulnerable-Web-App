@@ -1,5 +1,6 @@
 <?php
 
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -32,7 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(
         function (Exceptions $exceptions) {
             $exceptions->renderable(
-                function () {
+                function (NotFoundHttpException $e) {
                     $logger = app(UserActivityLogger::class);
                     if (Auth::check()) {
                         $logger->info('User accessed unregistered route');
