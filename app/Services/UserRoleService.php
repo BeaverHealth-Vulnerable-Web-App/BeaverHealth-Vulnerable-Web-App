@@ -41,7 +41,8 @@ class UserRoleService
      * @param User $user   The user to update
      * @param string $role The role to update
      * @param bool $value  The new value
-     * @return array       Result with success status and optional error message
+     *
+     * @return array{success: bool, error?: string} Result with success status and optional error message
      */
     public function updateRole(User $targetUser, string $role, bool $value): array
     {
@@ -66,6 +67,7 @@ class UserRoleService
      * @param string $role           The role being updated
      * @param bool $value            The value the role is being updated to
      * @param ?string $error         An error message
+     *
      * @return void
      */
     private function logRoleUpdateAttempt(

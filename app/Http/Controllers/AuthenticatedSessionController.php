@@ -14,7 +14,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      *
-     * @return View
+     * @return View The login view
      */
     public function index(): View
     {
@@ -25,7 +25,8 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      *
      * @param LoginRequest $request The login request
-     * @return RedirectResponse
+     *
+     * @return RedirectResponse Redirects to the dashboard on successful authentication
      */
     public function login(LoginRequest $request): RedirectResponse
     {
@@ -38,7 +39,8 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      *
      * @param LoginRequest $request The login request
-     * @return RedirectResponse
+     *
+     * @return RedirectResponse Redirects to the login page
      */
     public function logout(Request $request): RedirectResponse
     {

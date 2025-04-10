@@ -9,19 +9,18 @@ class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
      * Uses APP_ENV to determine which users to create.
      *
      * @return void
      */
     public function run(): void
     {
-        switch (env('APP_ENV')) {
-            case 'local':
-                $this->createDevUser();
-                break;
-            case 'prod':
-                $this->createProdUsers();
-        }
+        match (config('app.env')) {
+            'local' => $this->createDevUser(),
+            'prod'  => $this->createProdUsers(),
+            default => null
+        };
     }
 
     /**
@@ -58,6 +57,7 @@ class UserSeeder extends Seeder
      * @param string $username The username for the new user
      * @param string $password The plaintext password for the new user
      * @param array $overrides Optional key-value pairs to override default user roles
+     *
      * @return void
      */
     private function createUser(string $username, string $password, array $overrides = []): void

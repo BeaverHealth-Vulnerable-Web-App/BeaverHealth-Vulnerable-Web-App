@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Http\Requests\UpdateUserRoleRequest;
 use App\Services\UserRoleService;

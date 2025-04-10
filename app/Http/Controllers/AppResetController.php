@@ -14,7 +14,7 @@ class AppResetController extends Controller
     /**
      * Displays the reset confirmation view.
      *
-     * @return View
+     * @return View The view promping the user to confirm the app reset
      */
     public function confirmReset(): View
     {
@@ -22,11 +22,13 @@ class AppResetController extends Controller
     }
 
     /**
-     * Resets the application. Deletes patient files, wipes and resets
-     * the database, and logs out the current user.
+     * Resets the application.
+     *
+     * Deletes patient files, wipes and recreates the database, and logs out the current user.
      *
      * @param UserActivityLogger $logger The user activity logger
-     * @return RedirectResponse
+     *
+     * @return RedirectResponse Redirects to the login page after reset
      */
     public function reset(UserActivityLogger $logger): RedirectResponse
     {

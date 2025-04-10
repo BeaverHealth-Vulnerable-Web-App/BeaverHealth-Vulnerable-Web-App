@@ -12,6 +12,7 @@ class UserActivityLogger
      *
      * @param string $message The message to log
      * @param array  $context Additional context to include in the log entry
+     *
      * @return void
      */
     public function info(string $message, array $context = []): void
@@ -24,6 +25,7 @@ class UserActivityLogger
      *
      * @param string $message The message to log
      * @param array  $context Additional context to include in the log entry
+     *
      * @return void
      */
     public function warning(string $message, array $context = []): void
@@ -32,23 +34,12 @@ class UserActivityLogger
     }
 
     /**
-     * Logs an error-level message with contextual user and request information.
-     *
-     * @param string $message The message to log
-     * @param array  $context Additional context to include in the log entry
-     * @return void
-     */
-    public function error(string $message, array $context = []): void
-    {
-        $this->log($message, $context, 'error');
-    }
-
-    /**
      * Logs a message with contextual user and request information.
      *
      * @param string $message The message to log
      * @param array  $context Additional context to include in the log entry
      * @param string $level   The log level (e.g., 'info', 'warning', 'error')
+     *
      * @return void
      */
     private function log(string $message, array $context = [], string $level = 'info'): void

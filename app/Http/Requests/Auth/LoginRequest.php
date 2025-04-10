@@ -24,7 +24,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, array<int, string>> An array of validation rules
+     * @return array{username: array<int, string>, password: array<int, string>} An array of validation rules
      */
     public function rules(): array
     {
@@ -73,7 +73,7 @@ class LoginRequest extends FormRequest
 
         app(UserActivityLogger::class)->warning(
             'Login attempt blocked due to too many failed login attempts',
-            ['throttle-key' => $this->throttleKey()]
+            ['throttle_key' => $this->throttleKey()]
         );
 
         event(new Lockout($this));

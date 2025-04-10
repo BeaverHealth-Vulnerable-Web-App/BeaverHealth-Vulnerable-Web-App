@@ -6,9 +6,13 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\UserActivityLogger;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermissionMiddleware
 {
+    /**
+     * Mapping of protected route name to the name of the role required to access that route
+     */
     private const ROUTE_PERMISSION_MAP = [
         'admin'           => 'is_admin',
         'records.request' => 'request_records',
@@ -18,13 +22,14 @@ class CheckPermissionMiddleware
     ];
 
     /**
-    * Enforces role-based access control and handles BAC vulnerability toggling.
+    * Enforces role-based access control.
     *
     * @param Request $request The current HTTP request
-    * @param Closure $next    The next middleware to call
-    * @return mixed
+    * @param Closure $next    The next middleware handler
+    *
+    * @return Response A redirect response if access is denied, or the response from the next middleware/controller
     */
-    public function __invoke(Request $request, Closure $next): mixed
+    public function __invoke(Request $request, Closure $next): Response
     {
         $user = Auth::user();
 

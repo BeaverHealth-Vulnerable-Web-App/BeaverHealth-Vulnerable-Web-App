@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\VulnTogglesRequest;
 use App\Services\UserActivityLogger;
+use Illuminate\Http\Response;
 
 class VulnTogglesService
 {
@@ -24,7 +25,7 @@ class VulnTogglesService
         } else {
             $error = 'Invalid toggle name';
             $this->logToggleUpdateAttempt($toggle, $value, $error);
-            return response()->json(['success' => false, 'error' => $error], 422);
+            return response()->json(['success' => false, 'error' => $error], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
 
