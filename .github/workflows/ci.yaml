@@ -21,13 +21,24 @@ jobs:
       - name: Run Composer Install
         run: composer install -n --prefer-dist
 
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+
+          sed -i 's/^APP_ENV=.*/APP_ENV=ci/' .env
+
+          sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env
+
+          key=$(./vendor/bin/sail artisan key:generate --show)
+          sed -i "s|^APP_KEY=.*|APP_KEY=${key}|" .env
+
       - name: Build and Start Containers for CI
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml up -d --build
+        run: ./vendor/bin/sail -f docker-compose.yaml up -d --build
 
       - name: Wait for Database
         run: |
           counter=0
-          until ./vendor/bin/sail -f docker-compose.ci.yaml exec db mysqladmin ping --silent; do
+          until ./vendor/bin/sail -f docker-compose.yaml exec db mysqladmin ping --silent; do
             echo "Waiting for database..."
             sleep 2
             counter=$((counter+1))
@@ -39,10 +50,10 @@ jobs:
           sleep 15
 
       - name: Run Database Migrations
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan migrate
+        run: ./vendor/bin/sail -f docker-compose.yaml exec app php artisan migrate
 
       - name: Run Laravel Tests
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app php artisan test
+        run: ./vendor/bin/sail -f docker-compose.yaml exec app php artisan test
 
       - name: Run PHP_CodeSniffer
-        run: ./vendor/bin/sail -f docker-compose.ci.yaml exec app vendor/bin/phpcs
+        run: ./vendor/bin/sail -f docker-compose.yaml exec app vendor/bin/phpcs
