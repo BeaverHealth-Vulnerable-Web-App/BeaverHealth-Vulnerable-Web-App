@@ -51,16 +51,9 @@ class AppResetController extends Controller
      */
     private function deletePatientRecordFiles(): void
     {
-        $publicPath = storage_path('app/public/patient_records');
-        $privatePath = storage_path('app/private/patient_records');
-
-        if (File::isDirectory($publicPath)) {
-            File::deleteDirectory($publicPath);
-            File::makeDirectory($publicPath);
-        }
-        if (File::isDirectory($privatePath)) {
-            File::deleteDirectory($privatePath);
-            File::makeDirectory($privatePath);
+        $recordsPath = storage_path('app/patient_records');
+        if (File::isDirectory($recordsPath)) {
+            File::deleteDirectory($recordsPath);
         }
     }
 }
