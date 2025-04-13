@@ -18,19 +18,15 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
 
-      - name: Run Composer Install
-        run: composer install -n --prefer-dist
-
       - name: Prepare .env
         run: |
           cp .env.example .env
-
           sed -i 's/^APP_ENV=.*/APP_ENV=ci/' .env
-
           sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env
+          sed -i "s|^APP_KEY=.*|APP_KEY=${{ secrets.CI_APP_KEY }}|" .env
 
-          key=$(./vendor/bin/sail artisan key:generate --show)
-          sed -i "s|^APP_KEY=.*|APP_KEY=${key}|" .env
+      - name: Run Composer Install
+        run: composer install -n --prefer-dist
 
       - name: Build and Start Containers for CI
         run: ./vendor/bin/sail -f docker-compose.yaml up -d --build
