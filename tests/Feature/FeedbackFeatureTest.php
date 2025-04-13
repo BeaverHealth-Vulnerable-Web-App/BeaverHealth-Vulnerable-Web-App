@@ -107,6 +107,38 @@ class FeedbackFeatureTest extends TestCase
             ->assertSeeText('The selected patient id is invalid.');
     }
 
+    public function testRenderingOtherUsersFeedbackSecured(): void
+    {
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestStoreFeedback('<script>alert("hello");</script>')
+            ->assertRedirect(route('feedback'));
+
+        $this->get(route('feedback'))
+            ->assertSeeText('&lt;script&gt;alert(&quot;hello&quot;);&lt;/script&gt;', false);
+
+        $newUser = User::factory()->create();
+        $this->actingAs($newUser)->get(route('feedback'))
+            ->assertSeeText('&lt;script&gt;alert(&quot;hello&quot;);&lt;/script&gt;', false);
+    }
+
+    public function testRenderingOtherUsersFeedbackUnsecured(): void
+    {
+        $this->user->update(['xss_stored_on' => true]);
+        $this->get(route('feedback'))->assertOk();
+
+        $this->sendTestStoreFeedback('<script>alert("hello");</script>')
+            ->assertRedirect(route('feedback'));
+
+        $this->get(route('feedback'))
+            ->assertSee('<script>alert("hello");</script>', false);
+
+        $newUser = User::factory()->create();
+        $newUser->update(['xss_stored_on' => true]);
+        $this->actingAs($newUser)->get(route('feedback'))
+            ->assertSee('<script>alert("hello");</script>', false);
+    }
+
     public function testSearchingDataWithoutCsrfToken(): void
     {
         $this->get(route('feedback'))->assertOk();
