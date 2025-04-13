@@ -85,13 +85,18 @@ determine_actions() {
   if [[ "$FRESH_DEPLOYMENT" = true ]]; then
     echo -e "${CYAN}Performing fresh deployment...${NO_COLOR}"
     INSTALL_DEPS=true
+    GENERATE_APP_KEY=true
     REBUILD_APP=true
     MIGRATE_DB=true
+    WIPE_DB=true
     CLEAR_CACHE=true
   elif [[ "$INTERACTIVE" = true ]]; then
     echo -e "${CYAN}Please select which actions to perform:${NO_COLOR}"
     if prompt_yes_no "${BLUE}Install Laravel dependencies?${NO_COLOR}"; then
       INSTALL_DEPS=true
+    fi
+    if prompt_yes_no "${BLUE}Generate new APP_KEY?${NO_COLOR}"; then
+      GENERATE_APP_KEY=true
     fi
     if prompt_yes_no "${BLUE}Rebuild the application?${NO_COLOR}"; then
       REBUILD_APP=true
@@ -112,6 +117,40 @@ determine_actions() {
     echo -e "${RED}Error: Missing argument${NO_COLOR}"
     show_help
     exit 1
+  fi
+}
+
+ensure_env() {
+  if [[ ! -f .env ]]; then
+    echo -e "${YELLOW}No .env file found."
+    if [[ ! -f .env.example ]]; then
+      echo -e "${RED}Error: .env.example not found. Cannot create .env file.${NO_COLOR}"
+      exit 1
+    fi
+    cp .env.example .env
+    echo -e "${GREEN}Created .env from .env.example"
+  else
+    echo -e "${GREEN}Found .env"
+  fi
+}
+
+generate_app_key() {
+  if [[ "$GENERATE_APP_KEY" = true ]]; then
+    echo -e "${CYAN}Generating APP_KEY...${NO_COLOR}"
+
+    key="base64:$(head -c 32 /dev/urandom | base64)"
+    if [[ -z "$key" ]]; then
+      echo -e "${RED}Error: Failed to generate APP_KEY${NO_COLOR}"
+      exit 1
+    fi
+
+    if grep -q '^APP_KEY=' .env; then
+      sed -i "s|^APP_KEY=.*|APP_KEY=${key}|" .env
+    else
+      echo "APP_KEY=${key}" >>.env
+    fi
+
+    echo -e "${GREEN}APP_KEY was successfully generated and added to .env${NO_COLOR}"
   fi
 }
 
@@ -181,7 +220,7 @@ wait_for_database() {
 
 setup_database() {
   if [[ "$MIGRATE_DB" = true ]]; then
-    if [[ "$FRESH_DEPLOYMENT" != true ]] && [[ "$WIPE_DB" = true ]]; then
+    if [[ "$WIPE_DB" = true ]]; then
       if ! ./vendor/bin/sail artisan db:wipe; then
         echo -e "${RED}Error: Failed to wipe database${NO_COLOR}"
         exit 1
@@ -215,7 +254,9 @@ main() {
   preflight_check
   setup_trap
   determine_actions
-  echo -e "${CYAN}Starting local deployment...${NO_COLOR}"
+  ensure_env
+  generate_app_key
+  echo -e "${CYAN}Starting deployment...${NO_COLOR}"
   install_dependencies
   ensure_vendor
   build_application
@@ -223,7 +264,7 @@ main() {
   wait_for_database
   setup_database
   clear_laravel_cache
-  echo -e "${GREEN}Setup complete! Visit the app at http://localhost:9991${NO_COLOR}"
+  echo -e "${GREEN}Setup complete!${NO_COLOR}"
 }
 
 main "$@"
