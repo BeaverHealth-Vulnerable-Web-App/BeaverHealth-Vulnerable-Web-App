@@ -25,12 +25,12 @@ class FeedbackUnitTest extends TestCase
     public static function processInputProvider(): array
     {
         return [
-            'processed' => [
+            'unprocessed' => [
                                 '<script>alert("XSS")</script>',
                                 true,
                                 '<script>alert("XSS")</script>'
                         ],
-            'unprocessed' => [
+            'processed' => [
                                 '<script>alert("XSS")</script>',
                                 false,
                                 '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;'
