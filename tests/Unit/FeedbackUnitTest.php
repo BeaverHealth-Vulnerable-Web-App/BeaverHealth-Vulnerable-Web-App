@@ -31,7 +31,7 @@ class FeedbackUnitTest extends TestCase
                                 '<script>alert("XSS")</script>'
                         ],
             'unprocessed' => [
-                                '<script>alert("XSS")</script>', 
+                                '<script>alert("XSS")</script>',
                                 false,
                                 '&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;'
                             ],
