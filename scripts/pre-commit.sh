@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-
-DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$DIR/.."
-
-./scripts/ensure-env.sh
-./vendor/bin/phpcs
