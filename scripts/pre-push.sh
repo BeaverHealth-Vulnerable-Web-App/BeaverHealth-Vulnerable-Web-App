@@ -8,11 +8,11 @@ cd "$DIR/.."
 if [ ! -f .env ]; then
     echo "No .env found. Copying from .env.example..."
     cp .env.example .env
-fi
 
-echo "Generating fresh APP_KEY..."
-key=$(./vendor/bin/sail artisan key:generate --show)
-sed -i "s|^APP_KEY=.*|APP_KEY=${key}|" .env
+    echo "Generating APP_KEY..."
+    key=$(./vendor/bin/sail artisan key:generate --show)
+    sed -i "s|^APP_KEY=!!!REPLACE!!!|APP_KEY=${key}|" .env
+fi
 
 ./vendor/bin/sail up -d
 ./vendor/bin/sail artisan test
