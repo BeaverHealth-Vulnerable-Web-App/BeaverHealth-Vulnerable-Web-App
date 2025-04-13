@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
                 'load_records' => true,
                 'view_patient_info' => false,
                 'sqli_on' => false,
-                'file_upload_on' => false,
+                'file_upload_vuln_on' => false,
                 'cmd_inject_on' => false,
                 'xss_reflected_on' => false,
                 'xss_stored_on' => false,

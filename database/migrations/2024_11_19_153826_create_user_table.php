@@ -24,7 +24,7 @@ return new class extends Migration
                 $table->boolean('load_records')->default(false);
                 $table->boolean('view_patient_info')->default(false);
                 $table->boolean('sqli_on')->default(false);
-                $table->boolean('file_upload_on')->default(false);
+                $table->boolean('file_upload_vuln_on')->default(false);
                 $table->boolean('cmd_inject_on')->default(false);
                 $table->boolean('xss_reflected_on')->default(false);
                 $table->boolean('xss_stored_on')->default(false);

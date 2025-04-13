@@ -35,7 +35,7 @@ class PatientRecordService
 
     public function getPatientRecordsPath($patientId)
     {
-        return storage_path("app/public/patient_records/{$patientId}");
+        return storage_path("app/patient_records/{$patientId}");
     }
 
     public function searchRecords($patientId, $keyword = '')
@@ -80,7 +80,7 @@ class PatientRecordService
         $fileSize = $file->getSize();
         $fileMimeType = $file->getMimeType();
 
-        if (!$user->file_upload_on) {
+        if (!$user->file_upload_vuln_on) {
             $error = $this->validateFile($fileExtension, $fileMimeType, $fileSize);
             $this->logUploadAttempt(
                 $patientId,
@@ -88,10 +88,12 @@ class PatientRecordService
                 $fileExtension,
                 $fileMimeType,
                 $fileSize,
-                $user->file_upload_on,
+                $user->file_upload_vuln_on,
                 $error
             );
-            throw new \Exception($error);
+            if ($error !== null) {
+                throw new \Exception($error);
+            }
         }
 
         $filePath = $this->storeFile($patientId, $file);
@@ -102,7 +104,7 @@ class PatientRecordService
             $fileExtension,
             $fileMimeType,
             $fileSize,
-            $user->file_upload_on,
+            $user->file_upload_vuln_on,
             null
         );
 
@@ -160,11 +162,11 @@ class PatientRecordService
 
     private function storeFile($patientId, $file)
     {
-        $directory = "patient_records/{$patientId}";
-        Storage::makeDirectory($directory);
+        $directory = "{$patientId}";
+        Storage::disk('patient_records')->makeDirectory($directory);
 
         $fileName = $file->getClientOriginalName();
-        return $file->storeAs($directory, $fileName, 'public');
+        return $file->storeAs($directory, $fileName, 'patient_records');
     }
 
     private function logSearchAttempt(
@@ -197,7 +199,7 @@ class PatientRecordService
             'file_extension'          => $fileExtension,
             'file_mime_type'          => $fileMimeType,
             'file_size'               => $fileSize,
-            'insecure_file_upload_on' => $insecureFileUploadOn,
+            'file_upload_vuln_on'     => $insecureFileUploadOn,
             'success'                 => $error === null,
             'error'                   => $error
         ]);

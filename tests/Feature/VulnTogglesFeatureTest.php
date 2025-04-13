@@ -25,7 +25,7 @@ class VulnTogglesFeatureTest extends TestCase
             'sqli_on' => ['sqli_on'],
             'cmd_inject_on' => ['cmd_inject_on'],
             'bac_on' => ['bac_on'],
-            'file_upload_on' => ['file_upload_on'],
+            'file_upload_vuln_on' => ['file_upload_vuln_on'],
             'xss_stored_on' => ['xss_stored_on'],
             'xss_reflected_on' => ['xss_reflected_on'],
         ];

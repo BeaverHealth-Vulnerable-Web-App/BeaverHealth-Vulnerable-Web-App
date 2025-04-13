@@ -17,7 +17,7 @@ class UserFactory extends Factory
             'load_records' => $this->faker->boolean(20),
             'view_patient_info' => $this->faker->boolean(20),
             'sqli_on' => $this->faker->boolean(20),
-            'file_upload_on' => false,
+            'file_upload_vuln_on' => false,
             'cmd_inject_on' => false,
             'xss_reflected_on' => false,
             'xss_stored_on' => false,
