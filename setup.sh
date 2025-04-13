@@ -138,7 +138,7 @@ generate_app_key() {
   if [[ "$GENERATE_APP_KEY" = true ]]; then
     echo -e "${CYAN}Generating APP_KEY...${NO_COLOR}"
 
-    key=$(./vendor/bin/sail artisan key:generate --show 2>/dev/null)
+    key="base64:$(head -c 32 /dev/urandom | base64)"
     if [[ -z "$key" ]]; then
       echo -e "${RED}Error: Failed to generate APP_KEY${NO_COLOR}"
       exit 1

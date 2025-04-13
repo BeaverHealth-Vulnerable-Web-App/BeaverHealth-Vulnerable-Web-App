@@ -18,8 +18,7 @@ class ChangePasswordService
     {
         $usernameConfirmation = $request->input('username_confirmation');
         $currentPasswordInput = $request->input('current_password');
-        $newPassword = $request->input('password');
-        $hashedNewPassword = Hash::make($newPassword);
+        $hashedNewPassword = Hash::make($request->input('password'));
 
         if ($user->sqli_on) {
             $updated = DB::update(
