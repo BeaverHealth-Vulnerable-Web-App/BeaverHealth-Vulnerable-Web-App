@@ -79,7 +79,7 @@ class PatientRecordService
 
         if (!Patient::where('patient_id', $patientId)->exists()) {
             $error = 'Patient does not exist';
-        } elseif ($fileUploadVulnOn) {
+        } elseif (!$fileUploadVulnOn) {
             $error = $this->validateFile($fileExtension, $fileMimeType, $fileSize);
         }
 
@@ -137,7 +137,7 @@ class PatientRecordService
         });
     }
 
-    private function validateFile(string $extension, int|false $mimeType, ?string $size): ?string
+    private function validateFile(string $extension, ?string $mimeType, int|false $size): ?string
     {
         if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
             return 'Invalid file extension. Allowed extensions: ' . implode(', ', self::ALLOWED_EXTENSIONS) . '.';
