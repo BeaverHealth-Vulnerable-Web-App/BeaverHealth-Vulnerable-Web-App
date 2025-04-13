@@ -30,10 +30,14 @@ class UserSeeder extends Seeder
      */
     private function createDevUser(): void
     {
-        $this->createUser('dev', 'password', [
-            'is_admin' => true,
-            'view_patient_info' => true
-        ]);
+        $this->createUser(
+            'dev',
+            env('DEV_USER_PASSWORD'),
+            [
+                'is_admin' => true,
+                'view_patient_info' => true
+            ]
+        );
     }
 
     /**
@@ -43,12 +47,12 @@ class UserSeeder extends Seeder
      */
     private function createProdUsers(): void
     {
-        $this->createUser('gokul', 'eN%f0G6M!xGiX@^K7$');
-        $this->createUser('grader', 'JRhAT%YzGx1iSn!U6i');
-        $this->createUser('cody', 'cBLc8*R1EGu56t%KD9');
-        $this->createUser('brynn', 'Jw%yr95FgYdKXx%Dt6');
-        $this->createUser('sean', 'GkNA*yoBrQvTZf4rZP');
-        $this->createUser('alexa', 'Mo8*AqTe6vaUm0f98j');
+        $this->createUser('gokul', env('GOKUL_USER_PASSWORD'));
+        $this->createUser('grader', env('GRADER_USER_PASSWORD'));
+        $this->createUser('cody', env('CODY_USER_PASSWORD'));
+        $this->createUser('brynn', env('BRYNN_USER_PASSWORD'));
+        $this->createUser('sean', env('SEAN_USER_PASSWORD'));
+        $this->createUser('alexa', env('ALEXA_USER_PASSWORD'));
     }
 
     /**
