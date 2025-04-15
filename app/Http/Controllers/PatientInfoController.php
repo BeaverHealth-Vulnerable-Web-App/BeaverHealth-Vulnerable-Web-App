@@ -29,7 +29,9 @@ class PatientInfoController extends Controller
                 $searchPerformed = true;
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['search' => 'Invalid search query. Please adjust your input.']);
+            return redirect()->back()
+                ->withErrors(['search' => 'Invalid search query. Please adjust your input.'])
+                ->withInput();
         }
 
         return view('patients.index', compact('patients', 'searchPerformed'));
