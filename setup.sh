@@ -84,6 +84,7 @@ setup_trap() {
 determine_actions() {
   if [[ "$FRESH_DEPLOYMENT" = true ]]; then
     echo -e "${CYAN}Performing fresh deployment...${NO_COLOR}"
+    RESET_DOCKER_STATE=true
     INSTALL_DEPS=true
     GENERATE_APP_KEY=true
     REBUILD_APP=true
@@ -92,6 +93,9 @@ determine_actions() {
     CLEAR_CACHE=true
   elif [[ "$INTERACTIVE" = true ]]; then
     echo -e "${CYAN}Please select which actions to perform:${NO_COLOR}"
+    if prompt_yes_no "${BLUE}Reset Docker State?${NO_COLOR}"; then
+      RESET_DOCKER_STATE=true
+    fi
     if prompt_yes_no "${BLUE}Install Laravel dependencies?${NO_COLOR}"; then
       INSTALL_DEPS=true
     fi
@@ -151,6 +155,16 @@ generate_app_key() {
     fi
 
     echo -e "${GREEN}APP_KEY was successfully generated and added to .env${NO_COLOR}"
+  fi
+}
+
+reset_docker_state() {
+  if [[ "$RESET_DOCKER_STATE" = true ]]; then
+    echo -e "${YELLOW}Removing any existing containers and volumes...${NO_COLOR}"
+    if ! docker compose down -v; then
+      echo -e "${RED}Error: Failed to remove containers and volumes${NO_COLOR}"
+      exit 1
+    fi
   fi
 }
 
@@ -258,6 +272,7 @@ main() {
   generate_app_key
   echo -e "${CYAN}Starting deployment...${NO_COLOR}"
   install_dependencies
+  reset_docker_state
   ensure_vendor
   build_application
   start_application
