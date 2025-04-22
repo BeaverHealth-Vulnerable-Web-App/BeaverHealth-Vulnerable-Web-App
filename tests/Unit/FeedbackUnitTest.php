@@ -3,8 +3,10 @@
 namespace Tests\Unit;
 
 use App\Services\FeedbackService;
+use App\Services\UserActivityLogger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionClass;
+use Mockery;
 use Tests\TestCase;
 
 class FeedbackUnitTest extends TestCase
@@ -15,7 +17,8 @@ class FeedbackUnitTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->feedbackService = new FeedbackService();
+        $mockLogger = Mockery::mock(UserActivityLogger::class);
+        $this->feedbackService = new FeedbackService($mockLogger);
         // Setup reflection class since the methods are private
         $reflectionClass = new ReflectionClass($this->feedbackService);
         $this->processInput = $reflectionClass->getMethod('processInput');
