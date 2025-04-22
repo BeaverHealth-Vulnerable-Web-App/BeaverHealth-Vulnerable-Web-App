@@ -228,8 +228,23 @@ wait_for_database() {
         exit 1
       fi
     done
-    sleep 4
     echo -e "${GREEN}Database is ready.${NO_COLOR}"
+  fi
+}
+
+wait_for_db_connection() {
+  if [[ "$MIGRATE_DB" = true ]]; then
+    echo -e "${YELLOW}Waiting for database connection...${NO_COLOR}"
+    attempt=1
+    while ! ./vendor/bin/sail artisan db:monitor | grep OK &>/dev/null; do
+      echo -e "${YELLOW}Attempt $attempt: Database connection not established, waiting 2 seconds...${NO_COLOR}"
+      attempt=$((attempt + 1))
+      if [[ "$attempt" -gt "$MAX_DATABASE_CONNECTION_ATTEMPTS" ]]; then
+        echo -e "${RED}Database connection was not established after $MAX_DATABASE_CONNECTION_ATTEMPTS attempts.${NO_COLOR}"
+        exit 1
+      fi
+    done
+    echo -e "${GREEN}Database connection established.${NO_COLOR}"
   fi
 }
 
@@ -278,6 +293,7 @@ main() {
   build_application
   start_application
   wait_for_database
+  wait_for_db_connection
   setup_database
   clear_laravel_cache
   echo -e "${GREEN}Setup complete!${NO_COLOR}"
