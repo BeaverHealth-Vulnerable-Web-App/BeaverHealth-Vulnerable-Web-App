@@ -228,6 +228,7 @@ wait_for_database() {
         exit 1
       fi
     done
+    sleep 4
     echo -e "${GREEN}Database is ready.${NO_COLOR}"
   fi
 }
