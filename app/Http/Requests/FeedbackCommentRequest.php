@@ -23,7 +23,7 @@ class FeedbackCommentRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:patient,patient_id',
-            'feedback' => 'required'
+            'feedback' => 'required|string'
         ];
     }
 }
