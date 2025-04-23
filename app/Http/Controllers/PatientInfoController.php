@@ -11,7 +11,7 @@ class PatientInfoController extends Controller
      */
     public function index()
     {
-        $patients = Patient::all();
+        $patients = Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
         return view('patients.index', compact('patients'));
     }
 
