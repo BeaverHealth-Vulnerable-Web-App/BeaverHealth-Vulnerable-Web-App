@@ -3,21 +3,34 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Collection;
+use App\Models\Patient;
 
 class PatientInfoService
 {
-    public function searchPatients($searchTerm)
+    /**
+     * @param  string  $searchTerm  The term to search for.
+     * @param  bool    $sqliOn      If true, run the vulnerable raw SQL; otherwise use Eloquent ORM.
+     * @return array|Collection<Patient>
+     */
+    public function searchPatients(string $searchTerm, bool $sqliOn): array|Collection
     {
-        $user = Auth::user();
-        if ($user && $user->sqli_on) {
-            $query = "SELECT * FROM patient WHERE first_name LIKE '%$searchTerm%' " .
-                     "OR last_name LIKE '%$searchTerm%'";
-            return DB::select($query);
+        if ($sqliOn) {
+            // === VULNERABLE ===
+            $sql = <<<SQL
+                SELECT *
+                FROM patient
+                WHERE first_name LIKE '%{$searchTerm}%'
+                   OR last_name  LIKE '%{$searchTerm}%'
+            SQL;
+
+            return DB::select($sql);
         }
-        return DB::select(
-            "SELECT * FROM patient WHERE first_name LIKE ? OR last_name LIKE ?",
-            ["%$searchTerm%", "%$searchTerm%"]
-        );
+
+        // === SAFE ===
+        return Patient::whereRaw(
+            'CONCAT(first_name, last_name) LIKE ?',
+            ["%{$searchTerm}%"]
+        )->get();
     }
 }

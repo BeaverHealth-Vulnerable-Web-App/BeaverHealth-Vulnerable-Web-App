@@ -3,48 +3,52 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Patient;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Services\PatientInfoService;
 use Illuminate\Support\Facades\Auth;
 
 class PatientInfoController extends Controller
 {
-    protected $patientInfoService;
+    /** @var PatientInfoService */
+    protected PatientInfoService $patientInfoService;
 
+    /**
+     * PatientInfoController constructor.
+     *
+     * @param  PatientInfoService  $patientInfoService
+     */
     public function __construct(PatientInfoService $patientInfoService)
     {
         $this->patientInfoService = $patientInfoService;
     }
 
-    public function index(Request $request)
+    /**
+     * Display the patient search page and results.
+     *
+     * @param  Request  $request
+     * @return View|RedirectResponse
+     */
+    public function index(Request $request): View|RedirectResponse
     {
-        $searchTerm = $request->input('search', '');
-        $patients = [];
+        $term            = $request->input('search', '');
+        $patients        = [];
         $searchPerformed = false;
-        $user = Auth::user();
+        $user            = Auth::user();
 
-        try {
-            if (!empty($searchTerm) && $user->sqli_on) {
-                $patients = $this->patientInfoService->searchPatients($searchTerm);
-                $searchPerformed = true;
+        if ($term !== '') {
+            $searchPerformed = true;
+
+            try {
+                $patients = $this->patientInfoService
+                                 ->searchPatients($term, $user->sqli_on);
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->withErrors(['search' => 'Invalid search query. Please adjust your input.'])
+                    ->withInput();
             }
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withErrors(['search' => 'Invalid search query. Please adjust your input.'])
-                ->withInput();
         }
 
         return view('patients.index', compact('patients', 'searchPerformed'));
-    }
-
-    public function show($id)
-    {
-        $patient = Patient::find($id);
-
-        if (!$patient) {
-            return redirect()->route('patients.index')->withErrors(['patient' => 'Patient not found.']);
-        }
-
-        return view('patients.info', compact('patient'));
     }
 }
