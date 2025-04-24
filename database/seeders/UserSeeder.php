@@ -10,7 +10,8 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * Uses APP_ENV to determine which users to create.
+     * Uses APP_ENV to determine whether to create prod or dev users, and
+     * uses NUM_FAKE_USERS to determine how many fake users to create.
      *
      * @return void
      */
@@ -21,6 +22,10 @@ class UserSeeder extends Seeder
             'prod'  => $this->createProdUsers(),
             default => null
         };
+
+        User::factory()
+            ->count(config('app.num_fake_users', 10))
+            ->create();
     }
 
     /**

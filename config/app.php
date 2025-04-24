@@ -34,4 +34,7 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
     ],
 
+    // Number of fake users to seed
+    'num_fake_users' => env('NUM_FAKE_USERS', 10),
+
 ];
