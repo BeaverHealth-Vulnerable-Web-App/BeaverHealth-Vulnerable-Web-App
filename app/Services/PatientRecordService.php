@@ -19,7 +19,7 @@ class PatientRecordService
 
     public function getPatientRecordsPath($patientId)
     {
-        return storage_path("app/public/patient_records/{$patientId}");
+        return storage_path("app/patient_records/{$patientId}");
     }
 
     public function listFiles($directory, $keyword = '', $isInsecure = false)
@@ -124,10 +124,10 @@ class PatientRecordService
 
     protected function storeFile($patientId, $file)
     {
-        $directory = "patient_records/{$patientId}";
-        Storage::makeDirectory($directory);
+        $directory = "{$patientId}";
+        Storage::disk('patient_records')->makeDirectory($directory);
 
         $fileName = $file->getClientOriginalName();
-        return $file->storeAs($directory, $fileName, 'public');
+        return $file->storeAs($directory, $fileName, 'patient_records');
     }
 }
