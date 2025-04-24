@@ -2,30 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use App\Services\PatientInfoService;
+use Illuminate\Support\Facades\Auth;
 
 class PatientInfoController extends Controller
 {
-    /**
-     * Show the list of all patients.
-     */
-    public function index()
+    public function __construct(private PatientInfoService $patientInfoService)
     {
-        $patients = Patient::all();
-        return view('patients.index', compact('patients'));
     }
 
     /**
-     * Show details for a single patient.
+     * Display the patient search page and results.
+     *
+     * @param  Request  $request
+     * @return View|RedirectResponse
      */
-    public function show($id)
+    public function index(Request $request): View|RedirectResponse
     {
-        $patient = Patient::find($id);
+        $searchTerm      = (string) $request->input('search', '');
+        $patients        = [];
+        $searchPerformed = false;
 
-        if (!$patient) {
-            return redirect()->route('patients.index')->with('error', 'Patient not found.');
+        if ($searchTerm !== '') {
+            $searchPerformed = true;
+
+            try {
+                $patients = $this->patientInfoService
+                                 ->searchPatients($searchTerm, Auth::user()->sqli_on);
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->withErrors(['search' => 'Invalid search query. Please adjust your input.'])
+                    ->withInput();
+            }
         }
 
-        return view('patients.info', compact('patient'));
+        return view('patients.index', compact('patients', 'searchPerformed'));
     }
 }
