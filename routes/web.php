@@ -10,6 +10,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\PatientInfoController;
+use App\Http\Controllers\AppResetController;
 use App\Http\Controllers\RegisteredUserController;
 
 Route::middleware(['guest', 'login.page.limit'])->group(
@@ -64,6 +65,9 @@ Route::middleware(['auth', 'check.permission'])->group(
         )->name('vulnerability_toggles.update');
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
+
+        Route::get('/app/reset', [AppResetController::class, 'confirmReset'])->name('app.reset.confirm');
+        Route::post('/app/reset', [AppResetController::class, 'reset'])->name('app.reset');
 
         Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))
             ->name('sidebar.refresh')
