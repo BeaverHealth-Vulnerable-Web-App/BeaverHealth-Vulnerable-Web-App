@@ -9,10 +9,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\VulnerabilityTogglesController;
 use App\Http\Controllers\AuthenticatedSessionController;
-use App\Http\Controllers\RegisteredUserController;
 use App\Http\Controllers\PatientInfoController;
+use App\Http\Controllers\AppResetController;
+use App\Http\Controllers\RegisteredUserController;
 
-Route::middleware('guest')->group(
+Route::middleware(['guest', 'login.page.limit'])->group(
     function () {
         Route::get('/login', [AuthenticatedSessionController::class, 'index'])->name('login');
         Route::get('/', fn() => redirect(route('login')));
@@ -65,6 +66,11 @@ Route::middleware(['auth', 'check.permission'])->group(
 
         Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])->name('logout');
 
-        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))->name('sidebar.refresh');
+        Route::get('/app/reset', [AppResetController::class, 'confirmReset'])->name('app.reset.confirm');
+        Route::post('/app/reset', [AppResetController::class, 'reset'])->name('app.reset');
+
+        Route::get('/sidebar/refresh', fn() => view('layouts.sidebar'))
+            ->name('sidebar.refresh')
+            ->middleware('ajax');
     }
 );

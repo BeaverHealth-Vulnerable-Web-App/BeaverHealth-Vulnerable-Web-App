@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\UserActivityLogger;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+
+class AppResetController extends Controller
+{
+    /**
+     * Displays the reset confirmation view.
+     *
+     * @return View The view promping the user to confirm the app reset
+     */
+    public function confirmReset(): View
+    {
+        return view('components.confirm-reset');
+    }
+
+    /**
+     * Resets the application.
+     *
+     * Deletes patient files, wipes and recreates the database, and logs out the current user.
+     *
+     * @param UserActivityLogger $logger The user activity logger
+     *
+     * @return RedirectResponse Redirects to the login page after reset
+     */
+    public function reset(UserActivityLogger $logger): RedirectResponse
+    {
+        $logger->info('User reset application');
+
+        $this->deletePatientRecordFiles();
+        Artisan::call('db:wipe');
+        Artisan::call('migrate');
+        Artisan::call('db:seed');
+        Auth::logout();
+
+        return redirect()->route('login')
+            ->with('status', 'Application has been reset successfully.');
+    }
+
+    /**
+     * Deletes all patient record files.
+     *
+     * @return void
+     */
+    private function deletePatientRecordFiles(): void
+    {
+        $recordsPath = storage_path('app/patient_records');
+        if (File::isDirectory($recordsPath)) {
+            File::deleteDirectory($recordsPath);
+        }
+    }
+}
