@@ -23,18 +23,25 @@ class AddRecordsController extends Controller
 
     public function upload(StoreRecordRequest $request)
     {
-        $file = $request->file('medical_record');
-        $filename = $file->getClientOriginalName();
+        try {
+            $file = $request->file('medical_record');
+            $filename = $file->getClientOriginalName();
 
-        $this->patientRecordService->storeRecord(
-            $request->input('patient_id'),
-            $file
-        );
+            $this->patientRecordService->storeRecord(
+                $request->input('patient_id'),
+                $file
+            );
 
-        session()->flash('records-status', [
-            'type' => 'success',
-            'message' => "File '{$filename}' uploaded successfully!"
-        ]);
+            session()->flash('records-status', [
+                'type' => 'success',
+                'message' => "File '{$filename}' uploaded successfully!"
+            ]);
+        } catch (\Exception $e) {
+            session()->flash('records-status', [
+                'type' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
 
         return back();
     }

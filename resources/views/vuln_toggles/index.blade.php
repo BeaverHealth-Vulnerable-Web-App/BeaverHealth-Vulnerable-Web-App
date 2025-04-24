@@ -23,7 +23,7 @@
                                 'sqli_on' => ['SQL Injection', 'Change Password'],
                                 'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
                                 'bac_on' => ['Broken Access Control', 'Admin, Patient Info, Add Records, and Request Records'],
-                                'file_upload_on' => ['File Upload', 'Add Medical Records'],
+                                'file_upload_on' => ['Unrestricted File Upload', 'Add Medical Records'],
                                 'xss_stored_on' => ['Stored Cross Site Scripting', 'Patient Feedback'],
                                 'xss_reflected_on' => ['Reflected Cross Site Scripting', 'Patient Feedback'],
                             ];
