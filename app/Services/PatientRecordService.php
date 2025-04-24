@@ -153,6 +153,52 @@ class PatientRecordService
 
     private function storeFile(int $patientId, UploadedFile $file)
     {
+        $patient = Patient::find($patientId);
+        if (!$patient) {
+            throw new \Exception('Patient not found.');
+        }
+
+        $isSecure = !(auth()->user()->file_upload_on ?? false);
+
+        if ($isSecure) {
+            $allowedExtensions = [
+                'csv', 'xlsx', 'json', 'edi', 'xml', 'pdf', 'txt'
+            ];
+            $allowedMimeTypes = [
+                'text/csv',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/json',
+                'application/EDI-X12',
+                'application/xml',
+                'text/xml',
+                'application/pdf',
+                'text/plain'
+            ];
+
+            $fileExtension = strtolower($file->getClientOriginalExtension());
+            $fileSize = $file->getSize();
+            $mimeType = $file->getMimeType();
+
+            if (!in_array($fileExtension, $allowedExtensions) || !in_array($mimeType, $allowedMimeTypes)) {
+                throw new \Exception('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions) . '.');
+            }
+
+            if ($fileSize > self::MAX_FILE_SIZE_BYTES) {
+                throw new \Exception('File too large. Maximum size allowed is 5MiB.');
+            }
+        }
+
+        $filePath = $this->storeFile($patient->patient_id, $file);
+
+        return PatientFile::create([
+            'patient_id' => $patient->patient_id,
+            'filename'   => $file->getClientOriginalName(),
+            'path'       => $filePath
+        ]);
+    }
+
+    protected function storeFile($patientId, $file)
+    {
         $directory = "{$patientId}";
         Storage::disk('patient_records')->makeDirectory($directory);
 
