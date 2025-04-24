@@ -10,17 +10,8 @@ use Illuminate\Support\Facades\Auth;
 
 class PatientInfoController extends Controller
 {
-    /** @var PatientInfoService */
-    protected PatientInfoService $patientInfoService;
-
-    /**
-     * PatientInfoController constructor.
-     *
-     * @param  PatientInfoService  $patientInfoService
-     */
-    public function __construct(PatientInfoService $patientInfoService)
+    public function __construct(private PatientInfoService $patientInfoService)
     {
-        $this->patientInfoService = $patientInfoService;
     }
 
     /**
@@ -31,17 +22,16 @@ class PatientInfoController extends Controller
      */
     public function index(Request $request): View|RedirectResponse
     {
-        $term            = $request->input('search', '');
+        $searchTerm      = (string) $request->input('search', '');
         $patients        = [];
         $searchPerformed = false;
-        $user            = Auth::user();
 
-        if ($term !== '') {
+        if ($searchTerm !== '') {
             $searchPerformed = true;
 
             try {
                 $patients = $this->patientInfoService
-                                 ->searchPatients($term, $user->sqli_on);
+                                 ->searchPatients($searchTerm, Auth::user()->sqli_on);
             } catch (\Exception $e) {
                 return redirect()->back()
                     ->withErrors(['search' => 'Invalid search query. Please adjust your input.'])
