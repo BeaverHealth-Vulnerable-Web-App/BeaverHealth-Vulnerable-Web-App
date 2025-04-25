@@ -8,12 +8,6 @@ use Tests\TestCase;
 
 class ChangePasswordFeatureTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // Sessions are initialized via a GET in each test below
-    }
-
     protected function createTestUser(string $password = 'password123'): User
     {
         return User::factory()->create([
@@ -21,11 +15,30 @@ class ChangePasswordFeatureTest extends TestCase
         ]);
     }
 
+    private function submitPasswordChange(array $data, bool $withReferer = false)
+    {
+        $caller = $this->actingAs($this->user);
+
+        // Start session via GET
+        $caller->get(route('profile.change-password'));
+
+        $request = $caller->withHeaders(
+            $withReferer
+                ? ['referer' => route('profile.change-password')]
+                : []
+        );
+
+        return $request->postWithCsrf(
+            route('profile.change-password.update'),
+            $data
+        );
+    }
+
     public function testChangePasswordPageAccessible(): void
     {
-        $user = $this->createTestUser();
+        $this->user = $this->createTestUser();
 
-        $this->actingAs($user)
+        $this->actingAs($this->user)
              ->get(route('profile.change-password'))
              ->assertOk()
              ->assertViewIs('profile.change-password');
@@ -33,161 +46,137 @@ class ChangePasswordFeatureTest extends TestCase
 
     public function testValidPasswordChange(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
-            [
-                'current_password'      => 'oldpassword',
-                'password'              => 'newpassword123',
-                'password_confirmation' => 'newpassword123',
-            ]
-        );
+        $response = $this->submitPasswordChange([
+            'current_password'      => 'oldpassword',
+            'password'              => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHas('status', 'password-updated');
 
-        $this->assertTrue(Hash::check('newpassword123', $user->fresh()->password));
+        $this->assertTrue(Hash::check('newpassword123', $this->user->fresh()->password));
     }
 
     public function testChangePasswordFailsWithIncorrectCurrentPassword(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => 'wrongpassword',
                 'password'              => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
-            ]
+            ],
+            true // need referer for validation redirect
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['current_password']);
 
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testSqlInjectionAttemptFails(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => "' OR '1'='1",
                 'password'              => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
-            ]
+            ],
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['current_password']);
 
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testCsrfProtection(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
+        // GET to initialize session
+        $this->actingAs($this->user)
              ->get(route('profile.change-password'));
 
-        $response = $this->post(
-            route('profile.change-password.update'),
-            [
-                'current_password'      => 'oldpassword',
-                'password'              => 'newpassword123',
-                'password_confirmation' => 'newpassword123',
-            ]
-        );
+        // No csrf token => mismatch
+        $response = $this->withHeaders(['referer' => route('profile.change-password')])
+                         ->post(route('profile.change-password.update'), [
+                             'current_password'      => 'oldpassword',
+                             'password'              => 'newpassword123',
+                             'password_confirmation' => 'newpassword123',
+                         ]);
 
         $response->assertCsrfMismatch();
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testPasswordConfirmationMismatch(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => 'oldpassword',
                 'password'              => 'newpassword123',
                 'password_confirmation' => 'differentpassword',
-            ]
+            ],
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['password']);
 
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testNewPasswordTooShort(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => 'oldpassword',
                 'password'              => 'short',
                 'password_confirmation' => 'short',
-            ]
+            ],
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['password']);
 
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testMissingFieldsForPasswordChange(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        // Missing current_password
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        // missing current_password
+        $response = $this->submitPasswordChange(
             [
                 'password'              => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
-            ]
+            ],
+            true
         );
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['current_password']);
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        // Missing password
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        // missing password
+        $response = $this->submitPasswordChange(
             [
                 'current_password' => 'oldpassword',
-            ]
+            ],
+            true
         );
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['password']);
@@ -195,45 +184,41 @@ class ChangePasswordFeatureTest extends TestCase
 
     public function testSamePasswordChange(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
-
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => 'oldpassword',
                 'password'              => 'oldpassword',
                 'password_confirmation' => 'oldpassword',
-            ]
+            ],
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHas('status', 'password-updated');
 
-        $this->assertTrue(Hash::check('oldpassword', $user->fresh()->password));
+        $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
     public function testEdgeCaseInputForPasswordChange(): void
     {
-        $user = $this->createTestUser('oldpassword');
+        $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($user)
-             ->get(route('profile.change-password'));
+        $longPassword = str_repeat('A!a1', 50);
 
-        $longPassword = str_repeat('A!a1', 50); // 200 characters long
-        $response = $this->postWithCsrf(
-            route('profile.change-password.update'),
+        $response = $this->submitPasswordChange(
             [
                 'current_password'      => 'oldpassword',
                 'password'              => $longPassword,
                 'password_confirmation' => $longPassword,
-            ]
+            ],
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHas('status', 'password-updated');
-        $this->assertTrue(Hash::check($longPassword, $user->fresh()->password));
+
+        $this->assertTrue(Hash::check($longPassword, $this->user->fresh()->password));
     }
 }
