@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use Illuminate\Testing\TestResponse;
 
 class ChangePasswordFeatureTest extends TestCase
 {
+    private User $user;
+
     protected function createTestUser(string $password = 'password123'): User
     {
         return User::factory()->create([
@@ -15,14 +18,18 @@ class ChangePasswordFeatureTest extends TestCase
         ]);
     }
 
-    private function submitPasswordChange(array $data, bool $withReferer = false)
+    /**
+     * Helper to perform GET-then-POST with CSRF (and optional referer) in one call.
+     */
+    private function submitPasswordChange(array $data, bool $withReferer = false): TestResponse
     {
-        $caller = $this->actingAs($this->user);
+        // Ensure we have a user context
+        $this->actingAs($this->user);
 
-        // Start session via GET
-        $caller->get(route('profile.change-password'));
+        // Initialize session & CSRF token via GET
+        $this->get(route('profile.change-password'));
 
-        $request = $caller->withHeaders(
+        $request = $this->withHeaders(
             $withReferer
                 ? ['referer' => route('profile.change-password')]
                 : []
@@ -70,7 +77,7 @@ class ChangePasswordFeatureTest extends TestCase
                 'password'              => 'newpassword123',
                 'password_confirmation' => 'newpassword123',
             ],
-            true // need referer for validation redirect
+            true
         );
 
         $response->assertRedirect(route('profile.change-password'))
@@ -102,11 +109,11 @@ class ChangePasswordFeatureTest extends TestCase
     {
         $this->user = $this->createTestUser('oldpassword');
 
-        // GET to initialize session
+        // Initialize session
         $this->actingAs($this->user)
              ->get(route('profile.change-password'));
 
-        // No csrf token => mismatch
+        // No CSRF token → 419
         $response = $this->withHeaders(['referer' => route('profile.change-password')])
                          ->post(route('profile.change-password.update'), [
                              'current_password'      => 'oldpassword',
@@ -160,7 +167,7 @@ class ChangePasswordFeatureTest extends TestCase
     {
         $this->user = $this->createTestUser('oldpassword');
 
-        // missing current_password
+        // Missing current_password
         $response = $this->submitPasswordChange(
             [
                 'password'              => 'newpassword123',
@@ -171,7 +178,7 @@ class ChangePasswordFeatureTest extends TestCase
         $response->assertRedirect(route('profile.change-password'))
                  ->assertSessionHasErrors(['current_password']);
 
-        // missing password
+        // Missing password
         $response = $this->submitPasswordChange(
             [
                 'current_password' => 'oldpassword',
@@ -204,7 +211,6 @@ class ChangePasswordFeatureTest extends TestCase
     public function testEdgeCaseInputForPasswordChange(): void
     {
         $this->user = $this->createTestUser('oldpassword');
-
         $longPassword = str_repeat('A!a1', 50);
 
         $response = $this->submitPasswordChange(
