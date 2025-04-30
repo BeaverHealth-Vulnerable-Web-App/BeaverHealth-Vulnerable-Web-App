@@ -20,6 +20,9 @@ class LogUserActivityMiddleware
     public function __invoke(Request $request, Closure $next): Response
     {
         $response = $next($request);
+        if ($request->is('health') && str_contains($request->userAgent(), 'GoogleHC')) {
+            return $response;
+        }
         app(UserActivityLogger::class)->info('User accessed route');
         return $response;
     }
