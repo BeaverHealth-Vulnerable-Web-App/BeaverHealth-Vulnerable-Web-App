@@ -20,10 +20,20 @@ class LogUserActivityMiddleware
     public function __invoke(Request $request, Closure $next): Response
     {
         $response = $next($request);
-        if ($request->is('health') && str_contains($request->userAgent(), 'GoogleHC')) {
-            return $response;
+        if (!$this->isGoogleHealthCheck($request)) {
+            app(UserActivityLogger::class)->info('User accessed route');
         }
-        app(UserActivityLogger::class)->info('User accessed route');
         return $response;
+    }
+
+    /**
+    * Determine if the request is a Google Cloud health check.
+    *
+    * @param  Request  $request  The incoming HTTP request.
+    * @return bool  True if it's a Google health check, false otherwise.
+    */
+    private function isGoogleHealthCheck(Request $request): bool
+    {
+        return $request->is('health') && str_contains($request->userAgent(), 'GoogleHC');
     }
 }
