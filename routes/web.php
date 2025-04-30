@@ -19,8 +19,10 @@ Route::middleware(['guest', 'login.page.limit'])->group(
         Route::get('/', fn() => redirect(route('login')));
         Route::post('/login', [AuthenticatedSessionController::class, 'login'])->name('login.attempt');
 
-        Route::get('/register', [RegisteredUserController::class, 'index'])->name('register');
-        Route::post('/register', [RegisteredUserController::class, 'register'])->name('register.attempt');
+        if (config('app.env') !== 'demo') {
+            Route::get('/register', [RegisteredUserController::class, 'index'])->name('register');
+            Route::post('/register', [RegisteredUserController::class, 'register'])->name('register.attempt');
+        }
     }
 );
 
