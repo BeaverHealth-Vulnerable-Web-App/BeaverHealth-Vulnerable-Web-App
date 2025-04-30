@@ -17,11 +17,11 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        match (config('app.env')) {
-            'local' => $this->createDevUser(),
-            'demo'  => $this->createDemoUsers(),
-            default => null
-        };
+        if (config('app.env') === 'demo') {
+            $this->createDemoUsers();
+        } else {
+            $this->createDevUser();
+        }
 
         User::factory()
             ->count(config('app.num_fake_users', 10))
