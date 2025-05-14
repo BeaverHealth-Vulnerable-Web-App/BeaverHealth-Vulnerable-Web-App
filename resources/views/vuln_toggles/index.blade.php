@@ -20,7 +20,7 @@
                         ]">
                             @php
                             $vulnerabilities = [
-                                'sqli_on' => ['SQL Injection', 'Change Password'],
+                                'sqli_on' => ['SQL Injection', 'Change Password, Patient Information'],
                                 'cmd_inject_on' => ['Command Injection', 'Request Medical Records'],
                                 'bac_on' => ['Broken Access Control', 'Admin, Patient Info, Add Records, and Request Records'],
                                 'file_upload_on' => ['Unrestricted File Upload', 'Add Medical Records'],
