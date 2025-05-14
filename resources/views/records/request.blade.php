@@ -22,7 +22,7 @@
                                 Filter Keyword (Optional):
                             </label>
                             <input type="text" name="keyword" id="keyword" 
-                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
                         </div>
 
                         @if (session('records-request-status'))
@@ -33,7 +33,7 @@
                         @endif
 
                         <button type="submit" 
-                                class="w-full px-6 py-4 bg-gray-500 text-white rounded shadow-md hover:bg-gray-600 mt-6">
+                                class="w-full px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 mt-6 hover:shadow-lg dark:bg-gray-700 dark:hover:bg-gray-600">
                             Search Records
                         </button>
                     </form>
