@@ -28,7 +28,11 @@ class LoginPageRateLimiter
                 'Login page access blocked due to too many requests',
                 ['throttle_key' => $key]
             );
-            return response('Too many login page requests. Please try again later.', Response::HTTP_TOO_MANY_REQUESTS);
+            return response()->view(
+                'components.429-error',
+                ['retryAfter' => RateLimiter::availableIn($key)],
+                429
+            );
         }
 
         RateLimiter::hit($key, 60);
