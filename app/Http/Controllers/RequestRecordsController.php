@@ -16,7 +16,7 @@ class RequestRecordsController extends Controller
 
     public function index()
     {
-        $patients = \App\Models\Patient::all();
+        $patients = \App\Models\Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
         $patientInfo = session('patient_info', collect([
             (object) ['first_name' => 'N/A', 'last_name' => 'N/A', 'date_of_birth' => 'N/A']
         ]));

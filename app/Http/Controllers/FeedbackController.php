@@ -18,6 +18,7 @@ class FeedbackController extends Controller
     public function index()
     {
         $data = $this->feedbackService->getFeedbackWithPatients();
+        $data['patients'] = \App\Models\Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
         return view('feedback.index', $data);
     }
 
