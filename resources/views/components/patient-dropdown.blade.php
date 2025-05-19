@@ -17,8 +17,7 @@
            @input="showDropdown = true"
            @focus="showDropdown = true"
            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" 
-           autocomplete="off" 
-           required />
+           autocomplete="off" />
     <input type="hidden" name="patient_id" x-model="selectedPatientId">
 
     @error('patient_id')
