@@ -4,7 +4,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use Illuminate\Testing\TestResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Config;
 
 class AuthFeatureTest extends TestCase
 {
@@ -13,7 +14,6 @@ class AuthFeatureTest extends TestCase
     private const TEST_PASSWORD = 'password123';
     private const TEST_WEAK_PASSWORD = '123';
     private const TEST_WRONG_PASSWORD = 'wrongpassword';
-    private const MAX_LOGIN_ATTEMPTS = 5;
 
     private function createTestUser(): User
     {
@@ -23,19 +23,6 @@ class AuthFeatureTest extends TestCase
                 'password' => bcrypt(self::TEST_PASSWORD),
             ]
         );
-    }
-
-    private function triggerLoginLockout(): void
-    {
-        for ($i = 0; $i < self::MAX_LOGIN_ATTEMPTS; $i++) {
-            $this->postWithCsrf(
-                route('login.attempt'),
-                [
-                    'username' => self::TEST_USERNAME,
-                    'password' => self::TEST_WRONG_PASSWORD,
-                ]
-            );
-        }
     }
 
     public function testGuestIsRedirectedFromDashboard(): void
@@ -277,29 +264,120 @@ class AuthFeatureTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function testLoginLockoutAfterFailedAttempts(): void
+    public function testDemoEnvRateLimitsLoginAttempts(): void
     {
+        Config::set('app.env', 'demo');
+        Config::set('auth.login_attempts_rate_limit.max_attempts', 1);
         $this->createTestUser();
+        $this->get(route('login'));
 
-        $this->get(route('login'))
-            ->assertOk();
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
 
-        $this->triggerLoginLockout();
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
+        $this->assertSame('These credentials do not match our records.', $errors[0]);
 
-        $response = $this->postWithCsrf(
-            route('login.attempt'),
-            [
-                'username' => self::TEST_USERNAME,
-                'password' => self::TEST_WRONG_PASSWORD,
-            ]
-        )->assertFound();
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
 
-        $errors = (new TestResponse($response)) // TestResponse needed to access session errors
-            ->session()
-            ->get('errors')
-            ->getBag('default')
-            ->get('username');
-
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
         $this->assertStringContainsString('Too many login attempts', $errors[0]);
+    }
+
+    public function testLocalEnvNoRateLimitWhenDisabled(): void
+    {
+        Config::set('app.env', 'local');
+        Config::set('auth.login_attempts_rate_limit.enable_locally', false);
+        Config::set('auth.login_attempts_rate_limit.max_attempts', 1);
+
+        $this->createTestUser();
+        $this->get(route('login'));
+
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
+
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
+        $this->assertSame('These credentials do not match our records.', $errors[0]);
+
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
+
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
+        $this->assertSame('These credentials do not match our records.', $errors[0]);
+    }
+
+    public function testLocalEnvRateLimitsLoginWhenEnabled(): void
+    {
+        Config::set('app.env', 'local');
+        Config::set('auth.login_attempts_rate_limit.enable_locally', true);
+        Config::set('auth.login_attempts_rate_limit.max_attempts', 1);
+
+        $this->createTestUser();
+        $this->get(route('login'));
+
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
+
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
+        $this->assertSame('These credentials do not match our records.', $errors[0]);
+
+        $this->postWithCsrf(route('login.attempt'), [
+            'username' => self::TEST_USERNAME,
+            'password' => 'wrong',
+        ]);
+
+        $errors = session('errors')->getBag('default')->get('username');
+        $this->assertCount(1, $errors);
+        $this->assertStringContainsString('Too many login attempts', $errors[0]);
+    }
+
+    public function testDemoEnvRateLimitsLoginPageAccess(): void
+    {
+        Config::set('app.env', 'demo');
+        Config::set('auth.login_page_access_rate_limit.max_attempts', 1);
+
+        $this->get(route('login'), ['User-Agent' => 'TestAgent1'])->assertOk();
+
+        $this->get(route('login'), ['User-Agent' => 'TestAgent1'])
+        ->assertStatus(Response::HTTP_TOO_MANY_REQUESTS)
+        ->assertSeeText('Too Many Requests');
+    }
+
+    public function testLocalEnvNoLoginPageRateLimitWhenDisabled(): void
+    {
+        Config::set('app.env', 'local');
+        Config::set('auth.login_page_access_rate_limit.enable_locally', false);
+        Config::set('auth.login_page_access_rate_limit.max_attempts', 1);
+
+        $this->get(route('login'), ['User-Agent' => 'TestAgent2'])->assertOk();
+        $this->get(route('login'), ['User-Agent' => 'TestAgent2'])->assertOk();
+    }
+
+    public function testLocalEnvRateLimitsLoginPageWhenEnabled(): void
+    {
+        Config::set('app.env', 'local');
+        Config::set('auth.login_page_access_rate_limit.enable_locally', true);
+        Config::set('auth.login_page_access_rate_limit.max_attempts', 1);
+
+        $this->get(route('login'), ['User-Agent' => 'TestAgent3'])->assertOk();
+
+        $this->get(route('login'), ['User-Agent' => 'TestAgent3'])
+        ->assertStatus(Response::HTTP_TOO_MANY_REQUESTS)
+        ->assertSeeText('Too Many Requests');
     }
 }

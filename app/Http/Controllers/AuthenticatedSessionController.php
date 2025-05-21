@@ -11,6 +11,18 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    private readonly bool $rateLimitEnabled;
+
+    /**
+     * Create a new controller instance and determine whether requests should be rate-limited.
+     */
+    public function __construct()
+    {
+        $env = config('app.env');
+        $enableLocalRateLimit = config('auth.login_attempts_rate_limit.enable_locally');
+        $this->rateLimitEnabled = $env === 'demo' || ($env === 'local' && $enableLocalRateLimit);
+    }
+
     /**
      * Display the login view.
      */
@@ -24,7 +36,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function login(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        if ($this->rateLimitEnabled) {
+            $request->authenticateOrThrottle();
+        } else {
+            $request->authenticate();
+        }
+
         $request->session()->regenerate();
         return redirect()->intended(route('dashboard', absolute: false));
     }
