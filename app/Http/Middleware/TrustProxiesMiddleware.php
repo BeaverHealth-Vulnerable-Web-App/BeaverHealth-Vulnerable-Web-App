@@ -29,13 +29,13 @@ class TrustProxiesMiddleware extends TrustProxies
     /**
      * Create a new TrustProxiesMiddleware instance.
      *
-     * In production (when the app is behind a load balancer), trust all proxies so Laravel
+     * In demo environment (when the app is behind a load balancer), trust all proxies so Laravel
      * uses the X-Forwarded-* headers to determine the original client IP.
      *
-     * In local/dev environments, don't trust any proxies to avoid inaccurate IP detection.
+     * In local environment, don't trust any proxies to avoid inaccurate IP detection.
      */
     public function __construct()
     {
-        $this->proxies = config('app.env') === 'prod' ? '*' : null;
+        $this->proxies = config('app.env') === 'demo' ? '*' : null;
     }
 }
