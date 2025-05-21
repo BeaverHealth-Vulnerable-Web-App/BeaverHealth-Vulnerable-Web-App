@@ -51,6 +51,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -67,6 +68,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'wrongpassword',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -83,6 +85,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => "' OR '1'='1",
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -103,6 +106,7 @@ class ChangePasswordFeatureTest extends TestCase
 
         $response = $this->withHeaders(['referer' => route('profile.change-password')])
                          ->post(route('profile.change-password.update'), [
+                             'username_confirmation' => $this->user->username,
                              'current_password' => 'oldpassword',
                              'password' => 'newpassword123',
                              'password_confirmation' => 'newpassword123',
@@ -117,6 +121,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
             'password' => 'newpassword123',
             'password_confirmation' => 'differentpassword',
@@ -133,6 +138,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
             'password' => 'short',
             'password_confirmation' => 'short',
@@ -149,6 +155,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ], true);
@@ -156,6 +163,7 @@ class ChangePasswordFeatureTest extends TestCase
                  ->assertSessionHasErrors(['current_password']);
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
         ], true);
         $response->assertRedirect(route('profile.change-password'))
@@ -167,6 +175,7 @@ class ChangePasswordFeatureTest extends TestCase
         $this->user = $this->createTestUser('oldpassword');
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
             'password' => 'oldpassword',
             'password_confirmation' => 'oldpassword',
@@ -184,6 +193,7 @@ class ChangePasswordFeatureTest extends TestCase
         $longPassword = str_repeat('A!a1', 50);
 
         $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
             'current_password' => 'oldpassword',
             'password' => $longPassword,
             'password_confirmation' => $longPassword,
