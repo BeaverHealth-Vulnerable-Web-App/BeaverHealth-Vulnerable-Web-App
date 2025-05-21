@@ -55,6 +55,7 @@ class ChangePasswordFeatureTest extends TestCase
         ]);
 
         $response->assertRedirect(route('profile.change-password'));
+
         $this->assertTrue(Hash::check('newpassword123', $this->user->fresh()->password));
     }
 
@@ -169,6 +170,7 @@ class ChangePasswordFeatureTest extends TestCase
         ], true);
 
         $response->assertRedirect(route('profile.change-password'));
+
         $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
 
@@ -184,6 +186,7 @@ class ChangePasswordFeatureTest extends TestCase
         ], true);
 
         $response->assertRedirect(route('profile.change-password'));
+
         $this->assertTrue(Hash::check($longPassword, $this->user->fresh()->password));
     }
 }
