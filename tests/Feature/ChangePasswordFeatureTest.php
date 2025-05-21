@@ -21,7 +21,12 @@ class ChangePasswordFeatureTest extends TestCase
     private function submitPasswordChange(array $data, bool $withReferer = false): TestResponse
     {
         $this->actingAs($this->user);
+
         $this->get(route('profile.change-password'));
+
+        $data = array_merge([
+            'username_confirmation' => $this->user->username,
+        ], $data);
 
         $request = $this->withHeaders(
             $withReferer
@@ -38,6 +43,7 @@ class ChangePasswordFeatureTest extends TestCase
     public function testChangePasswordPageAccessible(): void
     {
         $this->user = $this->createTestUser();
+
         $this->actingAs($this->user)
              ->get(route('profile.change-password'))
              ->assertOk()
@@ -54,7 +60,8 @@ class ChangePasswordFeatureTest extends TestCase
             'password_confirmation' => 'newpassword123',
         ]);
 
-        $response->assertRedirect(route('profile.change-password'));
+        $response->assertRedirect(route('profile.change-password'))
+                 ->assertSessionHas('status', 'password-updated');
 
         $this->assertTrue(Hash::check('newpassword123', $this->user->fresh()->password));
     }
@@ -100,6 +107,7 @@ class ChangePasswordFeatureTest extends TestCase
 
         $response = $this->withHeaders(['referer' => route('profile.change-password')])
                          ->post(route('profile.change-password.update'), [
+                             'username_confirmation' => $this->user->username,
                              'current_password' => 'oldpassword',
                              'password' => 'newpassword123',
                              'password_confirmation' => 'newpassword123',
@@ -169,7 +177,8 @@ class ChangePasswordFeatureTest extends TestCase
             'password_confirmation' => 'oldpassword',
         ], true);
 
-        $response->assertRedirect(route('profile.change-password'));
+        $response->assertRedirect(route('profile.change-password'))
+                 ->assertSessionHas('status', 'password-updated');
 
         $this->assertTrue(Hash::check('oldpassword', $this->user->fresh()->password));
     }
@@ -185,7 +194,8 @@ class ChangePasswordFeatureTest extends TestCase
             'password_confirmation' => $longPassword,
         ], true);
 
-        $response->assertRedirect(route('profile.change-password'));
+        $response->assertRedirect(route('profile.change-password'))
+                 ->assertSessionHas('status', 'password-updated');
 
         $this->assertTrue(Hash::check($longPassword, $this->user->fresh()->password));
     }
