@@ -21,19 +21,13 @@ class ChangePasswordFeatureTest extends TestCase
     private function submitPasswordChange(array $data, bool $withReferer = false): TestResponse
     {
         $this->actingAs($this->user);
-
         $this->get(route('profile.change-password'));
 
         $request = $this->withHeaders(
-            $withReferer
-                ? ['referer' => route('profile.change-password')]
-                : []
+            $withReferer ? ['referer' => route('profile.change-password')] : []
         );
 
-        return $request->postWithCsrf(
-            route('profile.change-password.update'),
-            $data
-        );
+        return $request->postWithCsrf(route('profile.change-password.update'), $data);
     }
 
     public function testChangePasswordPageAccessible(): void
@@ -101,8 +95,7 @@ class ChangePasswordFeatureTest extends TestCase
     {
         $this->user = $this->createTestUser('oldpassword');
 
-        $this->actingAs($this->user)
-             ->get(route('profile.change-password'));
+        $this->actingAs($this->user)->get(route('profile.change-password'));
 
         $response = $this->withHeaders(['referer' => route('profile.change-password')])
                          ->post(route('profile.change-password.update'), [
