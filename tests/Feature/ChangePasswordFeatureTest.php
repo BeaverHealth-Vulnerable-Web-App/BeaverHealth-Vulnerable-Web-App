@@ -128,4 +128,40 @@ class ChangePasswordFeatureTest extends TestCase
 
         $this->assertTrue(Hash::check($longPassword, $this->user->fresh()->password));
     }
+
+    public function testMissingFields(): void
+    {
+        $this->user = $this->createTestUser('oldpassword');
+
+        $response = $this->submitPasswordChange([], true);
+
+        $response->assertRedirect(route('profile.change-password'))
+                 ->assertSessionHasErrors(['username_confirmation', 'current_password', 'password']);
+    }
+
+    public function testPasswordConfirmationMismatch(): void
+    {
+        $this->user = $this->createTestUser('oldpassword');
+
+        $response = $this->submitPasswordChange([
+            'username_confirmation' => $this->user->username,
+            'current_password' => 'oldpassword',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'wrongconfirmation',
+        ], true);
+
+        $response->assertRedirect(route('profile.change-password'))
+                 ->assertSessionHasErrors(['password']);
+    }
+
+    public function testUnauthenticatedUserCannotAccessChangePassword(): void
+    {
+        auth()->logout();
+
+        $this->get(route('profile.change-password'))
+             ->assertRedirect(route('login'));
+
+        $this->post(route('profile.change-password.update'), [])
+             ->assertStatus(419); // No CSRF token
+    }
 }
