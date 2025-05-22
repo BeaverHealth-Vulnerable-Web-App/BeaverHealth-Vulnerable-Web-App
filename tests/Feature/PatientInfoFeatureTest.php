@@ -123,4 +123,29 @@ class PatientInfoFeatureTest extends TestCase
             ->assertSeeText('View Details')
             ->assertSee(route('patients.info', ['id' => $patient->patient_id]));
     }
+
+    public function testSearchHandlesIntegerInput(): void
+    {
+        $this->get(route('patients.index', ['search' => '12345']))
+            ->assertOk()
+            ->assertSeeText('No patients found');
+    }
+
+    public function testSearchSqlInjectionWhenSqliOff(): void
+    {
+        $this->user->update(['sqli_on' => false]);
+
+        $this->get(route('patients.index', ['search' => "' OR 1=1; --"]))
+            ->assertOk()
+            ->assertSeeText('No patients found');
+    }
+
+    public function testSearchWithLongInput(): void
+    {
+        $longInput = str_repeat('A', 1000);
+
+        $this->get(route('patients.index', ['search' => $longInput]))
+            ->assertOk()
+            ->assertSeeText('No patients found');
+    }
 }
