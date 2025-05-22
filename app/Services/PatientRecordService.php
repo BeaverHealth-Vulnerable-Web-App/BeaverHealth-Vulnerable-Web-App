@@ -143,8 +143,7 @@ class PatientRecordService
             return 'Invalid file extension. Allowed extensions: ' . implode(', ', self::ALLOWED_EXTENSIONS) . '.';
         }
         if (!in_array($mimeType, self::ALLOWED_MIME_TYPES)) {
-            $shortened = ['CSV','XLSX','JSON','EDI-X12','XML','PDF','TXT'];
-            return 'Invalid MIME file type. Allowed: ' . implode(', ', $shortened) . '.';
+            return 'Invalid MIME file type';
         }
         if ($size !== null && $size > self::MAX_FILE_BYTES) {
             return "File too large. Maximum size allowed is 5MiB.";

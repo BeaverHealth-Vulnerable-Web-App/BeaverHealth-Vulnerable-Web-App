@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Records\PatientSearchRequest;
 use App\Services\PatientRecordService;
+use App\Models\Patient;
 
 class RequestRecordsController extends Controller
 {
@@ -16,7 +17,7 @@ class RequestRecordsController extends Controller
 
     public function index()
     {
-        $patients = \App\Models\Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
+        $patients = Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
         $patientInfo = session('patient_info', collect([
             (object) ['first_name' => 'N/A', 'last_name' => 'N/A', 'date_of_birth' => 'N/A']
         ]));
