@@ -43,8 +43,8 @@ return [
     'domain' => env('SESSION_DOMAIN'),
 
     // If true, cookie is sent only over HTTPS
-    // Should be true in production to prevent session hijacking
-    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'prod'),
+    // Should be true in demo environment to prevent session hijacking
+    'secure' => env('SESSION_SECURE_COOKIE', env('APP_ENV') === 'demo'),
 
     // If true, the cookie cannot be accessed by JavaScript
     // Prevents XSS from reading session cookie

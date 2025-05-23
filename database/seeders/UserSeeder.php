@@ -10,18 +10,18 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * Uses APP_ENV to determine whether to create prod or dev users, and
+     * Uses APP_ENV to determine whether to create demo or dev users, and
      * uses NUM_FAKE_USERS to determine how many fake users to create.
      *
      * @return void
      */
     public function run(): void
     {
-        match (config('app.env')) {
-            'local' => $this->createDevUser(),
-            'prod'  => $this->createProdUsers(),
-            default => null
-        };
+        if (config('app.env') === 'demo') {
+            $this->createDemoUsers();
+        } else {
+            $this->createDevUser();
+        }
 
         User::factory()
             ->count(config('app.num_fake_users', 10))
@@ -46,11 +46,11 @@ class UserSeeder extends Seeder
     }
 
     /**
-     * Create production users with standard permissions.
+     * Create demo users with standard permissions.
      *
      * @return void
      */
-    private function createProdUsers(): void
+    private function createDemoUsers(): void
     {
         $this->createUser('gokul', env('GOKUL_USER_PASSWORD'));
         $this->createUser('grader', env('GRADER_USER_PASSWORD'));

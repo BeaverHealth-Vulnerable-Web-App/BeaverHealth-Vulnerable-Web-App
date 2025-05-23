@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,6 +11,18 @@ use App\Services\UserActivityLogger;
 
 class LoginRequest extends FormRequest
 {
+    private readonly int $rateLimitMaxAttempts;
+    private readonly int $rateLimitHitDecay;
+
+    /**
+     * Create a new LoginRequest instance and initialize rate limiting settings.
+     */
+    public function __construct()
+    {
+        $this->rateLimitMaxAttempts = config('auth.login_attempts_rate_limit.max_attempts');
+        $this->rateLimitHitDecay = config('auth.login_attempts_rate_limit.decay_seconds');
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -36,24 +47,34 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the user with the given credentials.
+     * Attempt to authenticate the user without rate limiting.
      *
-     * If authentication fails or the request is rate-limited, a validation exception is thrown.
+     * @return void
+     *
+     * @throws ValidationException If authentication fails
+     */
+    public function authenticate(): void
+    {
+        if (!Auth::attempt($this->only('username', 'password'))) {
+            $this->logFailedLoginAttempt();
+            throw ValidationException::withMessages(['username' => trans('auth.failed')]);
+        }
+    }
+
+    /**
+     * Attempt to authenticate the user with rate limiting.
      *
      * @return void
      *
      * @throws ValidationException If the login fails or rate-limit is exceeded
      */
-    public function authenticate(): void
+    public function authenticateOrThrottle(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (!Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
-            app(UserActivityLogger::class)->info('Failed login attempt', [
-                'attempts' => RateLimiter::attempts($this->throttleKey()),
-                'throttle_key' => $this->throttleKey(),
-            ]);
+        if (!Auth::attempt($this->only('username', 'password'))) {
+            RateLimiter::hit($this->throttleKey(), $this->rateLimitHitDecay);
+            $this->logFailedLoginAttempt();
             throw ValidationException::withMessages(['username' => trans('auth.failed')]);
         }
 
@@ -69,9 +90,9 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException If too many attempts have been made
      */
-    protected function ensureIsNotRateLimited(): void
+    private function ensureIsNotRateLimited(): void
     {
-        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), $this->rateLimitMaxAttempts)) {
             return;
         }
 
@@ -80,19 +101,17 @@ class LoginRequest extends FormRequest
             ['throttle_key' => $this->throttleKey()]
         );
 
-        event(new Lockout($this));
-
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages(
             [
-            'username' => trans(
-                'auth.throttle',
-                [
-                    'seconds' => $seconds,
-                    'minutes' => ceil($seconds / 60),
-                ]
-            ),
+                'username' => trans(
+                    'auth.throttle',
+                    [
+                        'seconds' => $seconds,
+                        'minutes' => ceil($seconds / 60),
+                    ]
+                ),
             ]
         );
     }
@@ -102,8 +121,21 @@ class LoginRequest extends FormRequest
      *
      * @return string The key used for throttling (username + client IP)
      */
-    protected function throttleKey(): string
+    private function throttleKey(): string
     {
         return Str::lower($this->string('username') . '|' . $this->ip());
+    }
+
+    /**
+     * Log a failed login attempt for the current throttle key.
+     */
+    private function logFailedLoginAttempt(): void
+    {
+        $key = $this->throttleKey();
+
+        app(UserActivityLogger::class)->info('Failed login attempt', [
+            'attempts' => RateLimiter::attempts($key),
+            'throttle_key' => $key,
+        ]);
     }
 }
