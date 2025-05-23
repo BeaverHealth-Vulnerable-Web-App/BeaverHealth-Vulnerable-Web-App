@@ -8,7 +8,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Patient;
 
-class AddRecordsUploadTest extends TestCase
+class AddRecordsFeatureTest extends TestCase
 {
     protected function setUp(): void
     {
