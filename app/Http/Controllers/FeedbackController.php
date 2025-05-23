@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FeedbackCommentRequest;
 use App\Http\Requests\FeedbackSearchRequest;
 use App\Services\FeedbackService;
+use App\Models\Patient;
 
 class FeedbackController extends Controller
 {
@@ -18,6 +19,7 @@ class FeedbackController extends Controller
     public function index()
     {
         $data = $this->feedbackService->getFeedbackWithPatients();
+        $data['patients'] = Patient::select('patient_id', 'first_name', 'last_name', 'ssn')->get();
         return view('feedback.index', $data);
     }
 
