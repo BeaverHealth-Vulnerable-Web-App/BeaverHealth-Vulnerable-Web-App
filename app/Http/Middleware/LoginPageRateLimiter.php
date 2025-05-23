@@ -111,7 +111,7 @@ class LoginPageRateLimiter
                         border-radius: 0.5rem;
                         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
                         text-align: center;
-                        max-width: 24rem;
+                        max-width: 20rem;
                     }
                     .card h2 {
                         color: #f56565;
