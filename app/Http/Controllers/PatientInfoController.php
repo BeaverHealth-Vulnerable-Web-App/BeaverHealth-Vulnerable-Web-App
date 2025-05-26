@@ -62,6 +62,6 @@ class PatientInfoController extends Controller
             return redirect()->route('patients.index')->with('error', 'Patient not found.');
         }
 
-        return view('patients.info', compact('patient'));
+        return view('patients.details', compact('patient'));
     }
 }
