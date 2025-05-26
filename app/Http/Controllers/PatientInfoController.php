@@ -11,6 +11,11 @@ use App\Models\Patient;
 
 class PatientInfoController extends Controller
 {
+    /**
+     * Creates a new PatientInfoController instance.
+     *
+     * @param PatientInfoService $patientInfoService The service for handling patient information.
+     */
     public function __construct(private PatientInfoService $patientInfoService)
     {
     }
@@ -18,8 +23,8 @@ class PatientInfoController extends Controller
     /**
      * Display the patient search page and results.
      *
-     * @param  Request  $request
-     * @return View|RedirectResponse
+     * @param  Request  $request The incoming request.
+     * @return View|RedirectResponse A view with search results or a redirect response.
      */
     public function index(Request $request): View|RedirectResponse
     {
@@ -46,8 +51,8 @@ class PatientInfoController extends Controller
     /**
      * Display detailed information about a specific patient.
      *
-     * @param  int $id
-     * @return View|RedirectResponse
+     * @param  int $id The ID of the patient to display.
+     * @return View|RedirectResponse A view with patient information or a redirect response.
      */
     public function show($id)
     {
