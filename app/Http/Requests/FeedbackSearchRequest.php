@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FeedbackSearchRequest extends FormRequest
 {
@@ -24,5 +26,16 @@ class FeedbackSearchRequest extends FormRequest
         return [
             'search_name' => 'nullable|string|max:255'
         ];
+    }
+
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new ValidationException(
+            $validator,
+            redirect()->route('feedback')->withErrors($validator)->withInput()
+        );
     }
 }
