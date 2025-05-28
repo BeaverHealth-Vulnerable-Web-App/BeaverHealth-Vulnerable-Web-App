@@ -52,14 +52,16 @@
         </div>
 
         @if(isset($search_name))
-        <div class="text-center mt-8 mb-8">
-            <h4 class="dark:text-white text-gray-800">Showing results for: {!! $search_name !!}</h4>
-        </div>
-        <div class="text-center mt-8 mb-8">
-            <a href="{{ route('feedback') }}" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-600">
-                See All Posts
-            </a>
-        </div>
+            <div class="text-center mt-8 mb-8">
+                <h4 class="dark:text-white text-gray-800">
+                    Showing results for: {!! $search_name !!}
+                </h4>
+            </div>
+            <div class="text-center mt-8 mb-8">
+                <a href="{{ route('feedback') }}" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-600">
+                    See All Posts
+                </a>
+            </div>
         @endif
 
         <!-- Comments Display -->
@@ -69,17 +71,19 @@
             </div>
             <div class="p-4">
                 @if($feedback->count() > 0)
-                @foreach($feedback as $comment)
-                <div class="border-b border-gray-200 dark:border-gray-700 mb-4 pb-4">
-                    <h5 class="mb-2 text-lg font-medium dark:text-white dark:bg-gray-800">
-                        @if($comment->patient)
-                        {{ $comment->patient->first_name }} {{ $comment->patient->last_name }}
-                        @endif
-                    </h5>
-                    <p class="text-gray-700 dark:text-gray-300">{!! $comment->feedback !!}</p>
-                    <br>
-                    <small class="text-gray-600 dark:text-gray-400">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>
-                </div>
+                    @foreach($feedback as $comment)
+                    <div class="border-b border-gray-200 dark:border-gray-700 mb-4 pb-4">
+                        <h5 class="mb-2 text-lg font-medium dark:text-white dark:bg-gray-800">
+                            @if($comment->patient)
+                                {{ $comment->patient->first_name }} {{ $comment->patient->last_name }}
+                            @endif
+                        </h5>
+                        <p class="text-gray-700 dark:text-gray-300" style="word-break: break-all; overflow-wrap: anywhere; white-space: pre-wrap; max-width: 100%; hyphens: auto;">
+                            {!! $comment->feedback !!}
+                        </p>
+                        <br>
+                        <small class="text-gray-600 dark:text-gray-400">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>
+                    </div>
                 @endforeach
 
                 <!-- Pagination Links -->
@@ -92,7 +96,7 @@
                 </div>
 
                 @else
-                <p>No comments found.</p>
+                    <p>No comments found.</p>
                 @endif
             </div>
         </div>
