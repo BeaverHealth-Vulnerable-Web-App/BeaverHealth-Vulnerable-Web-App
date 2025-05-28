@@ -39,8 +39,13 @@
                         <form action="{{ route('feedback.search') }}" method="GET">
                             <div class="mb-4">
                                 <label for="search_name" class="block mb-2 font-semibold">Search by Name</label>
-                                <input type="text" class="w-full p-2 border border-gray-300 rounded text-base mb-4 dark:text-white dark:bg-gray-900 dark:border-gray-600"
-                                    id="search_name" name="search_name" value="{{ $search_name ?? '' }}" required>
+                                <input type="text"
+                                    class="w-full p-2 border border-gray-300 rounded text-base mb-4 dark:text-white dark:bg-gray-900 dark:border-gray-600"
+                                    id="search_name"
+                                    name="search_name"
+                                    value="{{ $search_name ?? '' }}"
+                                    maxlength="255"
+                                    required>
                             </div>
                             <button type="submit" class="w-full md:w-auto px-6 py-4 bg-gray-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-gray-600 hover:shadow-lg focus:bg-gray-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-gray-700 active:shadow-lg transition duration-150 ease-in-out dark:bg-gray-700 dark:hover:bg-gray-600">
                                 Search
