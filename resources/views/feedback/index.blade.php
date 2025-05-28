@@ -81,12 +81,22 @@
                     <small class="text-gray-600 dark:text-gray-400">Posted on: {{ $comment->created_at->format('M d, Y H:i') }}</small>
                 </div>
                 @endforeach
+
+                <!-- Pagination Links -->
+                <div class="mt-6">
+                    @if(isset($search_name))
+                        {{ $feedback->appends(['search_name' => $search_name])->links() }}
+                    @else
+                        {{ $feedback->links() }}
+                    @endif
+                </div>
+
                 @else
                 <p>No comments found.</p>
                 @endif
             </div>
         </div>
-    </div>
+
     <!-- Status message -->
     @if(session('feedback-status'))
         <x-status-message
