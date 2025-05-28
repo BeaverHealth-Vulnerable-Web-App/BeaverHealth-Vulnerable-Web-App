@@ -33,12 +33,7 @@ class FeedbackFeatureTest extends TestCase
 
     private function sendTestSearchFeedback($name): TestResponse
     {
-        return $this->postWithCsrf(
-            route('feedback.search'),
-            [
-                'search_name' => $name
-            ]
-        );
+        return $this->get(route('feedback.search', ['search_name' => $name]));
     }
 
     public function testAuthorizedFeedbackRoute(): void
@@ -137,15 +132,6 @@ class FeedbackFeatureTest extends TestCase
         $newUser->update(['xss_stored_on' => true]);
         $this->actingAs($newUser)->get(route('feedback'))
             ->assertSee('<script>alert("hello");</script>', false);
-    }
-
-    public function testSearchingDataWithoutCsrfToken(): void
-    {
-        $this->get(route('feedback'))->assertOk();
-
-        $this->post(route('feedback.search'), [
-            'search_name' => 'FooBar'
-        ])->assertCsrfMismatch();
     }
 
     public function testSearchWithValidUsername(): void
