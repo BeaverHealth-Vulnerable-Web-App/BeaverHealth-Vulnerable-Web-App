@@ -51,7 +51,7 @@ Route::middleware(['auth', 'check.permission'])->group(
 
         Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback');
         Route::post('/feedback/store', [FeedbackController::class, 'store'])->name('feedback.store');
-        Route::post('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
+        Route::get('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
 
         Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
         Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
