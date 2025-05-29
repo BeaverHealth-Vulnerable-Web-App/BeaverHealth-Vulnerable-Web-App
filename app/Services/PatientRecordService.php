@@ -109,7 +109,7 @@ class PatientRecordService
 
     private function listFiles(string $directory, string $keyword, string $cmdInjectOn)
     {
-        if (!is_dir($directory)) {
+        if (!is_dir($directory) && empty($keyword)) {
             return [];
         }
 
