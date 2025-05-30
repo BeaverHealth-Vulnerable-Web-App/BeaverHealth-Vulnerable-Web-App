@@ -83,7 +83,7 @@
                                 {{ $comment->patient->first_name }} {{ $comment->patient->last_name }}
                             @endif
                         </h5>
-                        <p class="text-gray-700 dark:text-gray-300" style="word-break: break-all; overflow-wrap: anywhere; max-width: 100%; hyphens: auto;">
+                        <p class="text-gray-700 dark:text-gray-300 break-words overflow-x-auto max-w-full">
                             {!! $comment->feedback !!}
                         </p>
                         <br>
