@@ -63,7 +63,7 @@
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <a
-                                            href="{{ route('patients.info', ['id' => $patient->patient_id]) }}"
+                                            href="{{ route('patients.details', ['id' => $patient->patient_id]) }}"
                                             class="text-blue-500 dark:text-blue-400 hover:underline"
                                         >
                                             View Details

@@ -47,7 +47,7 @@
             <!-- Patient Information -->
             @if(auth()->user()->view_patient_info)
                 <a href="{{ route('patients.index') }}"
-                   class="block py-2 px-4 rounded {{ request()->routeIs('patients.index') || request()->routeIs('patients.info') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">
+                   class="block py-2 px-4 rounded {{ request()->routeIs('patients.index') || request()->routeIs('patients.details') ? 'bg-gray-700' : 'hover:bg-gray-600' }}">
                     Patient Information
                 </a>
             @endif

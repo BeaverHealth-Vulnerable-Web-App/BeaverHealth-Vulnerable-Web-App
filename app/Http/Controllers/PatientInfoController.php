@@ -5,11 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use App\Services\PatientInfoService;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PatientInfoService;
+use App\Models\Patient;
 
 class PatientInfoController extends Controller
 {
+    /**
+     * Creates a new PatientInfoController instance.
+     *
+     * @param PatientInfoService $patientInfoService The service for handling patient information.
+     */
     public function __construct(private PatientInfoService $patientInfoService)
     {
     }
@@ -17,8 +23,8 @@ class PatientInfoController extends Controller
     /**
      * Display the patient search page and results.
      *
-     * @param  Request  $request
-     * @return View|RedirectResponse
+     * @param  Request  $request The incoming request.
+     * @return View|RedirectResponse A view with search results or a redirect response.
      */
     public function index(Request $request): View|RedirectResponse
     {
@@ -40,5 +46,22 @@ class PatientInfoController extends Controller
         }
 
         return view('patients.index', compact('patients', 'searchPerformed'));
+    }
+
+    /**
+     * Display detailed information about a specific patient.
+     *
+     * @param  int $id The ID of the patient to display.
+     * @return View|RedirectResponse A view with patient information or a redirect response.
+     */
+    public function show($id)
+    {
+        $patient = Patient::find($id);
+
+        if (!$patient) {
+            return redirect()->route('patients.index')->with('error', 'Patient not found.');
+        }
+
+        return view('patients.details', compact('patient'));
     }
 }

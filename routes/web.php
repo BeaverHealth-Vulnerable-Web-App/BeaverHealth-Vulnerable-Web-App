@@ -54,7 +54,7 @@ Route::middleware(['auth', 'check.permission'])->group(
         Route::post('/feedback/search', [FeedbackController::class, 'search'])->name('feedback.search');
 
         Route::get('/patients', [PatientInfoController::class, 'index'])->name('patients.index');
-        Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.info');
+        Route::get('/patients/{id}', [PatientInfoController::class, 'show'])->name('patients.details');
 
         Route::get(
             '/vulnerability_toggles',

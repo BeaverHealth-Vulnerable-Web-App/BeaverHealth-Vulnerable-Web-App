@@ -14,11 +14,11 @@ class CheckPermissionMiddleware
      * Mapping of protected route name to the name of the role required to access that route
      */
     private const ROUTE_PERMISSION_MAP = [
-        'admin'           => 'is_admin',
-        'records.request' => 'request_records',
-        'records.add'     => 'load_records',
-        'patients.index'  => 'view_patient_info',
-        'patients.info'   => 'view_patient_info',
+        'admin'            => 'is_admin',
+        'records.request'  => 'request_records',
+        'records.add'      => 'load_records',
+        'patients.index'   => 'view_patient_info',
+        'patients.details' => 'view_patient_info',
     ];
 
     /**
