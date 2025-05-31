@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -35,13 +36,16 @@ return Application::configure(basePath: dirname(__DIR__))
             $exceptions->renderable(
                 function (NotFoundHttpException $e) {
                     $logger = app(UserActivityLogger::class);
-                    if (Auth::check()) {
-                        $logger->info('User accessed unregistered route');
-                        return redirect()->route('dashboard');
-                    } else {
-                        $logger->warning('Guest accessed unregistered route');
-                        return redirect()->route('login');
-                    }
+                    $logger->info('Unregistered route access');
+                    return redirect()->route('login');
+                }
+            );
+
+            $exceptions->renderable(
+                function (MethodNotAllowedHttpException $e) {
+                    $logger = app(UserActivityLogger::class);
+                    $logger->info('Registered route accessed with wrong HTTP method');
+                    return redirect()->route('login');
                 }
             );
         }
