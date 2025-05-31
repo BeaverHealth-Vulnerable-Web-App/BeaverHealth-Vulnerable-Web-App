@@ -36,6 +36,11 @@ class FeedbackController extends Controller
     public function search(FeedbackSearchRequest $request)
     {
         $searchResults = $this->feedbackService->searchFeedback($request);
-        return view('feedback.index', $searchResults[0])->with('search_name', $searchResults[1]);
+        $searchName = $searchResults[1];
+
+        // Append search parameter to pagination links
+        $searchResults[0]['feedback']->appends(['search_name' => $searchName]);
+
+        return view('feedback.index', $searchResults[0])->with('search_name', $searchName);
     }
 }

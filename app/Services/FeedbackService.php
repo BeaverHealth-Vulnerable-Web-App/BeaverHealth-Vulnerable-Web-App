@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\PatientFeedback;
 use App\Services\UserActivityLogger;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FeedbackService
 {
@@ -20,7 +21,7 @@ class FeedbackService
         return $useRaw ? $userInput : e($userInput);
     }
 
-    private function sanitizeStoredFeedback(Collection &$feedback): void
+    private function sanitizeStoredFeedback(Collection|LengthAwarePaginator $feedback): void
     {
         foreach ($feedback as $item) {
             if ($item->is_vulnerable) {
@@ -31,10 +32,12 @@ class FeedbackService
 
     public function getFeedbackWithPatients()
     {
-        $feedback = PatientFeedback::orderBy('created_at', 'desc')->get();
+        $feedback = PatientFeedback::orderBy('created_at', 'desc')->paginate(10);
+
         if (!auth()->user()->xss_stored_on) {
             $this->sanitizeStoredFeedback($feedback);
         }
+
         return ['feedback' => $feedback, 'patients' => Patient::all()];
     }
 
@@ -74,8 +77,10 @@ class FeedbackService
         $feedback = PatientFeedback::whereHas('patient', function ($query) use ($processedSearchTerm) {
             $query->where('first_name', 'like', "%{$processedSearchTerm}%")
                 ->orWhere('last_name', 'like', "%{$processedSearchTerm}%");
-        })->orderBy('created_at', 'desc')->get();
+        })->orderBy('created_at', 'desc')->paginate(10);
+
         $this->sanitizeStoredFeedback($feedback); // Sanitized so that it doesn't interfere with the Reflective XSS
+
         return [['feedback' => $feedback, 'patients' => Patient::all()], $processedSearchTerm];
     }
 }
